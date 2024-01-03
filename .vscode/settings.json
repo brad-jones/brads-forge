@@ -1,0 +1,7 @@
+{
+  "deno.enable": true,
+  "deno.cacheOnSave": true,
+  "editor.defaultFormatter": "dprint.dprint",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true
+}

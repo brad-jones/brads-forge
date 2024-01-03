@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "denoland.vscode-deno",
+    "dprint.dprint",
+    "EditorConfig.EditorConfig",
+    "github.vscode-github-actions",
+    "mads-hartmann.bash-ide-vscode",
+    "timonwong.shellcheck"
+  ]
+}

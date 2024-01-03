@@ -1,0 +1,26 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "BASE_IMG": "mcr.microsoft.com/devcontainers/base:debian"
+    }
+  },
+  "features": {
+    "./features/pixi": {
+      "workSpaceDir": "${containerWorkspaceFolder}"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "denoland.vscode-deno",
+        "dprint.dprint",
+        "EditorConfig.EditorConfig",
+        "github.vscode-github-actions",
+        "mads-hartmann.bash-ide-vscode",
+        "timonwong.shellcheck"
+      ]
+    }
+  }
+}
