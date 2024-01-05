@@ -21,6 +21,8 @@ const PREFIX_DEV_CHANNEL = Deno.env.get("PREFIX_DEV_CHANNEL") ?? "brads-forge";
  * Uploads a package to prefix.dev (using curl).
  *
  * There are several other strategies coded up but commented out below.
+ * (deleted now, go back in tiem with git)
+ *
  * First we just went straight for a ky client, that didn't work,
  * tried vanilla fetch next, still didn't work.
  *
@@ -60,65 +62,6 @@ export const pkgUpload = async (filePath: string) => {
     ],
   });
 };
-
-/*
-export const pkgUpload = (filePath: string) =>
-  _`rattler-build upload prefix -c ${PREFIX_DEV_CHANNEL} -a ${PREFIX_DEV_TOKEN} ${filePath}`;
-
-export const pkgUpload = (filePath: string) =>
-  _`pixi upload ${`${PREFIX_DEV_REST_ENDPOINT}/upload/${PREFIX_DEV_CHANNEL}`} ${filePath}`;
-
-export const pkgUpload = (filePath: string) =>
-  goDefer(async (defer) => {
-    const file = await Deno.open(filePath);
-    defer(() => file.close());
-
-    const fileSize = (await file.stat()).size;
-    const fileName = path.basename(filePath);
-    const [digestR, uploadR] = file.readable.tee();
-    const fileDigest = encodeHex(
-      await crypto.subtle.digest("SHA-256", digestR),
-    );
-
-    console.log({ uploading: { fileName, fileDigest, fileSize } });
-
-    // We are using axios to workaround the fact that the Deno fetch client
-    // will not allow us to send the content-length header. Axios uses the
-    // node compat. layer which seems unaffected.
-    //
-    // see: https://github.com/denoland/deno/pull/15555
-    const [err] = await radash.try(axios.post)(
-      `${PREFIX_DEV_REST_ENDPOINT}/upload/${PREFIX_DEV_CHANNEL}`,
-      toNodeReadable(
-        uploadR.pipeThrough(toTransformStream(async function* (src) {
-          let uploaded = 0;
-          for await (const chunk of src) {
-            uploaded = uploaded + chunk.length;
-            console.log(`${uploaded}/${fileSize}`);
-            yield chunk;
-          }
-        })),
-      ),
-      {
-        headers: {
-          "Authorization": `Bearer ${PREFIX_DEV_TOKEN}`,
-          "X-File-Name": fileName,
-          "X-File-SHA256": fileDigest,
-          "Content-Length": fileSize,
-          "Content-Type": "application/octet-stream",
-        },
-      },
-    );
-    if (err) {
-      if (err instanceof AxiosError) {
-        throw new Error(
-          `${err.response?.status}: ${err.response?.statusText} - ${err.response?.data}`,
-        );
-      }
-      throw err;
-    }
-  });
-*/
 
 export const pkgExists = async (
   name: string,
