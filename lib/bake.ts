@@ -5,14 +5,15 @@ import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js#^";
 import {
   _,
   __dirname,
-  goDefer,
   pkgExists,
   pkgUpload,
   Platform,
+  radash,
   RattlerRecipe,
   Recipe,
   splitPlatform,
 } from "lib/mod.ts";
+const { defer } = radash;
 
 const log = (str: string) =>
   Deno.stdout.writeSync(new TextEncoder().encode(str));
@@ -53,7 +54,7 @@ const bakeVariant = (
   recipeDir: string,
   publish: boolean,
 ) =>
-  goDefer(async (defer) => {
+  defer(async (defer) => {
     const { name } = recipe.props;
     const [os, arch] = splitPlatform(platform);
     const variant = `${name}/${platform}@${semver.format(version)}`;

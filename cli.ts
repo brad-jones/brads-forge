@@ -4,7 +4,8 @@ import * as path from "https://deno.land/std@0.211.0/path/mod.ts#^";
 import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts#^";
 import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js#^";
-import { __dirname, bakeRecipe, goDefer, parsePlatform } from "lib/mod.ts";
+import { __dirname, bakeRecipe, parsePlatform, radash } from "lib/mod.ts";
+const { defer } = radash;
 
 await new Command()
   .name("forge")
@@ -54,7 +55,7 @@ await new Command()
   .action((
     { forgeDir, recipeDir, version, platform, excludePlatform, publish },
   ) =>
-    goDefer(async (defer) => {
+    defer(async (defer) => {
       defer(() => esbuild.stop());
 
       const versions = version

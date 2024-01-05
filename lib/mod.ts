@@ -9,7 +9,6 @@ export * from "./auth.ts";
 export * from "./bake.ts";
 export * from "./digest.ts";
 export * from "./fs.ts";
-export * from "./goDefer.ts";
 export * from "./models/about.ts";
 export * from "./models/build.ts";
 export * from "./models/platform.ts";
