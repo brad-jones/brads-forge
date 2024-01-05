@@ -28,3 +28,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PREFIX_DEV_TOKEN: ${{ secrets.PREFIX_DEV_TOKEN }}
+
+  testForge:
+    needs: runForge
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    steps:
+      - uses: prefix-dev/setup-pixi@v0.4.1
+      - run: pixi init
+      - run: pixi project channel add https://repo.prefix.dev/brads-forge
+      - run: pixi add lefthook
+      - run: pixi run lefthook version
