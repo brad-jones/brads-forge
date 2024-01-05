@@ -67,5 +67,5 @@ jobs:
             exit 0;
           }
           curl -O "$(npx fx '_ => _.url' <./.pixi/env/conda-meta/lefthook*.json)"
+          ${{ matrix.rattlerBuildBin }} rebuild --package-file ./lefthook*.tar.bz2
           ${{ matrix.rattlerBuildBin }} test --package-file ./lefthook*.tar.bz2
-          ${{ matrix.rattlerBuildBin }} rebuild ./lefthook*.tar.bz2
