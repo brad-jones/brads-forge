@@ -7,7 +7,7 @@
     }
   },
   "features": {
-    "./features/pixi": {
+    "ghcr.io/brad-jones/pixi-devcontainer/pixi:latest": {
       "workSpaceDir": "${containerWorkspaceFolder}"
     }
   },
