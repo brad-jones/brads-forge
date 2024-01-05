@@ -95,14 +95,17 @@ export class RattlerRecipe {
                 "--platform", platform,
               ].join(" ")
             : t.script,
-          requires: [
-            "deno >= 1.39.1",
-            ...(typeof t.requires === "undefined"
-              ? []
-              : Array.isArray(t.requires)
-              ? t.requires
-              : [t.requires]),
-          ],
+          requires: typeof t.script === "function" &&
+              ["linux-64", "win-64", "osx-64", "osx-arm64"].includes(platform)
+            ? [
+              "deno >= 1.39.1",
+              ...(typeof t.requires === "undefined"
+                ? []
+                : Array.isArray(t.requires)
+                ? t.requires
+                : [t.requires]),
+            ]
+            : t.requires,
           files: t.files,
           imports: t.imports,
           source_files: t.sourceFiles,
@@ -111,14 +114,17 @@ export class RattlerRecipe {
       })(),
       requirements: recipe.props.requirements
         ? {
-          build: [
-            "deno >= 1.39.1",
-            ...(typeof recipe.props.requirements.build === "undefined"
-              ? []
-              : Array.isArray(recipe.props.requirements.build)
-              ? recipe.props.requirements.build
-              : [recipe.props.requirements.build]),
-          ],
+          build: typeof recipe.props.build?.script === "function" &&
+              ["linux-64", "win-64", "osx-64", "osx-arm64"].includes(platform)
+            ? [
+              "deno >= 1.39.1",
+              ...(typeof recipe.props.requirements.build === "undefined"
+                ? []
+                : Array.isArray(recipe.props.requirements.build)
+                ? recipe.props.requirements.build
+                : [recipe.props.requirements.build]),
+            ]
+            : recipe.props.requirements.build,
           host: recipe.props.requirements.host,
           run: recipe.props.requirements.run,
           run_constrained: recipe.props.requirements.runConstrained,
