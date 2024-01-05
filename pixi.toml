@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Brads personal conda forge, filled will rattler builds."
 authors = ["Brad Jones <brad@bjc.id.au>"]
 channels = ["conda-forge", "https://repo.prefix.dev/brads-forge"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "win-64", "osx-64"]
 
 [tasks]
 forge = "deno run -qA ./cli.ts"
