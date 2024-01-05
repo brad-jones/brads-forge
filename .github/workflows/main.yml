@@ -18,9 +18,9 @@ jobs:
           - os: ubuntu-latest
             pixiArgs: --exclude-platform win-64 win-arm64 osx-64 osx-arm64
           - os: windows-latest
-            pixiArgs: --platform win-64 win-arm64
+            pixiArgs: -p win-64 -p win-arm64
           - os: macos-latest
-            pixiArgs: --platform osx-64 osx-arm64
+            pixiArgs: -p osx-64 -p osx-arm64
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.4.1

@@ -28,6 +28,7 @@ export async function bakeRecipe(
   versions?: semver.SemVer[],
   platforms?: Platform[],
   excludePlatforms?: Platform[],
+  outputDir?: string,
   publish?: boolean,
 ) {
   log(`reading recipe: ${recipeDir}\n`);
@@ -47,7 +48,14 @@ export async function bakeRecipe(
 
   for (const version of versions) {
     for (const platform of platforms) {
-      await bakeVariant(recipe, version, platform, recipeDir, publish ?? false);
+      await bakeVariant(
+        recipe,
+        version,
+        platform,
+        recipeDir,
+        publish ?? false,
+        outputDir,
+      );
     }
   }
 }
@@ -58,6 +66,7 @@ const bakeVariant = (
   platform: Platform,
   recipeDir: string,
   publish: boolean,
+  finalOutputDir?: string,
 ) =>
   defer(async (defer) => {
     const { name } = recipe.props;
@@ -127,9 +136,19 @@ const bakeVariant = (
       throw new Error(`rattler-build failed`);
     }
 
+    const pkgPath = await findCondaPkg(outputDir, platform);
+    if (finalOutputDir) {
+      const dstDir = path.resolve(finalOutputDir);
+      const dst = path.join(finalOutputDir, path.basename(pkgPath));
+      await fs.ensureDir(dstDir);
+      await fs.copy(pkgPath, dst, {
+        overwrite: true,
+      });
+      log(`Written: ${dst}\n`);
+    }
+
     if (publish) {
       log(`Publishing ${variant}... \n`);
-      const pkgPath = await findCondaPkg(outputDir, platform);
       await pkgUpload(pkgPath);
       log(`Successfully published ${path.basename(pkgPath)}\n\n`);
     }

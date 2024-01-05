@@ -23,19 +23,19 @@ await new Command()
     },
   )
   .option(
-    "-r, --recipe-dir <dir...:string>",
+    "-r, --recipe-dir <dir:string>",
     "A root directory of a specific recipe to build.",
     { collect: true },
   )
   .option(
-    "--version <version...:string>",
+    "-v, --version <version:string>",
     "A version to include in the forging process..",
     {
       collect: true,
     },
   )
   .option(
-    "--platform <platform...:string>",
+    "-p, --platform <platform:string>",
     "A target platform to include in the forging process.",
     {
       collect: true,
@@ -44,35 +44,54 @@ await new Command()
   .option(
     "--exclude-platform <platform...:string>",
     "A target platform to exclude from the forging process.",
-    {
-      collect: true,
-    },
+  )
+  .option(
+    "-o, --output <path:string>",
+    "A path to save built conda packages to",
   )
   .option(
     "--publish",
     "Set this to enable uploading of the built conda packages to pixi.dev",
   )
   .action((
-    { forgeDir, recipeDir, version, platform, excludePlatform, publish },
+    {
+      forgeDir,
+      recipeDir,
+      version,
+      platform,
+      excludePlatform,
+      output,
+      publish,
+    },
   ) =>
     defer(async (defer) => {
       defer(() => esbuild.stop());
 
+      //console.log(path.resolve(output ?? ""));
+      //return;
+
       const versions = version
-        ? version.flat().map((_) => semver.parse(_))
+        ? version.map((_) => semver.parse(_))
         : undefined;
 
       const platforms = platform
-        ? platform.flat().map((_) => parsePlatform(_))
+        ? platform.map((_) => parsePlatform(_))
         : undefined;
 
       const excludePlatforms = excludePlatform
-        ? excludePlatform.flat().map((_) => parsePlatform(_))
+        ? excludePlatform.map((_) => parsePlatform(_))
         : undefined;
 
       if (recipeDir) {
-        for (const dir of recipeDir.flat()) {
-          await bakeRecipe(dir, versions, platforms, excludePlatforms, publish);
+        for (const dir of recipeDir) {
+          await bakeRecipe(
+            dir,
+            versions,
+            platforms,
+            excludePlatforms,
+            output,
+            publish,
+          );
         }
         return;
       }
@@ -83,6 +102,7 @@ await new Command()
           versions,
           platforms,
           excludePlatforms,
+          output,
           publish,
         );
       }
