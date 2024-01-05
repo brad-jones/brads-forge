@@ -147,8 +147,8 @@ const bakeVariant = (
 
     const pkgPath = await findCondaPkg(outputDir, platform);
     if (finalOutputDir) {
-      const dstDir = path.resolve(finalOutputDir);
-      const dst = path.join(finalOutputDir, path.basename(pkgPath));
+      const dstDir = path.resolve(finalOutputDir, platform);
+      const dst = path.join(dstDir, path.basename(pkgPath));
       await fs.ensureDir(dstDir);
       await fs.copy(pkgPath, dst, {
         overwrite: true,

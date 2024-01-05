@@ -125,7 +125,7 @@ export class RattlerRecipe {
                 : [recipe.props.requirements.build]),
             ]
             : recipe.props.requirements.build,
-          host: recipe.props.requirements.host,
+          host: ["deno"], //recipe.props.requirements.host,
           run: recipe.props.requirements.run,
           run_constrained: recipe.props.requirements.runConstrained,
         }
