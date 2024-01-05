@@ -40,15 +40,17 @@ jobs:
           - macos-latest
         include:
           - os: ubuntu-latest
-            rattlerBuildBin: ./bin/linux-64/rattler-build
+            rattlerBuildBin: bin/linux-64/rattler-build
           - os: windows-latest
-            rattlerBuildBin: ./bin/win-64/rattler-build
+            rattlerBuildBin: bin/win-64/rattler-build
           - os: macos-latest
-            rattlerBuildBin: ./bin/osx-64/rattler-build
+            rattlerBuildBin: bin/osx-64/rattler-build
     steps:
       - uses: actions/checkout@v4
         with:
-          filter: ${{ matrix.rattlerBuildBin }}
+          sparse-checkout: |
+            ${{ matrix.rattlerBuildBin }}
+          sparse-checkout-cone-mode: false
       - uses: prefix-dev/setup-pixi@v0.4.1
         with:
           run-install: false
