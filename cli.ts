@@ -22,26 +22,26 @@ await new Command()
     },
   )
   .option(
-    "-r, --recipe-dir <dir:string>",
+    "-r, --recipe-dir <dir...:string>",
     "A root directory of a specific recipe to build.",
     { collect: true },
   )
   .option(
-    "--version <version:string>",
+    "--version <version...:string>",
     "A version to include in the forging process..",
     {
       collect: true,
     },
   )
   .option(
-    "--platform <platform:string>",
+    "--platform <platform...:string>",
     "A target platform to include in the forging process.",
     {
       collect: true,
     },
   )
   .option(
-    "--exclude-platform <platform:string>",
+    "--exclude-platform <platform...:string>",
     "A target platform to exclude from the forging process.",
     {
       collect: true,
@@ -58,19 +58,19 @@ await new Command()
       defer(() => esbuild.stop());
 
       const versions = version
-        ? version.map((_) => semver.parse(_))
+        ? version.flat().map((_) => semver.parse(_))
         : undefined;
 
       const platforms = platform
-        ? platform.map((_) => parsePlatform(_))
+        ? platform.flat().map((_) => parsePlatform(_))
         : undefined;
 
       const excludePlatforms = excludePlatform
-        ? excludePlatform.map((_) => parsePlatform(_))
+        ? excludePlatform.flat().map((_) => parsePlatform(_))
         : undefined;
 
       if (recipeDir) {
-        for (const dir of recipeDir) {
+        for (const dir of recipeDir.flat()) {
           await bakeRecipe(dir, versions, platforms, excludePlatforms, publish);
         }
         return;
@@ -88,7 +88,3 @@ await new Command()
     })
   )
   .parse();
-
-// LINUX "catchall" GHA RUNNER: pixi run forge --exclude-platform osx-64 --exclude-platform osx-arm64 --exclude-platform win-64 --exclude-platform win-arm64
-// MACOS GHA RUNNER: pixi run forge --platform osx-64 osx-arm64
-// WINDOWS GHA RUNNER: pixi run forge --platform win-64 win-arm64

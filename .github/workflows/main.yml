@@ -1,0 +1,30 @@
+on:
+  push:
+    branches: master
+  schedule:
+    - cron: 0 * * * *
+  workflow_dispatch:
+
+jobs:
+  runForge:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        include:
+          - os: ubuntu-latest
+            pixiArgs: --exclude-platform win-64 win-arm64 osx-64 osx-arm64
+          - os: windows-latest
+            pixiArgs: --platform win-64 win-arm64
+          - os: macos-latest
+            pixiArgs: --platform osx-64 osx-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.4.1
+      - run: pixi run forge --publish ${{ matrix.pixiArgs }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREFIX_DEV_TOKEN: ${{ secrets.PREFIX_DEV_TOKEN }}
