@@ -1,11 +1,11 @@
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
-import { Octokit } from "https://esm.sh/@octokit/rest@20.0.2";
-import { map } from "https://esm.sh/radash@11.0.0";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+import { Octokit } from "https://esm.sh/@octokit/rest@20.0.2#^";
 import {
   Digest,
   getDigestFromURL,
   PlatformArch,
   PlatformOs,
+  radash,
   suffixExe,
 } from "lib/mod.ts";
 
@@ -47,7 +47,7 @@ export const ghReleaseSrc = (
   vPrefix = "v",
 ) =>
 (version: semver.SemVer, targetOs: PlatformOs, targetArch: PlatformArch) =>
-  map(filenames, async (filename) => {
+  radash.map(filenames, async (filename) => {
     const v = `${vPrefix}${semver.format(version)}`;
     const fN = filename({
       version,

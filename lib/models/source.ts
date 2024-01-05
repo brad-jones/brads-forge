@@ -1,5 +1,5 @@
 import { Digest } from "lib/mod.ts";
-import type { XOR } from "npm:ts-xor@1.3.0";
+import type { XOR } from "npm:ts-xor@^1.3.0";
 
 // see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/source.rs
 

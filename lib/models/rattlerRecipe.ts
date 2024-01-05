@@ -1,8 +1,8 @@
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
-import * as yaml from "https://deno.land/std@0.210.0/yaml/mod.ts";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { dash, mapKeys, mapValues, snake } from "https://esm.sh/radash@11.0.0";
-import { Platform, Recipe, Source } from "lib/mod.ts";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+import * as yaml from "https://deno.land/std@0.211.0/yaml/mod.ts#^";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts#^";
+import { Platform, radash, Recipe, Source } from "lib/mod.ts";
+const { dash, mapKeys, mapValues, snake } = radash;
 
 // TODO: This is all a bit fugly, really needs a refactor!
 

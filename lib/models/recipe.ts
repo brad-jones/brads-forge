@@ -1,5 +1,5 @@
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts#^";
 import {
   About,
   Build,

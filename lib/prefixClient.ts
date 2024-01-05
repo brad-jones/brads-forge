@@ -1,10 +1,10 @@
-import { crypto } from "https://deno.land/std@0.210.0/crypto/mod.ts";
-import { encodeHex } from "https://deno.land/std@0.210.0/encoding/hex.ts";
-import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
-import { exec } from "https://deno.land/x/denoexec@v1.1.5/mod.ts";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import ky from "https://esm.sh/ky@1.0.1";
+import { crypto } from "https://deno.land/std@0.211.0/crypto/mod.ts#^";
+import { encodeHex } from "https://deno.land/std@0.211.0/encoding/hex.ts#^";
+import * as path from "https://deno.land/std@0.211.0/path/mod.ts#^";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+import { exec } from "https://deno.land/x/denoexec@v1.1.5/mod.ts#^";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts#^";
+import ky from "https://esm.sh/ky@1.0.1#^";
 import { Platform } from "lib/mod.ts";
 
 const PREFIX_DEV_GQL_ENDPOINT = Deno.env.get("PREFIX_DEV_GQL_ENDPOINT") ??

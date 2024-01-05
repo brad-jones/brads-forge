@@ -2,9 +2,9 @@ export {
   eq as vEqual,
   format as vFmt,
   parse as vParse,
-} from "https://deno.land/std@0.210.0/semver/mod.ts";
-export { $, _ } from "https://deno.land/x/denoexec@v1.1.5/mod.ts";
-export * as radash from "https://esm.sh/radash@11.0.0";
+} from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+export { $, _ } from "https://deno.land/x/denoexec@v1.1.5/mod.ts#^";
+export * as radash from "https://esm.sh/radash@11.0.0#^";
 export * from "./auth.ts";
 export * from "./bake.ts";
 export * from "./digest.ts";

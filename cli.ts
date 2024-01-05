@@ -1,9 +1,9 @@
-import "https://deno.land/std@0.210.0/dotenv/load.ts";
-import * as fs from "https://deno.land/std@0.210.0/fs/mod.ts";
-import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts";
-import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js";
+import "https://deno.land/std@0.211.0/dotenv/load.ts#^";
+import * as fs from "https://deno.land/std@0.211.0/fs/mod.ts#^";
+import * as path from "https://deno.land/std@0.211.0/path/mod.ts#^";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts#^";
+import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js#^";
 import { __dirname, bakeRecipe, goDefer, parsePlatform } from "lib/mod.ts";
 
 await new Command()

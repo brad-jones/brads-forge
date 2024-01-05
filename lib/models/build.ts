@@ -1,4 +1,4 @@
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
 import { Platform, PlatformArch, PlatformOs } from "lib/mod.ts";
 
 // see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/build.rs

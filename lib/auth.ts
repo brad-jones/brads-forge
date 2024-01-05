@@ -1,4 +1,4 @@
-import { encodeBase64 } from "https://deno.land/std@0.203.0/encoding/base64.ts";
+import { encodeBase64 } from "https://deno.land/std@0.211.0/encoding/base64.ts#^";
 
 export function parseDenoAuthTokens(data = Deno.env.get("DENO_AUTH_TOKENS")) {
   const parsedTokens = [];

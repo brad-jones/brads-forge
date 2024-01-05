@@ -1,4 +1,4 @@
-import ky from "https://esm.sh/ky@1.0.1";
+import ky from "https://esm.sh/ky@1.0.1#^";
 import { getDenoAuthHeaders } from "lib/mod.ts";
 
 export type Digest = ["MD5" | "SHA256", string];

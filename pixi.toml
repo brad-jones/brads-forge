@@ -7,8 +7,17 @@ channels = ["conda-forge", "https://repo.prefix.dev/brads-forge"]
 platforms = ["linux-64"]
 
 [tasks]
-code = 'code .'
 forge = "deno run -qA ./cli.ts"
+update = "udd **/*.ts && deno cache --lock=deno.lock --lock-write lib/mod.ts"
+install-udd = "deno install -rf --allow-read=. --allow-write=. --allow-net https://deno.land/x/udd/main.ts"
+
+[tasks.shell]
+depends_on = ["install-udd"]
+cmd = "pixi shell"
+
+[tasks.code]
+depends_on = ["install-udd"]
+cmd = "code ."
 
 [dependencies]
 deno = ">=1.39.1,<1.40"

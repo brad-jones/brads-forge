@@ -1,5 +1,5 @@
-import * as fs from "https://deno.land/std@0.210.0/fs/mod.ts";
-import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
+import * as fs from "https://deno.land/std@0.211.0/fs/mod.ts#^";
+import * as path from "https://deno.land/std@0.211.0/path/mod.ts#^";
 
 export {
   copy,
@@ -14,8 +14,8 @@ export {
   expandGlob,
   move,
   walk as walkFs,
-} from "https://deno.land/std@0.210.0/fs/mod.ts";
-export * as path from "https://deno.land/std@0.210.0/path/mod.ts";
+} from "https://deno.land/std@0.211.0/fs/mod.ts#^";
+export * as path from "https://deno.land/std@0.211.0/path/mod.ts#^";
 
 export const __filename = (meta: ImportMeta) => path.fromFileUrl(meta.url);
 

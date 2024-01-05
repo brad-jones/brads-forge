@@ -1,7 +1,7 @@
-import * as fs from "https://deno.land/std@0.210.0/fs/mod.ts";
-import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
-import * as semver from "https://deno.land/std@0.210.0/semver/mod.ts";
-import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js";
+import * as fs from "https://deno.land/std@0.211.0/fs/mod.ts#^";
+import * as path from "https://deno.land/std@0.211.0/path/mod.ts#^";
+import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
+import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js#^";
 import {
   _,
   __dirname,
