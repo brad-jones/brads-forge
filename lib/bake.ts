@@ -25,7 +25,9 @@ export async function bakeRecipe(
   publish?: boolean,
 ) {
   log(`reading recipe: ${recipeDir}\n`);
-  const mod = await import(path.resolve(recipeDir, "recipe.ts"));
+  const mod = await import(
+    path.toFileUrl(path.resolve(recipeDir, "recipe.ts")).toString()
+  );
   const recipe = mod.default as Recipe;
 
   if (!versions) {
