@@ -42,7 +42,7 @@ jobs:
           - os: ubuntu-latest
             rattlerBuildBin: bin/linux-64/rattler-build
           - os: windows-latest
-            rattlerBuildBin: bin/win-64/rattler-build
+            rattlerBuildBin: bin/win-64/rattler-build.exe
           - os: macos-latest
             rattlerBuildBin: bin/osx-64/rattler-build
     steps:
