@@ -86,21 +86,7 @@ export class RattlerRecipe {
           return undefined;
         }
 
-        // Do we actually need this??????
-        // For now I'm going to see how far we get without this
-        // I suspect if someone wanted to run the test outside of this repo it would fail
-        // Does pixi automatically run the test on install? If so we might need to rethink this.
-        //const r = ["deno >= 1.39.1"];
-        //r.push(
-        //  ...(typeof t.requires === "undefined"
-        //    ? []
-        //    : Array.isArray(t.requires)
-        //    ? t.requires
-        //    : [t.requires]),
-        //);
-
         return {
-          requires: t.requires,
           commands: typeof t.script === "function"
             // dprint-ignore
             ? ["deno", "run", "-A", "../recipe/recipe.js",
@@ -109,6 +95,14 @@ export class RattlerRecipe {
                 "--platform", platform,
               ].join(" ")
             : t.script,
+          requires: [
+            "deno >= 1.39.1",
+            ...(typeof t.requires === "undefined"
+              ? []
+              : Array.isArray(t.requires)
+              ? t.requires
+              : [t.requires]),
+          ],
           files: t.files,
           imports: t.imports,
           source_files: t.sourceFiles,
@@ -117,7 +111,14 @@ export class RattlerRecipe {
       })(),
       requirements: recipe.props.requirements
         ? {
-          build: recipe.props.requirements.build,
+          build: [
+            "deno >= 1.39.1",
+            ...(typeof recipe.props.requirements.build === "undefined"
+              ? []
+              : Array.isArray(recipe.props.requirements.build)
+              ? recipe.props.requirements.build
+              : [recipe.props.requirements.build]),
+          ],
           host: recipe.props.requirements.host,
           run: recipe.props.requirements.run,
           run_constrained: recipe.props.requirements.runConstrained,
