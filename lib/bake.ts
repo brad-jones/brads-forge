@@ -18,6 +18,11 @@ const { defer } = radash;
 const log = (str: string) =>
   Deno.stdout.writeSync(new TextEncoder().encode(str));
 
+const logGha = (str: string) =>
+  Deno.env.get("GITHUB_ACTIONS")
+    ? Deno.stdout.writeSync(new TextEncoder().encode(str))
+    : {};
+
 export async function bakeRecipe(
   recipeDir: string,
   versions?: semver.SemVer[],
@@ -58,6 +63,9 @@ const bakeVariant = (
     const { name } = recipe.props;
     const [os, arch] = splitPlatform(platform);
     const variant = `${name}/${platform}@${semver.format(version)}`;
+
+    logGha(`::group::{${variant}}\n`);
+    defer(() => logGha(`::endgroup::\n`));
 
     log(`searching for ${variant}... `);
     if (await pkgExists(recipe.props.name, version, platform)) {
