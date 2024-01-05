@@ -8,7 +8,7 @@ platforms = ["linux-64", "win-64", "osx-64"]
 
 [tasks]
 forge = "deno run -qA ./cli.ts"
-update = "udd **/*.ts && deno cache --lock=deno.lock --lock-write lib/mod.ts"
+update = "udd **/*.ts && deno cache --reload --lock=deno.lock --lock-write ./cli.ts"
 install-udd = "deno install -rf --allow-read=. --allow-write=. --allow-net https://deno.land/x/udd/main.ts"
 
 [tasks.shell]
