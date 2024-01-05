@@ -56,7 +56,7 @@ jobs:
           run-install: false
       - run: pixi init
       - run: pixi project channel add https://repo.prefix.dev/brads-forge
-      - run: pixi add lefthook curl
+      - run: pixi add lefthook=1.5.2 curl
       - run: pixi run lefthook version
       - shell: pixi run bash {0}
         run: |
