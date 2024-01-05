@@ -5,6 +5,7 @@ import * as esbuild from "https://deno.land/x/esbuild@v0.19.11/mod.js#^";
 import {
   _,
   __dirname,
+  currentPlatform,
   pkgExists,
   pkgUpload,
   Platform,
@@ -120,14 +121,22 @@ const bakeVariant = (
     log(`done\n`);
 
     const outputDir = path.resolve(tmpStagingDir, "output");
+    const args = [
+      "build",
+      "-r",
+      rattlerRecipePath,
+      "--target-platform",
+      platform,
+      "--output-dir",
+      outputDir,
+    ];
+
+    if (platform !== currentPlatform) {
+      args.push("--no-test");
+    }
 
     const cmd = new Deno.Command("rattler-build", {
-      // dprint-ignore
-      args: [
-        "build", "-r", rattlerRecipePath,
-        "--target-platform", platform,
-        "--output-dir", outputDir,
-      ],
+      args,
       stdout: "inherit",
       stderr: "inherit",
     });
