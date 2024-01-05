@@ -112,24 +112,22 @@ export class RattlerRecipe {
           package_contents: t.packageContents,
         };
       })(),
-      requirements: recipe.props.requirements
-        ? {
-          build: typeof recipe.props.build?.script === "function" &&
-              ["linux-64", "win-64", "osx-64", "osx-arm64"].includes(platform)
-            ? [
-              "deno >= 1.39.1",
-              ...(typeof recipe.props.requirements.build === "undefined"
-                ? []
-                : Array.isArray(recipe.props.requirements.build)
-                ? recipe.props.requirements.build
-                : [recipe.props.requirements.build]),
-            ]
-            : recipe.props.requirements.build,
-          host: ["deno"], //recipe.props.requirements.host,
-          run: recipe.props.requirements.run,
-          run_constrained: recipe.props.requirements.runConstrained,
-        }
-        : undefined,
+      requirements: {
+        build: typeof recipe.props.build?.script === "function" &&
+            ["linux-64", "win-64", "osx-64", "osx-arm64"].includes(platform)
+          ? [
+            "deno",
+            ...(typeof recipe.props.requirements?.build === "undefined"
+              ? []
+              : Array.isArray(recipe.props.requirements.build)
+              ? recipe.props.requirements.build
+              : [recipe.props.requirements.build]),
+          ]
+          : recipe.props.requirements?.build,
+        host: recipe.props.requirements?.host,
+        run: recipe.props.requirements?.run,
+        run_constrained: recipe.props.requirements?.runConstrained,
+      },
       extra: recipe.props.extra,
     });
   }
