@@ -40,6 +40,8 @@ jobs:
           - macos-latest
     steps:
       - uses: prefix-dev/setup-pixi@v0.4.1
+        with:
+          run-install: false
       - run: pixi init
       - run: pixi project channel add https://repo.prefix.dev/brads-forge
       - run: pixi add lefthook
