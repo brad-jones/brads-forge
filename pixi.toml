@@ -29,3 +29,6 @@ patchelf = ">=0.17.2,<0.18"
 
 [activation]
 scripts = ["activation.sh"]
+
+[target.win-64.activation]
+scripts = ["activation.bat"]

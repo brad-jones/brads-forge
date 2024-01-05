@@ -38,7 +38,17 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macos-latest
+        include:
+          - os: ubuntu-latest
+            rattlerBuildBin: ./bin/linux-64/rattler-build
+          - os: windows-latest
+            rattlerBuildBin: ./bin/win-64/rattler-build
+          - os: macos-latest
+            rattlerBuildBin: ./bin/osx-64/rattler-build
     steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: ${{ matrix.rattlerBuildBin }}
       - uses: prefix-dev/setup-pixi@v0.4.1
         with:
           run-install: false
@@ -46,7 +56,6 @@ jobs:
       - run: pixi project channel add https://repo.prefix.dev/brads-forge
       - run: pixi add lefthook
       - run: pixi run lefthook version
-      - run: pixi add rattler-build
       - shell: pixi run bash {0}
         run: |
           set -e
@@ -56,5 +65,5 @@ jobs:
             exit 0;
           }
           wget "$(npx fx '_ => _.url' <./.pixi/env/conda-meta/lefthook*.json)"
-          rattler-build test --package-file ./lefthook*.tar.bz2
-          rattler-build rebuild ./lefthook*.tar.bz2
+          ${{ matrix.rattlerBuildBin }} test --package-file ./lefthook*.tar.bz2
+          ${{ matrix.rattlerBuildBin }} rebuild ./lefthook*.tar.bz2
