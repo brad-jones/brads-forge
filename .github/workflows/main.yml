@@ -56,7 +56,7 @@ jobs:
           run-install: false
       - run: pixi init
       - run: pixi project channel add https://repo.prefix.dev/brads-forge
-      - run: pixi add lefthook
+      - run: pixi add lefthook curl
       - run: pixi run lefthook version
       - shell: pixi run bash {0}
         run: |
@@ -66,6 +66,6 @@ jobs:
             echo "::warning::reproducible build failed but package was installable"
             exit 0;
           }
-          wget "$(npx fx '_ => _.url' <./.pixi/env/conda-meta/lefthook*.json)"
+          curl -O "$(npx fx '_ => _.url' <./.pixi/env/conda-meta/lefthook*.json)"
           ${{ matrix.rattlerBuildBin }} test --package-file ./lefthook*.tar.bz2
           ${{ matrix.rattlerBuildBin }} rebuild ./lefthook*.tar.bz2
