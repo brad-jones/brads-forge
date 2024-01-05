@@ -7,8 +7,14 @@
   "toml": {},
   "typescript": {
     "deno": true,
-    "module.sortImportDeclarations": "caseInsensitive",
-    "module.sortExportDeclarations": "caseInsensitive"
+    "exportDeclaration.preferSingleLine": true,
+    "exportDeclaration.sortNamedExports": "caseInsensitive",
+    "ignoreFileCommentText": "dprint-ignore-file",
+    "ignoreNodeCommentText": "dprint-ignore",
+    "importDeclaration.preferSingleLine": true,
+    "importDeclaration.sortNamedImports": "caseInsensitive",
+    "module.sortExportDeclarations": "caseInsensitive",
+    "module.sortImportDeclarations": "caseInsensitive"
   },
   "markdown": {
     "textWrap": "always"

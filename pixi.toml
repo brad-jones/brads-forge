@@ -3,38 +3,17 @@ name = "brads-forge"
 version = "0.1.0"
 description = "Brads personal conda forge, filled will rattler builds."
 authors = ["Brad Jones <brad@bjc.id.au>"]
-channels = ["conda-forge"]
+channels = ["conda-forge", "https://repo.prefix.dev/brads-forge"]
 platforms = ["linux-64"]
 
 [tasks]
-npm-install = "npm install"
-gen-models = """
-rm -rf lib/models/generated/
-&& typia generate
-  --input lib/models/src/
-  --output lib/models/generated/
-  --project lib/models/tsconfig.typia.json
-&& grep -lr 'from "typia"' lib/models/generated/
-| xargs sed -i
-  -e 's/from "typia"/from "npm:typia"/g'
-  -e 's/from "ts-xor"/from "npm:ts-xor"/g'
-  -e '1s,^,// deno-lint-ignore-file\\n,'
-"""
-
-[tasks.shell]
-depends_on = ["npm-install"]
-cmd = 'pixi shell'
-
-[tasks.code]
-depends_on = ["npm-install"]
-cmd = 'code .'
+code = 'code .'
+forge = "deno run -qA ./cli.ts"
 
 [dependencies]
 deno = ">=1.39.1,<1.40"
 shellcheck = ">=0.9.0,<0.10"
 go-shfmt = ">=3.7.0,<3.8"
-rattler-build = ">=0.6.1,<0.7"
-nodejs = ">=20.9.0,<20.10"
 
 [target.linux-64.dependencies]
 patchelf = ">=0.17.2,<0.18"
