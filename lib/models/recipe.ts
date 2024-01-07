@@ -176,6 +176,8 @@ export class RattlerRecipe {
   }
 
   #mapTest() {
+    // C:\Users\runneradmin\AppData\Local\rattler\cache\pkgs\rustup-1.26.0-h9490d1a_8\info\test
+    // C:/Users/runneradmin/AppData/Local/Temp/brads-forge-rustupf1c69da8/output/bld/rattler-build_rustup_1704669897/work/test\Library
     if (typeof this.variant.r.props.test === "undefined") return undefined;
 
     const t = { ...this.variant.r.props.test };
@@ -189,11 +191,10 @@ export class RattlerRecipe {
       ].join(" ");
       if (currentOs === "win") {
         t.script = [
-          "echo %cd%",
-          "echo %DENO_INSTALL_ROOT%",
-          "dir",
-          "dir %DENO_INSTALL_ROOT%",
-          "%DENO_INSTALL_ROOT%/deno.exe --help",
+          'powershell.exe -C "cat run_test.bat"',
+          'powershell.exe -C "echo $env:DENO_INSTALL_ROOT"',
+          'powershell.exe -C "ls $env:DENO_INSTALL_ROOT"',
+          "%DENO_INSTALL_ROOT%\\deno.exe --help",
           t.script,
         ];
       }
