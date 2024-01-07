@@ -80,6 +80,13 @@ export default new r.Recipe({
   test: {
     script: async ({ version, exe }) => {
       await r.shell.exec({ cmd: ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-C", "ls ."] });
+      await r.shell.exec({ cmd: ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-C", "ls .."] });
+      await r.shell.exec({
+        cmd: ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-C", "ls ..\\.."],
+      });
+      await r.shell.exec({
+        cmd: ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-C", "ls ..\\..\\bin"],
+      });
 
       if (!await r.exists(`../../bin/${exe("rustup")}`)) {
         throw new Error(`failed to locate binary in package`);
