@@ -45,7 +45,7 @@ export default new r.Recipe({
     return [{ url: baseUrl, hash: r.Digest.parse(`sha256:${hash}`) }];
   },
   build: {
-    number: 6,
+    number: 7,
     script: async ({ prefixDir, unix, exe }) => {
       // Install the main binary
       const dst = r.path.join(prefixDir, "bin", exe("rustup"));
@@ -56,7 +56,7 @@ export default new r.Recipe({
       // presents a totally different CLI interface based on the name of the binary.
       // You use rustup-init to do an initial install of rust & then start using
       // rustup to manage what targets you have installed, etc.
-      await Deno.symlink(dst, r.path.join(prefixDir, "bin", exe("rustup-init")));
+      await Deno.symlink(dst, r.path.join(prefixDir, "bin", exe("rustup-init")), { type: "file" });
 
       // Configure rustup to install everything with-in the pixi environment
       const envFile = r.path.join(prefixDir, "etc", "conda", "env_vars.d", "rustup.json");

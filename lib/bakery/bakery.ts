@@ -176,7 +176,7 @@ export class Bakery {
     const outputDir = path.resolve(rDir, "output");
 
     // dprint-ignore
-    const args = ["build",
+    const args = ["build", "-v",
       "-r", path.join(rDir, "src", "recipe.yaml"),
       "--target-platform", p,
       "--output-dir", outputDir
