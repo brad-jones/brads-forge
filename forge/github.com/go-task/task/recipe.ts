@@ -36,7 +36,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   platforms: ["win-32", "linux-32", ...r.commonPlatforms],
-  versions: r.ghReleases(OWNER, REPO),
+  versions: r.ghTags(OWNER, REPO),
   sources: r.ghReleaseSrc({
     owner: OWNER,
     repo: REPO,
