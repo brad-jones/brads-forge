@@ -20,3 +20,4 @@ export {
   OciAlgorithms,
 } from "./digest/mod.ts";
 export type { DigestAlgorithmName, DigestPair, Buffer } from "./digest/mod.ts";
+export { default as http } from "https://esm.sh/ky@1.0.1#^";
