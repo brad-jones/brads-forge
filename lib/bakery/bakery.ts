@@ -68,22 +68,26 @@ export class Bakery {
 
     for (const v of versions) {
       for (const p of platforms) {
+        const vID = `${r.props.name}/${p}@${semver.format(v)}`;
         try {
-          await this.#bakeVariant(r, rDir, v, p);
+          await this.#bakeVariant(vID, r, rDir, v, p);
         } catch (e) {
           if (this.#debugMode) throw e;
           console.error(e);
           console.log("continuing with remaining variants");
+          if (e instanceof Error) {
+            this.#logGha(`::error title=${vID}::${e.message}`);
+          } else {
+            this.#logGha(`::error title=${vID}::failed to publish`);
+          }
         }
       }
     }
   }
 
-  #bakeVariant = (r: Recipe, rDir: string, v: semver.SemVer, p: Platform) =>
+  #bakeVariant = (vID: string, r: Recipe, rDir: string, v: semver.SemVer, p: Platform) =>
     defer(async (defer) => {
-      // Create the variant id
       const n = r.props.name;
-      const vID = `${n}/${p}@${semver.format(v)}`;
 
       // This makes nice little accordions when run on gha
       this.#logGha(`::group::{${vID}}\n`);
