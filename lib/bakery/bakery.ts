@@ -7,7 +7,7 @@ import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.2/mod.t
 import { expandGlobFirst } from "lib/fs/mod.ts";
 import { Recipe, makeDslCtx } from "lib/models/mod.ts";
 import { PrefixClient } from "lib/prefix/prefix_client.ts";
-import { currentPlatform, parsePlatform, Platform } from "lib/models/platform.ts";
+import { currentPlatform, parsePlatform, Platform, currentOs } from "lib/models/platform.ts";
 const { defer } = radash;
 
 export class Bakery {
@@ -115,6 +115,8 @@ export class Bakery {
       // We do this so that the conda package can be reproducible.
       // At least on platforms where deno is supported anyway.
       this.#log(`bundling recipe.ts... `);
+      let configPath = import.meta.resolve("../../deno.json").replace("file://", "");
+      if (currentOs === "win") configPath = configPath.substring(1).replaceAll("/", "\\");
       await esbuild.build({
         entryPoints: [path.join(rDir, "recipe.ts")],
         outfile: path.join(tmpRecipeDir, "recipe.js"),
@@ -122,9 +124,7 @@ export class Bakery {
         bundle: true,
         platform: "neutral",
         target: "deno1",
-        plugins: [...denoPlugins({
-          configPath: import.meta.resolve("../../deno.json").replace("file://", ""),
-        })],
+        plugins: [...denoPlugins({ configPath })],
       });
       this.#log(`done\n`);
 
