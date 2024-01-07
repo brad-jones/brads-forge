@@ -29,7 +29,7 @@ export interface Build {
    * Or you can provide a path to another script to use or a list of commands
    * to run or provide a function here & that will be executed instead.
    */
-  script?: string | string[] | ((ctx: DslCtx & { prefixDir: string }) => Promise<void> | void);
+  script?: string | string[] | ((ctx: DslCtx & { prefixDir: string; recipeDir: string }) => Promise<void> | void);
 
   /**
    * Environment variables to either pass through to the script environment or set.

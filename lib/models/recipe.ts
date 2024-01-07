@@ -105,6 +105,7 @@ export class Recipe {
           await this.props.build?.script!({
             ...dslCtx,
             prefixDir: Deno.env.get("PREFIX") ?? "",
+            recipeDir: Deno.env.get("RECIPE_DIR") ?? "",
           });
           return;
         }

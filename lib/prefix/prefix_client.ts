@@ -82,14 +82,16 @@ export class PrefixClient {
    * @param n Name of the conda package to check for existence.
    * @param v Version of the variant to check for existence.
    * @param p Platform of the variant to check for existence.
+   * @param bN Build number of the variant to check for existence.
    * @param c The channel where the package can be found.
    *
    * @returns `true` if the variant exists, `false` otherwise.
    */
-  public async variantExists({ n, v, p, c = DEFAULT_CHANNEL }: {
+  public async variantExists({ n, v, p, bN = 0, c = DEFAULT_CHANNEL }: {
     n: string;
     v: semver.SemVer;
     p: Platform;
+    bN?: number;
     c?: string;
   }) {
     let page = 0;
@@ -103,6 +105,7 @@ export class PrefixClient {
             page: z.array(z.object({
               platform: z.string(),
               version: z.string(),
+              buildNumber: z.number(),
             })),
           }),
         }).nullable(),
@@ -121,6 +124,7 @@ export class PrefixClient {
                   page {
                     platform
                     version
+                    buildNumber
                   }
                 }
               }
@@ -134,7 +138,8 @@ export class PrefixClient {
       if (
         pkg.variants.page.filter((_) =>
           _.version === semver.format(v) &&
-          _.platform === p
+          _.platform === p &&
+          _.buildNumber === bN
         ).length === 1
       ) {
         return true;

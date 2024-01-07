@@ -68,9 +68,10 @@ export class Bakery {
 
     for (const v of versions) {
       for (const p of platforms) {
-        const vID = `${r.props.name}/${p}@${semver.format(v)}`;
+        const bN = r.props.build?.number ?? 0;
+        const vID = `${r.props.name}/${p}@${semver.format(v)}-${bN}`;
         try {
-          await this.#bakeVariant(vID, r, rDir, v, p);
+          await this.#bakeVariant(vID, r, rDir, v, bN, p);
         } catch (e) {
           if (this.#debugMode) throw e;
           console.error(e);
@@ -85,7 +86,7 @@ export class Bakery {
     }
   }
 
-  #bakeVariant = (vID: string, r: Recipe, rDir: string, v: semver.SemVer, p: Platform) =>
+  #bakeVariant = (vID: string, r: Recipe, rDir: string, v: semver.SemVer, bN: number, p: Platform) =>
     defer(async (defer) => {
       const n = r.props.name;
 
@@ -96,7 +97,7 @@ export class Bakery {
       // Check to see if the variant already exists, if so bail out early.
       if (this.#publish) {
         this.#log(`searching for ${vID}... `);
-        if (await this.#prefixClient.variantExists({ n, p, v })) {
+        if (await this.#prefixClient.variantExists({ n, p, v, bN })) {
           this.#log(`variant already published\n`);
           return;
         }

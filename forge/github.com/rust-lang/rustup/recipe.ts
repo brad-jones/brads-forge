@@ -45,10 +45,30 @@ export default new r.Recipe({
     return [{ url: baseUrl, hash: r.Digest.parse(`sha256:${hash}`) }];
   },
   build: {
+    number: 6,
     script: async ({ prefixDir, unix, exe }) => {
+      // Install the main binary
       const dst = r.path.join(prefixDir, "bin", exe("rustup"));
       await r.moveGlob("./rustup*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
+
+      // Create a rustup-init link back to rustup. It has some magic in it that
+      // presents a totally different CLI interface based on the name of the binary.
+      // You use rustup-init to do an initial install of rust & then start using
+      // rustup to manage what targets you have installed, etc.
+      await Deno.symlink(dst, r.path.join(prefixDir, "bin", exe("rustup-init")));
+
+      // Configure rustup to install everything with-in the pixi environment
+      const envFile = r.path.join(prefixDir, "etc", "conda", "env_vars.d", "rustup.json");
+      await r.ensureDir(r.path.dirname(envFile));
+      await Deno.writeTextFile(
+        envFile,
+        JSON.stringify({
+          RUSTUP_HOME: "${CONDA_PREFIX}/.rustup",
+          CARGO_HOME: "${CONDA_PREFIX}/.cargo",
+          PATH: "${CARGO_HOME}/bin:${PATH}",
+        }),
+      );
     },
   },
   test: {
