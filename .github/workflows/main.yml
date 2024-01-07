@@ -9,6 +9,7 @@ jobs:
   runForge:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
