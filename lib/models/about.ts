@@ -1,5 +1,6 @@
-// see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/about.rs
-
+/**
+ * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/about.rs
+ */
 export interface About {
   /**
    * Url of the homepage of the package.

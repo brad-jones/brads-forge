@@ -1,20 +1,21 @@
 {
   "incremental": true,
-  "lineWidth": 80,
+  "lineWidth": 120,
   "newLineKind": "lf",
   "useTabs": false,
   "json": {},
   "toml": {},
   "typescript": {
     "deno": true,
+    "lineWidth": 120,
     "exportDeclaration.preferSingleLine": true,
-    "exportDeclaration.sortNamedExports": "caseInsensitive",
+    "exportDeclaration.sortNamedExports": "maintain",
     "ignoreFileCommentText": "dprint-ignore-file",
     "ignoreNodeCommentText": "dprint-ignore",
     "importDeclaration.preferSingleLine": true,
-    "importDeclaration.sortNamedImports": "caseInsensitive",
-    "module.sortExportDeclarations": "caseInsensitive",
-    "module.sortImportDeclarations": "caseInsensitive"
+    "importDeclaration.sortNamedImports": "maintain",
+    "module.sortExportDeclarations": "maintain",
+    "module.sortImportDeclarations": "maintain"
   },
   "markdown": {
     "textWrap": "always"

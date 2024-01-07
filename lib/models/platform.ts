@@ -1,6 +1,6 @@
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts#^";
 
-export const allPlatformOs = [
+export const allOperatingSystems = [
   "emscripten",
   "wasi",
   "linux",
@@ -9,9 +9,9 @@ export const allPlatformOs = [
   "unknown",
 ] as const;
 
-export type PlatformOs = typeof allPlatformOs[number];
+export type PlatformOs = typeof allOperatingSystems[number];
 
-export const allPlatformArch = [
+export const allArchitectures = [
   "32",
   "64",
   "arm64",
@@ -27,7 +27,7 @@ export const allPlatformArch = [
   "unknown",
 ] as const;
 
-export type PlatformArch = typeof allPlatformArch[number];
+export type PlatformArch = typeof allArchitectures[number];
 
 export type Platform = `${PlatformOs}-${PlatformArch}`;
 
@@ -74,18 +74,23 @@ export const currentArch: PlatformArch = (() => {
 
 export const currentPlatform: Platform = `${currentOs}-${currentArch}`;
 
-export const splitPlatform = (p: Platform) =>
-  p.split("-") as [PlatformOs, PlatformArch];
+export const splitPlatform = (p: Platform) => p.split("-") as [PlatformOs, PlatformArch];
 
 export const parsePlatform = (v: string) =>
   z.custom<Platform>((val) => {
     if (typeof val !== "string") return false;
     const [os, arch] = val.split("-");
     // deno-lint-ignore no-explicit-any
-    return allPlatformOs.includes(os as any) &&
+    return allOperatingSystems.includes(os as any) &&
       // deno-lint-ignore no-explicit-any
-      allPlatformArch.includes(arch as any);
+      allArchitectures.includes(arch as any);
   }).parse(v);
 
 export const suffixExe = (targetOs: PlatformOs) => (filename: string) =>
   `${filename}${targetOs === "win" ? ".exe" : ""}`;
+
+export function isUnix(v: Platform | PlatformOs) {
+  if (v.includes("-")) v = splitPlatform(v as Platform)[0];
+  const os = v as PlatformOs;
+  return ["linux", "osx"].includes(os);
+}

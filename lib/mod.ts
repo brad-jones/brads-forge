@@ -1,21 +1,22 @@
-export {
-  eq as vEqual,
-  format as vFmt,
-  parse as vParse,
-} from "https://deno.land/std@0.211.0/semver/mod.ts#^";
-export { $, _ } from "https://deno.land/x/denoexec@v1.1.5/mod.ts#^";
-export * as radash from "https://esm.sh/radash@11.0.0#^";
-export * from "./auth.ts";
-export * from "./bake.ts";
-export * from "./digest.ts";
-export * from "./fs.ts";
-export * from "./models/about.ts";
-export * from "./models/build.ts";
+/*
+  This module essentially represents the DSL we provide to each recipe.
+
+  eg: import * as r from "lib/mod.ts";
+*/
+
+export * from "./fs/mod.ts";
 export * from "./models/platform.ts";
-export * from "./models/rattlerRecipe.ts";
-export * from "./models/recipe.ts";
-export * from "./models/requirements.ts";
-export * from "./models/source.ts";
-export * from "./models/test.ts";
-export * from "./prefixClient.ts";
-export * from "./version-sources/github.ts";
+export * from "./version-sources/mod.ts";
+export { Recipe } from "./models/recipe.ts";
+export type { RecipeProps } from "./models/recipe.ts";
+export * as path from "https://deno.land/std@0.211.0/path/mod.ts";
+export * as semver from "https://deno.land/std@0.211.0/semver/mod.ts";
+export * as shell from "https://deno.land/x/denoexec@v1.1.5/mod.ts";
+export {
+  Digest,
+  digestFromChecksumFile,
+  digestFromChecksumTXT,
+  digestFromChecksumURL,
+  OciAlgorithms,
+} from "./digest/mod.ts";
+export type { DigestAlgorithmName, DigestPair, Buffer } from "./digest/mod.ts";

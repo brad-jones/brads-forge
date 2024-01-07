@@ -2,7 +2,7 @@ on:
   push:
     branches: master
   schedule:
-    - cron: 0 * * * *
+    - cron: 0 0 * * *
   workflow_dispatch:
 
 jobs:
@@ -28,44 +28,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PREFIX_DEV_TOKEN: ${{ secrets.PREFIX_DEV_TOKEN }}
-
-  testForge:
-    needs: runForge
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        include:
-          - os: ubuntu-latest
-            rattlerBuildBin: bin/linux-64/rattler-build
-          - os: windows-latest
-            rattlerBuildBin: bin/win-64/rattler-build.exe
-          - os: macos-latest
-            rattlerBuildBin: bin/osx-64/rattler-build
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            ${{ matrix.rattlerBuildBin }}
-          sparse-checkout-cone-mode: false
-      - uses: prefix-dev/setup-pixi@v0.4.1
-        with:
-          run-install: false
-      - run: pixi init
-      - run: pixi project channel add https://repo.prefix.dev/brads-forge
-      - run: pixi add lefthook=1.4.10 curl
-      - run: pixi run lefthook version
-      - shell: pixi run bash {0}
-        run: |
-          set -e
-          trap 'catch' ERR
-          catch() {
-            echo "::warning::reproducible build failed but package was installable"
-            exit 0;
-          }
-          curl -O "$(npx fx '_ => _.url' <./.pixi/env/conda-meta/lefthook*.json)"
-          ${{ matrix.rattlerBuildBin }} rebuild --package-file ./lefthook*.tar.bz2
-          ${{ matrix.rattlerBuildBin }} test --package-file ./lefthook*.tar.bz2

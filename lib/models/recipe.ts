@@ -1,18 +1,15 @@
+import { mapValues, mapKeys, snake, isObject } from "https://esm.sh/radash@11.0.0#^";
+import * as yaml from "https://deno.land/std@0.211.0/yaml/mod.ts#^";
 import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts#^";
-import {
-  About,
-  Build,
-  parsePlatform,
-  Platform,
-  PlatformArch,
-  PlatformOs,
-  Requirements,
-  Source,
-  splitPlatform,
-  suffixExe,
-  Test,
-} from "lib/mod.ts";
+
+import { Test } from "./test.ts";
+import { About } from "./about.ts";
+import { Build } from "./build.ts";
+import { Source } from "./source.ts";
+import { DslCtx, makeDslCtx } from "./dslctx.ts";
+import { Requirements } from "./requirements.ts";
+import { Platform, parsePlatform } from "./platform.ts";
 
 export interface RecipeProps {
   /**
@@ -44,11 +41,7 @@ export interface RecipeProps {
   /**
    * The source items to be downloaded and used for the build.
    */
-  sources: (
-    version: semver.SemVer,
-    targetOs: PlatformOs,
-    targetArch: PlatformArch,
-  ) => Promise<Source[]> | Source[];
+  sources: (ctx: DslCtx) => Promise<Source[]> | Source[];
 
   /**
    * Describes how the package should be build.
@@ -72,16 +65,30 @@ export interface RecipeProps {
 }
 
 /**
- * Based On: https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
- * Also see: https://prefix-dev.github.io/rattler-build/recipe_file/#spec-reference
- * Minus the context, conditionals & the "ComplexRecipe".
+ * This represents a rattler-build recipe albeit with some tweaks.
+ * Notably the absence of the context, conditionals & the "ComplexRecipe".
+ *
+ * @see https://prefix-dev.github.io/rattler-build/recipe_file/#spec-reference
+ * @also https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
  */
 export class Recipe {
   constructor(public props: RecipeProps) {
+    // This is how we make a single recipe.ts file executable in it's own right
+    // & is what the rendered YAML rattler recipe is configured to execute when
+    // functions are provided for the build & test scripts.
     if (Deno.args.length > 0 && Deno.args[0] === "execute") {
       this.#executeCmd();
     }
   }
+
+  /**
+   * Map our Recipe into something that rattler-build can understand.
+   *
+   * @param variant The resolved variant that we want to build.
+   * @returns A new object that can be serialized into YAML for rattler-build.
+   */
+  rattlerRecipe = (variant: { v: semver.SemVer; p: Platform; s: Source[] }) =>
+    new RattlerRecipe({ ...variant, r: this });
 
   #executeCmd = async () =>
     await new Command()
@@ -92,32 +99,136 @@ export class Recipe {
       .option("--version <version:string>", "The version to build.")
       .option("--platform <platform:string>", "The target platform.")
       .action(async ({ build, test, version, platform }) => {
-        const v = semver.parse(version!);
-        const targetPlatform = parsePlatform(platform!);
-        const [targetOs, targetArch] = splitPlatform(parsePlatform(platform!));
+        const dslCtx = makeDslCtx(semver.parse(version!), parsePlatform(platform!));
 
-        if (build) {
+        if (build && typeof this.props.build?.script === "function") {
           await this.props.build?.script!({
-            version: v,
-            targetOs,
-            targetArch,
-            targetPlatform,
+            ...dslCtx,
             prefixDir: Deno.env.get("PREFIX") ?? "",
-            suffixExe: suffixExe(targetOs),
           });
           return;
         }
 
-        if (test) {
-          await this.props.test?.script!({
-            version: v,
-            targetOs,
-            targetArch,
-            targetPlatform,
-            suffixExe: suffixExe(targetOs),
-          });
+        if (test && typeof this.props.test?.script === "function") {
+          await this.props.test?.script!(dslCtx);
           return;
         }
       })
       .parse(Deno.args.slice(1));
 }
+
+export interface RattlerRecipeVariant {
+  r: Recipe;
+  v: semver.SemVer;
+  p: Platform;
+  s: Source[];
+}
+
+export class RattlerRecipe {
+  // deno-lint-ignore no-explicit-any
+  mappedRecipe: any;
+
+  constructor(public variant: RattlerRecipeVariant) {
+    // The json stringify & parse removes all undefined props
+    this.mappedRecipe = JSON.parse(JSON.stringify(mapKeysDeep({
+      package: this.#mapPackage(),
+      source: this.#mapSources(),
+      build: this.#mapBuild(),
+      test: this.#mapTest(),
+      requirements: this.#mapRequirements(),
+      extra: variant.r.props.extra,
+    }, snake)));
+  }
+
+  #mapPackage = () => ({
+    name: this.variant.r.props.name,
+    version: semver.format(this.variant.v),
+  });
+
+  #mapSources = () =>
+    this.variant.s.map((s) => {
+      // deno-lint-ignore no-explicit-any
+      const mappedS = { ...s } as any;
+      if (s.hash) {
+        delete mappedS["hash"];
+        const hashKey = s.hash.algorithm.replaceAll("-", "").toLowerCase();
+        mappedS[hashKey] = s.hash.hashString;
+      }
+      return mappedS;
+    });
+
+  #mapBuild() {
+    if (typeof this.variant.r.props.build === "undefined") return undefined;
+
+    const b = { ...this.variant.r.props.build };
+    if (typeof b.script === "function") {
+      // dprint-ignore
+      b.script = [
+        "deno", "run", "-A", "$RECIPE_DIR/recipe.js",
+        "execute", "--build",
+        "--version", semver.format(this.variant.v),
+        "--platform", this.variant.p,
+      ].join(" ");
+    }
+
+    return b;
+  }
+
+  #mapTest() {
+    if (typeof this.variant.r.props.test === "undefined") return undefined;
+
+    const t = { ...this.variant.r.props.test };
+    if (typeof t.script === "function") {
+      // dprint-ignore
+      t.script = [
+        "deno", "run", "-A", "../recipe/recipe.js",
+        "execute", "--test",
+        "--version", semver.format(this.variant.v),
+        "--platform", this.variant.p,
+      ].join(" ");
+
+      // Make the test reproducible, at least on platforms where deno is supported.
+      if (["linux-64", "win-64", "osx-64", "osx-arm64"].includes(this.variant.p)) {
+        t.requires = ["deno", ...(mergeStringList(t.requires))];
+      }
+    }
+
+    // see: https://github.com/prefix-dev/rattler-build/issues/445
+    // deno-lint-ignore no-explicit-any
+    (t as any)["commands"] = t.script;
+    delete t["script"];
+
+    return t;
+  }
+
+  #mapRequirements() {
+    let r = typeof this.variant.r.props.requirements === "undefined"
+      ? undefined
+      : { ...this.variant.r.props.requirements };
+
+    // Make the build reproducible, at least on platforms where deno is supported.
+    if (typeof this.variant.r.props.build?.script === "function") {
+      if (["linux-64", "win-64", "osx-64", "osx-arm64"].includes(this.variant.p)) {
+        if (typeof r === "undefined") r = {};
+        r.build = ["deno", ...(mergeStringList(r.build))];
+      }
+    }
+
+    return r;
+  }
+
+  toYaml = () => yaml.stringify(this.mappedRecipe);
+}
+
+// dprint-ignore
+const mergeStringList = (v?: string | string[]) =>
+  typeof v === "undefined" ? [] : Array.isArray(v) ? v : [v];
+
+// Ported form: https://github.com/glennreyes/map-keys-deep
+// Sometime TypeScript gives me a headache lol, hence the any exception.
+// deno-lint-ignore no-explicit-any
+const mapKeysDeep = (obj: any, mapFunc: (key: any, value: any) => any): any =>
+  Array.isArray(obj) ? obj.map((v) => mapKeysDeep(v, mapFunc)) : mapValues(
+    mapKeys(obj, mapFunc),
+    (v) => isObject(v) ? mapKeysDeep(v, mapFunc) : v,
+  );

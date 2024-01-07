@@ -1,5 +1,6 @@
-// see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/requirements.rs
-
+/**
+ * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/requirements.rs
+ */
 export interface Requirements {
   /**
    * Dependencies to install on the build platform architecture.

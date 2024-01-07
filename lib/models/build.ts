@@ -1,10 +1,8 @@
-import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
-import { Platform, PlatformArch, PlatformOs } from "lib/mod.ts";
+import { DslCtx } from "./dslctx.ts";
 
-// see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/build.rs
-// LOL https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/build.rs#L46
-// I think my typescript interface is more complete than their rust parser :facepalm:
-
+/**
+ * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/build.rs
+ */
 export interface Build {
   /**
    * Build number to version current build in addition to package version
@@ -28,18 +26,10 @@ export interface Build {
    * If not given, tries to find 'build.sh' on Unix or 'bld.bat' on Windows
    * inside the recipe folder.
    *
-   * Or you can provide a function here & we will execute that :)
+   * Or you can provide a path to another script to use or a list of commands
+   * to run or provide a function here & that will be executed instead.
    */
-  script?: (
-    ctx: {
-      version: semver.SemVer;
-      targetPlatform: Platform;
-      targetOs: PlatformOs;
-      targetArch: PlatformArch;
-      prefixDir: string;
-      suffixExe: (filename: string) => string;
-    },
-  ) => Promise<void> | void;
+  script?: string | string[] | ((ctx: DslCtx & { prefixDir: string }) => Promise<void> | void);
 
   /**
    * Environment variables to either pass through to the script environment or set.
@@ -59,7 +49,7 @@ export interface Build {
 
     /**
      * Environment variables to leak into the build environment from the host
-     * system that contain sensitve information. Use with care because this
+     * system that contain sensitive information. Use with care because this
      * might make recipes no longer reproducible on other machines.
      */
     secrets?: string | string[];
@@ -128,17 +118,17 @@ export interface Build {
   /**
    * Script to execute when installing - before linking. Highly discouraged!
    */
-  preLink?: string; // pre-link
+  preLink?: string;
 
   /**
    * Script to execute when installing - after linking.
    */
-  postLink?: string; // post-link
+  postLink?: string;
 
   /**
    * Script to execute when removing - before unlinking.
    */
-  preUnlink?: string; // pre-unlink
+  preUnlink?: string;
 
   /**
    * A list of files that are included in the package but should not be

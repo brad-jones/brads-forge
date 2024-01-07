@@ -1,8 +1,8 @@
-import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
-import { Platform, PlatformArch, PlatformOs } from "lib/mod.ts";
+import { DslCtx } from "./dslctx.ts";
 
-// see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/test.rs
-
+/**
+ * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/test.rs
+ */
 export interface Test {
   /**
    * Test script to be used.
@@ -10,17 +10,10 @@ export interface Test {
    * If not given, tries to find 'test.sh' on Unix or 'test.bat' on Windows
    * inside the recipe folder.
    *
-   * Or you can provide a function here & we will execute that :)
+   * Or you can provide a path to another script to use or a list of commands
+   * to run or provide a function here & that will be executed instead.
    */
-  script?: (
-    ctx: {
-      version: semver.SemVer;
-      targetPlatform: Platform;
-      targetOs: PlatformOs;
-      targetArch: PlatformArch;
-      suffixExe: (filename: string) => string;
-    },
-  ) => Promise<void> | void;
+  script?: string | string[] | ((ctx: DslCtx) => Promise<void> | void);
 
   /**
    * In addition to the runtime requirements, you can specify requirements

@@ -1,8 +1,9 @@
-import { Digest } from "lib/mod.ts";
+import { Digest } from "lib/digest/mod.ts";
 import type { XOR } from "npm:ts-xor@^1.3.0";
 
-// see: https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/source.rs
-
+/**
+ * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/source.rs
+ */
 export interface BaseSource {
   /**
    * Patches may optionally be applied to the source. A path relative to the recipe file.

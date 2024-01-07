@@ -1,9 +1,9 @@
-import * as f from "lib/mod.ts";
+import * as r from "lib/mod.ts";
 
 const OWNER = "evilmartians";
 const REPO = "lefthook";
 
-const MAPPED_OS = (os: f.PlatformOs) => {
+const MAPPED_OS = (os: r.PlatformOs) => {
   switch (os) {
     case "linux":
       return "Linux";
@@ -16,7 +16,7 @@ const MAPPED_OS = (os: f.PlatformOs) => {
   }
 };
 
-const MAPPED_ARCH = (arch: f.PlatformArch) => {
+const MAPPED_ARCH = (arch: r.PlatformArch) => {
   switch (arch) {
     case "32":
       return "i386";
@@ -29,42 +29,35 @@ const MAPPED_ARCH = (arch: f.PlatformArch) => {
   }
 };
 
-export default new f.Recipe({
+export default new r.Recipe({
   name: "lefthook",
   about: {
     summary: "Fast and powerful Git hooks manager for any type of projects.",
     homepage: `https://github.com/${OWNER}/${REPO}`,
     license: "MIT",
   },
-  platforms: ["win-32", ...f.commonPlatforms],
-  versions: f.ghReleases(OWNER, REPO),
-  sources: f.ghReleaseSrc(OWNER, REPO, "lefthook_checksums.txt", [
-    ({ version, targetOs, targetArch, suffixExe }) =>
-      suffixExe(
-        `lefthook_${f.vFmt(version)}_${MAPPED_OS(targetOs)}_${
-          MAPPED_ARCH(targetArch)
-        }`,
-      ),
-  ]),
+  platforms: ["win-32", ...r.commonPlatforms],
+  versions: r.ghReleases(OWNER, REPO),
+  sources: r.ghReleaseSrc({
+    owner: OWNER,
+    repo: REPO,
+    checksumFilename: "lefthook_checksums.txt",
+    filenames: [({ v, os, arch, exe }) => exe(`lefthook_${v}_${MAPPED_OS(os)}_${MAPPED_ARCH(arch)}`)],
+  }),
   build: {
-    script: async ({ targetOs, prefixDir, suffixExe }) => {
-      const dst = f.path.join(prefixDir, "bin", suffixExe("lefthook"));
-      await f.moveGlob("./lefthook*", dst);
-      if (targetOs !== "win") await Deno.chmod(dst, 0o755);
+    script: async ({ prefixDir, os, exe }) => {
+      const dst = r.path.join(prefixDir, "bin", exe("lefthook"));
+      await r.moveGlob("./lefthook*", dst);
+      if (os !== "win") await Deno.chmod(dst, 0o755);
     },
   },
   test: {
-    script: async ({ version, targetPlatform, suffixExe }) => {
-      if (!await f.exists(`../../bin/${suffixExe("lefthook")}`)) {
+    script: async ({ version, exe }) => {
+      if (!await r.exists(`../../bin/${exe("lefthook")}`)) {
         throw new Error(`failed to locate binary in package`);
       }
 
-      if (targetPlatform !== f.currentPlatform) {
-        console.log("warn: tests can not run current platform");
-        return;
-      }
-
-      if (!f.vEqual(f.vParse(await f.$`lefthook version`), version)) {
+      if (!r.semver.eq(r.semver.parse(await r.shell.$`lefthook version`), version)) {
         throw new Error(`unexpected version returned from binary`);
       }
     },
