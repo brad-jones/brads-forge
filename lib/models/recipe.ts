@@ -184,18 +184,12 @@ export class RattlerRecipe {
     if (typeof t.script === "function") {
       // dprint-ignore
       t.script = [
-        "deno", "run", "-A", "../recipe/recipe.js",
+        currentOs === "win" ? "%LIBRARY_BIN%\\deno.exe" : "deno",
+        "run", "-A", "../recipe/recipe.js",
         "execute", "--test",
         "--version", semver.format(this.variant.v),
         "--platform", this.variant.p,
       ].join(" ");
-      if (currentOs === "win") {
-        t.script = [
-          "%LIBRARY_BIN%\\deno.exe --help",
-          "%DENO_INSTALL_ROOT%\\bin\\deno.exe --help",
-          t.script,
-        ];
-      }
       t.requires = ["deno", ...(mergeStringList(t.requires))];
     }
 
