@@ -105,16 +105,15 @@ export class PrefixClient {
               version: z.string(),
             })),
           }),
-        }),
+        }).nullable(),
       }),
     });
 
     while (true) {
-      const variants = pkgExistsSchema.parse(
-        await ky.post(this.#gqlBaseUrl, {
-          headers: { "Authorization": `Bearer ${this.#token}` },
-          json: {
-            query: `{
+      const response = await ky.post(this.#gqlBaseUrl, {
+        headers: { "Authorization": `Bearer ${this.#token}` },
+        json: {
+          query: `{
               package(channelName: "${c}", name: "${n}") {
                 variants(limit: 100, page: ${page}) {
                   current
@@ -126,12 +125,14 @@ export class PrefixClient {
                 }
               }
             }`,
-          },
-        }).json(),
-      ).data.package.variants;
+        },
+      }).json();
+
+      const pkg = pkgExistsSchema.parse(response).data.package;
+      if (!pkg) return false;
 
       if (
-        variants.page.filter((_) =>
+        pkg.variants.page.filter((_) =>
           _.version === semver.format(v) &&
           _.platform === p
         ).length === 1
@@ -139,7 +140,7 @@ export class PrefixClient {
         return true;
       }
 
-      if (variants.current === variants.pages - 1) {
+      if (pkg.variants.current === pkg.variants.pages - 1) {
         return false;
       }
 
