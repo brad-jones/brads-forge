@@ -138,7 +138,7 @@ export class Bakery {
       this.#log(`done\n`);
 
       // Build the conda package
-      const pkgPath = await this.#executeRattler(tmpStagingDir, p);
+      const pkgPath = await this.#executeRattler(r, tmpStagingDir, p);
 
       // If the output dir is set, copy the package to it
       if (this.#outputDir) {
@@ -157,7 +157,7 @@ export class Bakery {
       }
     });
 
-  async #executeRattler(rDir: string, p: Platform) {
+  async #executeRattler(r: Recipe, rDir: string, p: Platform) {
     const outputDir = path.resolve(rDir, "output");
 
     // dprint-ignore
@@ -169,7 +169,10 @@ export class Bakery {
 
     // There is no point in executing the tests on a platform that can not run them.
     // ie: In the case of cors compilation the final binary can not be executed by the build system.
-    if (p !== currentPlatform) args.push("--no-test");
+    // Or if a test function has been given & the platform is not supported by deno.
+    const hasTestFunc = typeof r.props.test?.script === "function";
+    const supportedByDeno = ["linux-64", "win-64", "osx-64", "osx-arm64"].includes(currentPlatform);
+    if (p !== currentPlatform || (hasTestFunc && !supportedByDeno)) args.push("--no-test");
 
     // Finally execute rattler which if all goes well will spit out a conda package
     const cmd = new Deno.Command("rattler-build", { args, stdout: "inherit", stderr: "inherit" });

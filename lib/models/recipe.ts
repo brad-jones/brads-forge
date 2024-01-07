@@ -186,11 +186,7 @@ export class RattlerRecipe {
         "--version", semver.format(this.variant.v),
         "--platform", this.variant.p,
       ].join(" ");
-
-      // Make the test reproducible, at least on platforms where deno is supported.
-      if (["linux-64", "win-64", "osx-64", "osx-arm64"].includes(this.variant.p)) {
-        t.requires = ["deno", ...(mergeStringList(t.requires))];
-      }
+      t.requires = ["deno", ...(mergeStringList(t.requires))];
     }
 
     // see: https://github.com/prefix-dev/rattler-build/issues/445
@@ -206,12 +202,9 @@ export class RattlerRecipe {
       ? undefined
       : { ...this.variant.r.props.requirements };
 
-    // Make the build reproducible, at least on platforms where deno is supported.
     if (typeof this.variant.r.props.build?.script === "function") {
-      if (["linux-64", "win-64", "osx-64", "osx-arm64"].includes(this.variant.p)) {
-        if (typeof r === "undefined") r = {};
-        r.build = ["deno", ...(mergeStringList(r.build))];
-      }
+      if (typeof r === "undefined") r = {};
+      r.build = ["deno", ...(mergeStringList(r.build))];
     }
 
     return r;
