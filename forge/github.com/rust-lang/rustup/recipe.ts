@@ -79,7 +79,7 @@ export default new r.Recipe({
   },
   test: {
     script: async ({ version, exe }) => {
-      await r.shell._`ls`;
+      await r.shell._`C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -C "ls"`;
 
       if (!await r.exists(`../../bin/${exe("rustup")}`)) {
         throw new Error(`failed to locate binary in package`);
