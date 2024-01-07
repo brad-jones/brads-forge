@@ -191,10 +191,8 @@ export class RattlerRecipe {
       ].join(" ");
       if (currentOs === "win") {
         t.script = [
-          'powershell.exe -C "cat run_test.bat"',
-          'powershell.exe -C "echo $env:DENO_INSTALL_ROOT"',
-          'powershell.exe -C "ls $env:DENO_INSTALL_ROOT"',
-          "%DENO_INSTALL_ROOT%\\deno.exe --help",
+          "%LIBRARY_BIN%\\deno.exe --help",
+          "%DENO_INSTALL_ROOT%\\bin\\deno.exe --help",
           t.script,
         ];
       }
