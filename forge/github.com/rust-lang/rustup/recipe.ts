@@ -79,15 +79,13 @@ export default new r.Recipe({
   },
   test: {
     script: async ({ version, exe }) => {
-      await r.shell.exec({
-        cmd: ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-C", "ls ..\\..\\bin"],
-      });
+      const rustup = r.path.join("..", "..", "bin", exe("rustup"));
 
-      if (!await r.exists(r.path.join("..", "..", "bin", exe("rustup")))) {
+      if (!await r.exists(rustup)) {
         throw new Error(`failed to locate binary in package`);
       }
 
-      const actualVersion = (await r.shell.$`rustup --version`)
+      const actualVersion = (await r.shell.$`${rustup} --version`)
         .match(/\d+\.\d+\.\d+/)?.at(0) ?? "";
 
       if (!r.semver.eq(r.semver.parse(actualVersion), version)) {
