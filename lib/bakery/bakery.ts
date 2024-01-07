@@ -70,6 +70,7 @@ export class Bakery {
       for (const p of platforms) {
         const bN = r.props.build?.number ?? 0;
         const vID = `${r.props.name}/${p}@${semver.format(v)}-${bN}`;
+        this.#logGha(`::group::{${vID}}\n`);
         try {
           await this.#bakeVariant(vID, r, rDir, v, bN, p);
         } catch (e) {
@@ -81,6 +82,8 @@ export class Bakery {
           } else {
             this.#logGha(`::error title=${vID}::failed to publish`);
           }
+        } finally {
+          this.#logGha(`::endgroup::\n`);
         }
       }
     }
@@ -89,10 +92,6 @@ export class Bakery {
   #bakeVariant = (vID: string, r: Recipe, rDir: string, v: semver.SemVer, bN: number, p: Platform) =>
     defer(async (defer) => {
       const n = r.props.name;
-
-      // This makes nice little accordions when run on gha
-      this.#logGha(`::group::{${vID}}\n`);
-      defer(() => this.#logGha(`::endgroup::\n`));
 
       // Check to see if the variant already exists, if so bail out early.
       if (this.#publish) {
