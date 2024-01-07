@@ -9,7 +9,7 @@ import { Build } from "./build.ts";
 import { Source } from "./source.ts";
 import { DslCtx, makeDslCtx } from "./dslctx.ts";
 import { Requirements } from "./requirements.ts";
-import { Platform, parsePlatform, currentOs } from "./platform.ts";
+import { Platform, parsePlatform, currentOs, currentPlatform } from "./platform.ts";
 
 export interface RecipeProps {
   /**
@@ -187,6 +187,16 @@ export class RattlerRecipe {
         "--version", semver.format(this.variant.v),
         "--platform", this.variant.p,
       ].join(" ");
+      if (currentOs === "win") {
+        t.script = [
+          "echo %cd%",
+          "echo %DENO_INSTALL_ROOT%",
+          "dir",
+          "dir %DENO_INSTALL_ROOT%",
+          "%DENO_INSTALL_ROOT%/deno.exe --help",
+          t.script,
+        ];
+      }
       t.requires = ["deno", ...(mergeStringList(t.requires))];
     }
 
