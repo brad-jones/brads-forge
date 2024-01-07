@@ -52,8 +52,8 @@ export class Bakery {
     // Resolve which versions we are going to bake
     let versions = this.#versions;
     if (versions.length === 0) {
-      this.#log(`getting last 5 versions... `);
-      versions = semver.sort(await r.props.versions()).reverse().slice(0, 5);
+      this.#log(`getting last 2 versions... `);
+      versions = semver.sort(await r.props.versions()).reverse().slice(0, 2);
       this.#log(`${JSON.stringify(versions.map((v) => semver.format(v)))}\n`);
     }
 
@@ -68,7 +68,13 @@ export class Bakery {
 
     for (const v of versions) {
       for (const p of platforms) {
-        await this.#bakeVariant(r, rDir, v, p);
+        try {
+          await this.#bakeVariant(r, rDir, v, p);
+        } catch (e) {
+          if (this.#debugMode) throw e;
+          console.error(e);
+          console.log("continuing with remaining variants");
+        }
       }
     }
   }

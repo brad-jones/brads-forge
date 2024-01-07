@@ -28,12 +28,12 @@ export interface RecipeProps {
   platforms: Platform[];
 
   /**
-   * A function that returns a sorted (newest to oldest) list of the last 5
+   * A function that returns a sorted (newest to oldest) list of the last 2
    * version numbers from an upstream source. Such as Github Releases or git tags.
    *
    * Any versions that have not yet been published will be in the next GHA run.
    *
-   * NB: Why limit this to 5 versions? We do not want to build & package years
+   * NB: Why limit this to 2 versions? We do not want to build & package years
    * worth of old versions that could exhaust our GHA build minutes.
    */
   versions: () => Promise<semver.SemVer[]> | semver.SemVer[];
