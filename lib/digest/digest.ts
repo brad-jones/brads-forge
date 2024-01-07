@@ -83,11 +83,7 @@ export class Digest {
    */
   static async fromFile(path: string, a: DigestAlgorithmName = "SHA-256"): Promise<Digest> {
     const f = await Deno.open(path, { read: true });
-    try {
-      return await Digest.fromBuffer(f.readable, a);
-    } finally {
-      f.close();
-    }
+    return await Digest.fromBuffer(f.readable, a);
   }
 
   /**
