@@ -59,7 +59,11 @@ export class Bakery {
 
     // Resolve which platforms we are going to bake
     let platforms = this.#platforms;
-    if (platforms.length === 0) platforms = r.props.platforms;
+    if (platforms.length > 0) {
+      platforms = platforms.filter((p) => r.props.platforms.includes(p));
+    } else {
+      platforms = r.props.platforms;
+    }
     platforms = platforms.filter((_) => !(this.#excludePlatforms ?? []).includes(_));
 
     for (const v of versions) {
