@@ -9,7 +9,7 @@ import { Build } from "./build.ts";
 import { Source } from "./source.ts";
 import { DslCtx, makeDslCtx } from "./dslctx.ts";
 import { Requirements } from "./requirements.ts";
-import { Platform, parsePlatform } from "./platform.ts";
+import { Platform, parsePlatform, currentOs } from "./platform.ts";
 
 export interface RecipeProps {
   /**
@@ -164,7 +164,7 @@ export class RattlerRecipe {
     if (typeof b.script === "function") {
       // dprint-ignore
       b.script = [
-        "deno", "run", "-A", "$RECIPE_DIR/recipe.js",
+        "deno", "run", "-A", currentOs === "win" ? "%RECIPE_DIR%/recipe.js" : "$RECIPE_DIR/recipe.js",
         "execute", "--build",
         "--version", semver.format(this.variant.v),
         "--platform", this.variant.p,
