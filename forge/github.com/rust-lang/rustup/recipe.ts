@@ -79,6 +79,8 @@ export default new r.Recipe({
   },
   test: {
     script: async ({ version, exe }) => {
+      await r.shell._`ls`;
+
       if (!await r.exists(`../../bin/${exe("rustup")}`)) {
         throw new Error(`failed to locate binary in package`);
       }
