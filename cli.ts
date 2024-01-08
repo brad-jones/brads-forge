@@ -1,5 +1,6 @@
 import { Bakery } from "lib/bakery/mod.ts";
 import { __dirname } from "lib/fs/mod.ts";
+import "https://deno.land/std@0.211.0/dotenv/load.ts#^";
 import * as radash from "https://esm.sh/radash@11.0.0#^";
 import * as fs from "https://deno.land/std@0.211.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.211.0/path/mod.ts";

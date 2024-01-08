@@ -1,9 +1,11 @@
+import ky from "https://esm.sh/ky@1.0.1#^";
 import * as radash from "https://esm.sh/radash@11.0.0#^";
 import { Octokit } from "https://esm.sh/@octokit/rest@20.0.2#^";
 import * as semver from "https://deno.land/std@0.211.0/semver/mod.ts#^";
 
 import { DslCtx } from "lib/models/dslctx.ts";
-import { DigestAlgorithmName, digestFromChecksumURL } from "lib/digest/mod.ts";
+import { getDenoAuthHeaders } from "lib/auth/mod.ts";
+import { Digest, DigestAlgorithmName, digestFromChecksumURL } from "lib/digest/mod.ts";
 
 const OCTOKIT = new Octokit({
   auth: Deno.env.get("GH_TOKEN") ??
@@ -88,6 +90,10 @@ export const ghReleaseUrl = (owner: string, repo: string, version: string, filen
  *                         with the artifacts of a github release so you can
  *                         verify what you downloaded is what they published.
  *
+ *                         If this is not given we will just download the file
+ *                         & calculate the digest. As rattler-build requires it
+ *                         to be set.
+ *
  * @param filenames An array of functions that, given a ctx object with version,
  *                  targetOs & targetArch can return a filename to download.
  *
@@ -100,10 +106,10 @@ export const ghReleaseUrl = (owner: string, repo: string, version: string, filen
  * @returns A recipe source function that can return a list of sources to download.
  */
 export const ghReleaseSrc = (
-  { owner, repo, checksumFilename, filenames, digestAlg = "SHA-256", vPrefix = "v" }: {
+  { owner, repo, filenames, checksumFilename, digestAlg = "SHA-256", vPrefix = "v" }: {
     owner: string;
     repo: string;
-    checksumFilename: string;
+    checksumFilename?: string;
     filenames: ((ctx: DslCtx) => string)[];
     digestAlg?: DigestAlgorithmName;
     vPrefix?: string;
@@ -113,8 +119,14 @@ export const ghReleaseSrc = (
   radash.map(filenames, async (filename) => {
     const v = `${vPrefix}${ctx.v}`;
     const fN = filename(ctx);
+    const url = ghReleaseUrl(owner, repo, v, fN);
     return {
-      url: ghReleaseUrl(owner, repo, v, fN),
-      hash: await digestFromChecksumURL(digestAlg, fN, ghReleaseUrl(owner, repo, v, checksumFilename)),
+      url,
+      hash: checksumFilename
+        ? await digestFromChecksumURL(digestAlg, fN, ghReleaseUrl(owner, repo, v, checksumFilename))
+        : await Digest.fromBuffer(
+          (await ky.get(url, { redirect: "follow", headers: getDenoAuthHeaders(url) })).body!,
+          "SHA-256",
+        ),
     };
   });

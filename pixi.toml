@@ -23,6 +23,7 @@ cmd = "code ."
 deno = ">=1.39.1,<1.40"
 shellcheck = ">=0.9.0,<0.10"
 go-shfmt = ">=3.7.0,<3.8"
+dprint = ">=0.45.0,<0.46"
 
 [target.linux-64.dependencies]
 patchelf = ">=0.17.2,<0.18"
