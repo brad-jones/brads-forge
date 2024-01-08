@@ -20,7 +20,7 @@ depends_on = ["install-udd"]
 cmd = "code ."
 
 [dependencies]
-deno = ">=1.39.1,<1.40"
+deno = ">=1.39.2,<1.40"
 shellcheck = ">=0.9.0,<0.10"
 go-shfmt = ">=3.7.0,<3.8"
 dprint = ">=0.45.0,<0.46"

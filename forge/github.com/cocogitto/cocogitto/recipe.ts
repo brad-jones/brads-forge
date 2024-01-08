@@ -42,9 +42,10 @@ export default new r.Recipe({
     filenames: [({ os, arch, v }) => `cocogitto-${v}-${MAPPED_ARCH(arch)}-${MAPPED_OS(os)}.tar.gz`],
   }),
   build: {
+    number: 1,
     script: async ({ prefixDir, unix, exe }) => {
       const dst = r.path.join(prefixDir, "bin", exe("cog"));
-      await r.moveGlob("./cog*", dst);
+      await r.moveGlob("./**/cog*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },

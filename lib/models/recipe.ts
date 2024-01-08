@@ -9,7 +9,7 @@ import { Build } from "./build.ts";
 import { Source } from "./source.ts";
 import { DslCtx, makeDslCtx } from "./dslctx.ts";
 import { Requirements } from "./requirements.ts";
-import { Platform, parsePlatform, currentOs, currentPlatform } from "./platform.ts";
+import { Platform, parsePlatform, currentOs } from "./platform.ts";
 
 export interface RecipeProps {
   /**

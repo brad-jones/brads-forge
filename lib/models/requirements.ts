@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 /**
  * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/requirements.rs
  */

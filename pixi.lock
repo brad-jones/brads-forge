@@ -60,63 +60,63 @@ package:
   timestamp: 1650670423406
 - platform: linux-64
   name: deno
-  version: 1.39.1
+  version: 1.39.2
   category: main
   manager: conda
   dependencies:
   - libgcc-ng >=12
-  url: https://conda.anaconda.org/conda-forge/linux-64/deno-1.39.1-h0c53eb9_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/deno-1.39.2-h0c53eb9_0.conda
   hash:
-    md5: 33f158456fdab0312a9b55e23d6367bd
-    sha256: 89e7561b42bdc8562431c42834811ade1edfcf0de7581cbe0a6cb1f215b8de3c
-  build: h0c53eb9_1
+    md5: 8bc5aa8877b3e2f351cadce8fd5ffb8a
+    sha256: 1164521ad0a78302048ea7359b6b8b283f4bd19cdb97316e7a878451b92f9a61
+  build: h0c53eb9_0
   arch: x86_64
   subdir: linux-64
-  build_number: 1
+  build_number: 0
   license: MIT
   license_family: MIT
-  size: 35347737
-  timestamp: 1703263161710
+  size: 36042882
+  timestamp: 1704567159659
 - platform: osx-64
   name: deno
-  version: 1.39.1
+  version: 1.39.2
   category: main
   manager: conda
   dependencies:
   - __osx >=10.11
-  url: https://conda.anaconda.org/conda-forge/osx-64/deno-1.39.1-hd3d0f8d_2.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/deno-1.39.2-hd3d0f8d_0.conda
   hash:
-    md5: 641755a8204349982f23754ed3dc6e2e
-    sha256: e962cb6754c2d20597148995f6e1bea26a099661d5f76fff35412de4591a5dd0
-  build: hd3d0f8d_2
+    md5: ebeb1f645389d2197de1e942615927c2
+    sha256: 5e299a7e496c4ef253f91b8fdc69f5e9644a227c30b9ec10ad80de6055a8cf9d
+  build: hd3d0f8d_0
   arch: x86_64
   subdir: osx-64
-  build_number: 2
+  build_number: 0
   license: MIT
   license_family: MIT
-  size: 32397522
-  timestamp: 1704384913143
+  size: 33084897
+  timestamp: 1704568493034
 - platform: win-64
   name: deno
-  version: 1.39.1
+  version: 1.39.2
   category: main
   manager: conda
   dependencies:
   - ucrt >=10.0.20348.0
   - vc >=14.2,<15
   - vc14_runtime >=14.29.30139
-  url: https://conda.anaconda.org/conda-forge/win-64/deno-1.39.1-h17a1745_2.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/deno-1.39.2-h17a1745_0.conda
   hash:
-    md5: 7ba2cf13bdac688d0475dfb1d6602873
-    sha256: 41062112a23324a48eeefbc67c736d1079c08885784a6aaec310b9691089aaf3
-  build: h17a1745_2
+    md5: 8a3026bd8fc578f7136315570cbaa34d
+    sha256: 11eb89d4406bcd4e75f135a04b04339b47cd0f89d56bbf76aa3bd4b2a3ed1201
+  build: h17a1745_0
   arch: x86_64
   subdir: win-64
-  build_number: 2
+  build_number: 0
   license: MIT
   license_family: MIT
-  size: 29945312
-  timestamp: 1704384343703
+  size: 30002492
+  timestamp: 1704568367513
 - platform: linux-64
   name: dprint
   version: 0.45.0
