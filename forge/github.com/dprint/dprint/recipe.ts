@@ -31,7 +31,7 @@ export default new r.Recipe({
   name: "dprint",
   about: {
     summary: "Pluggable and configurable code formatting platform written in Rust.",
-    homepage: "hhttps://dprint.dev/",
+    homepage: "https://dprint.dev/",
     repository: `https://github.com/${OWNER}/${REPO}`,
     license: "MIT",
   },
