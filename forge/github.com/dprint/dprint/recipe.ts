@@ -53,11 +53,13 @@ export default new r.Recipe({
   },
   test: {
     script: async ({ version, exe }) => {
-      if (!await r.exists(`../../bin/${exe("dprint")}`)) {
+      const dprint = r.path.join("..", "..", "bin", exe("dprint"));
+
+      if (!await r.exists(dprint)) {
         throw new Error(`failed to locate binary in package`);
       }
 
-      const actualVersion = (await r.shell.$`dprint --version`)
+      const actualVersion = (await r.shell.$`${dprint} --version`)
         .match(/\d+\.\d+\.\d+/)?.at(0) ?? "";
 
       if (!r.semver.eq(r.semver.parse(actualVersion), version)) {

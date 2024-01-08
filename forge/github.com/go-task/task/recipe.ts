@@ -52,11 +52,13 @@ export default new r.Recipe({
   },
   test: {
     script: async ({ version, exe }) => {
-      if (!await r.exists(`../../bin/${exe("task")}`)) {
+      const task = r.path.join("..", "..", "bin", exe("task"));
+
+      if (!await r.exists(task)) {
         throw new Error(`failed to locate binary in package`);
       }
 
-      const actualVersion = (await r.shell.$`task --version`)
+      const actualVersion = (await r.shell.$`${task} --version`)
         .match(/v\d+\.\d+\.\d+/)?.at(0) ?? "";
 
       if (!r.semver.eq(r.semver.parse(actualVersion), version)) {

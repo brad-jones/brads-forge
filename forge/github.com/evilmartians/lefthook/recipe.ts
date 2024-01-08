@@ -53,11 +53,13 @@ export default new r.Recipe({
   },
   test: {
     script: async ({ version, exe }) => {
-      if (!await r.exists(`../../bin/${exe("lefthook")}`)) {
+      const lefthook = r.path.join("..", "..", "bin", exe("lefthook"));
+
+      if (!await r.exists(lefthook)) {
         throw new Error(`failed to locate binary in package`);
       }
 
-      if (!r.semver.eq(r.semver.parse(await r.shell.$`lefthook version`), version)) {
+      if (!r.semver.eq(r.semver.parse(await r.shell.$`${lefthook} version`), version)) {
         throw new Error(`unexpected version returned from binary`);
       }
     },
