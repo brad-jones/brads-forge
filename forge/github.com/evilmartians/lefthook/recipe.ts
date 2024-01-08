@@ -45,10 +45,11 @@ export default new r.Recipe({
     filenames: [({ v, os, arch, exe }) => exe(`lefthook_${v}_${MAPPED_OS(os)}_${MAPPED_ARCH(arch)}`)],
   }),
   build: {
-    script: async ({ prefixDir, os, exe }) => {
+    number: 1,
+    script: async ({ prefixDir, unix, exe }) => {
       const dst = r.path.join(prefixDir, "bin", exe("lefthook"));
       await r.moveGlob("./lefthook*", dst);
-      if (os !== "win") await Deno.chmod(dst, 0o755);
+      if (unix) await Deno.chmod(dst, 0o755);
     },
   },
   test: {
