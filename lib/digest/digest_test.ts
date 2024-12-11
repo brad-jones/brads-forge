@@ -1,5 +1,5 @@
 import { Digest } from "./mod.ts";
-import { assertEquals } from "https://deno.land/std@0.211.0/assert/mod.ts#^";
+import { assertEquals } from "@std/assert";
 
 Deno.test("basic equality", () => {
   const d1 = new Digest(["SHA-256", "abc123"]);

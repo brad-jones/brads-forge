@@ -1,13 +1,13 @@
-import { encodeHex } from "https://deno.land/std@0.211.0/encoding/hex.ts#^";
-import { digestAlgorithms } from "https://deno.land/std@0.211.0/crypto/_wasm/mod.ts#^";
-import { crypto, DigestAlgorithmName } from "https://deno.land/std@0.211.0/crypto/mod.ts#^";
-export type { DigestAlgorithmName } from "https://deno.land/std@0.211.0/crypto/mod.ts#^";
+import { crypto, DIGEST_ALGORITHM_NAMES, DigestAlgorithmName } from "@std/crypto";
+import { encodeHex } from "@std/encoding/hex";
+import * as fs from "@std/fs";
+export { type DigestAlgorithmName } from "@std/crypto";
 
 /**
  * A compat. layer for <https://github.com/opencontainers/go-digest>
  */
 export const OciAlgorithms = Object.fromEntries(
-  digestAlgorithms.map((_) => [_.toLowerCase().replace("-", ""), _]),
+  DIGEST_ALGORITHM_NAMES.map((_) => [_.toLowerCase().replace("-", ""), _]),
 );
 
 /**
@@ -38,6 +38,11 @@ export class Digest {
     return this.#v[1];
   }
 
+  /** Returns the underlying array */
+  get digestPair(): DigestPair {
+    return this.#v;
+  }
+
   constructor(v: DigestPair) {
     this.#v = v;
   }
@@ -52,7 +57,7 @@ export class Digest {
       throw new Error(`'${s}' is not a valid digest format`);
     }
     // deno-lint-ignore no-explicit-any
-    if (!digestAlgorithms.includes(parts[0] as any)) {
+    if (!DIGEST_ALGORITHM_NAMES.includes(parts[0] as any)) {
       if (!Object.hasOwn(OciAlgorithms, parts[0])) {
         throw new Error(`'${parts[0]}' is not a valid digest algorithm`);
       }
@@ -65,14 +70,17 @@ export class Digest {
   }
 
   /**
-   * Calculates a new digest of the given data source.
+   * Calculates a new digest of the given data.
    */
-  static async fromBuffer(b: Buffer, a: DigestAlgorithmName = "SHA-256"): Promise<Digest> {
+  static async fromBuffer(
+    b: Buffer,
+    a: DigestAlgorithmName = "SHA-256",
+  ): Promise<Digest> {
     return new Digest([a, encodeHex(await crypto.subtle.digest(a, b))]);
   }
 
   /**
-   * Verifies that that given data source matches the digest.
+   * Verifies that the given data matches the digest.
    */
   async verifyBuffer(b: Buffer): Promise<boolean> {
     return this.equals(await Digest.fromBuffer(b, this.algorithm));
@@ -81,22 +89,76 @@ export class Digest {
   /**
    * Calculates a new digest value from a file.
    */
-  static async fromFile(path: string, a: DigestAlgorithmName = "SHA-256"): Promise<Digest> {
-    const f = await Deno.open(path, { read: true });
-    return await Digest.fromBuffer(f.readable, a);
+  static async fromFile(
+    path: string,
+    a: DigestAlgorithmName = "SHA-256",
+  ): Promise<Digest> {
+    try {
+      const f = await Deno.open(path, { read: true });
+      try {
+        return await Digest.fromBuffer(f.readable, a);
+      } finally {
+        try {
+          f.close();
+        } catch {
+          // swallow error, just means someone else has closed this handle
+        }
+      }
+    } catch (e) {
+      if (e instanceof Deno.errors.NotFound) {
+        return await Digest.fromString("");
+      }
+      throw e;
+    }
   }
 
   /**
-   * Verifies that that given data source matches the digest.
+   * Verifies that the given file matches the digest.
    */
   async verifyFile(path: string): Promise<boolean> {
     return this.equals(await Digest.fromFile(path, this.algorithm));
   }
 
   /**
+   * Calculates a new digest from a directory.
+   *
+   * That is the entire directory will be recursively walked until a digest of
+   * each file in the directory has been calculated & then a digest of the
+   * digests is returned.
+   *
+   * Only filenames & contents are considered in the digest calculation.
+   * File attributes, like the last modified time or permissions,
+   * are completely ignored.
+   */
+  static async fromDir(
+    path: string,
+    a: DigestAlgorithmName = "SHA-256",
+  ): Promise<Digest> {
+    const paths = (await Array.fromAsync(fs.walk(path, { includeDirs: false })))
+      .map((_) => _.path).sort();
+
+    const digests: Record<string, string> = {};
+    for (const p of paths) {
+      digests[p] = (await Digest.fromFile(p, a)).toString();
+    }
+
+    return await Digest.fromString(JSON.stringify(digests), a);
+  }
+
+  /**
+   * Verifies that the given directory matches the digest.
+   */
+  async verifyDir(path: string): Promise<boolean> {
+    return this.equals(await Digest.fromDir(path, this.algorithm));
+  }
+
+  /**
    * Calculates a new digest value from a plain old string.
    */
-  static async fromString(s: string, a: DigestAlgorithmName = "SHA-256"): Promise<Digest> {
+  static async fromString(
+    s: string,
+    a: DigestAlgorithmName = "SHA-256",
+  ): Promise<Digest> {
     return await Digest.fromBuffer(new TextEncoder().encode(s), a);
   }
 

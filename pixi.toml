@@ -6,30 +6,12 @@ authors = ["Brad Jones <brad@bjc.id.au>"]
 channels = ["conda-forge", "https://repo.prefix.dev/brads-forge"]
 platforms = ["linux-64", "win-64", "osx-64"]
 
-[tasks]
-forge = "deno run -qA ./cli.ts"
-update = "udd **/*.ts && deno cache --reload --lock=deno.lock --lock-write ./cli.ts"
-install-udd = "deno install -rf --allow-read=. --allow-write=. --allow-net https://deno.land/x/udd/main.ts"
-
-[tasks.shell]
-depends_on = ["install-udd"]
-cmd = "pixi shell"
-
 [tasks.code]
-depends_on = ["install-udd"]
 cmd = "code ."
 
 [dependencies]
-deno = ">=1.39.2,<1.40"
-shellcheck = ">=0.9.0,<0.10"
-go-shfmt = ">=3.7.0,<3.8"
-dprint = ">=0.45.0,<0.46"
-
-[target.linux-64.dependencies]
-patchelf = ">=0.17.2,<0.18"
-
-[activation]
-scripts = ["activation.sh"]
-
-[target.win-64.activation]
-scripts = ["activation.bat"]
+deno = ">=2.1.2,<2.2"
+dprint = ">=0.47.6,<0.48"
+go-shfmt = ">=3.10.0,<4"
+shellcheck = ">=0.10.0,<0.11"
+rattler-build = ">=0.31.1,<0.32"

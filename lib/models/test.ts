@@ -1,88 +1,42 @@
-import { DslCtx } from "./dslctx.ts";
+import { z } from "zod";
+import { BuildContext } from "./build.ts";
 
-/**
- * @see https://github.com/prefix-dev/rattler-build/blob/main/src/recipe/parser/test.rs
- */
-export interface Test {
+export const FuncTest = z.object({
   /**
-   * Test script to be used.
-   *
-   * If not given, tries to find 'test.sh' on Unix or 'test.bat' on Windows
-   * inside the recipe folder.
-   *
-   * Or you can provide a path to another script to use or a list of commands
-   * to run or provide a function here & that will be executed instead.
+   * Instead of brittle bash/powershell scripts just write your tests using TypeScript.
    */
-  script?: string | string[] | ((ctx: DslCtx) => Promise<void> | void);
+  func: z.function()
+    .args(BuildContext)
+    .returns(z.promise(z.void()))
+    .optional(),
 
   /**
-   * In addition to the runtime requirements, you can specify requirements
-   * needed during testing. The runtime requirements that you specified in
-   * the "run" section described above are automatically included during testing.
-   *
-   * @see https://prefix-dev.github.io/rattler-build/recipe_file/#test-requirements
+   * Additional dependencies to install before running the test.
    */
-  requires?: string | string[];
-
-  /**
-   * List of Python modules or packages that will be imported in the test environment.
-   *
-   * @see https://prefix-dev.github.io/rattler-build/recipe_file/#python-imports
-   */
-  imports?: string | string[];
-
-  /**
-   * Extra files to be copied to the test directory from the build dir (can be globs)
-   *
-   * @see https://prefix-dev.github.io/rattler-build/testing/#how-tests-are-translated
-   */
-  files?: string | string[];
-
-  /**
-   * Extra files to be copied to the test directory from the source directory (can be globs)
-   *
-   * @see https://prefix-dev.github.io/rattler-build/testing/#how-tests-are-translated
-   */
-  sourceFiles?: string | string[];
-
-  /**
-   * Checks if the built package contains the mentioned items.
-   *
-   * @see https://prefix-dev.github.io/rattler-build/recipe_file/#check-for-package-contents
-   */
-  packageContents?: {
+  requirements: z.object({
     /**
-     * Checks for the existence of files inside $PREFIX or %PREFIX% or,
-     * checks that there is at least one file matching the specified `glob`
-     * pattern inside the prefix.
+     * extra requirements with build_platform architecture (emulators, ...)
      */
-    files?: string | string[];
+    build: z.string().or(z.array(z.string())).optional(),
 
     /**
-     * Checks for the existence of `mamba/api/__init__.py` inside of the
-     * Python site-packages directory (note: also see Python import checks).
+     * extra run dependencies
      */
-    sitePackages?: string | string[];
+    run: z.string().or(z.array(z.string())).optional(),
+  }).optional(),
+
+  /**
+   * Additional files to include for the test.
+   */
+  files: z.object({
+    /**
+     * extra files from $SRC_DIR
+     */
+    source: z.string().or(z.array(z.string())).optional(),
 
     /**
-     * Looks in $PREFIX/bin/mamba for unix and %PREFIX%\Library\bin\mamba.exe on Windows
-     *
-     * note: also check the `commands` and execute something like `mamba --help`
-     * to make sure things work fine
+     * extra files from $RECIPE_DIR
      */
-    bins?: string | string[];
-
-    /**
-     * Searches for `$PREFIX/lib/libmamba.so` or `$PREFIX/lib/libmamba.dylib`
-     * on Linux or macOS, on Windows for %PREFIX%\Library\lib\mamba.dll &
-     * %PREFIX%\Library\bin\mamba.bin
-     */
-    libs?: string | string[];
-
-    /**
-     * Searches for `$PREFIX/include/libmamba/mamba.hpp` on unix, and
-     * on Windows for `%PREFIX%\Library\include\mamba.hpp`
-     */
-    includes?: string | string[];
-  };
-}
+    recipe: z.string().or(z.array(z.string())).optional(),
+  }).optional(),
+});

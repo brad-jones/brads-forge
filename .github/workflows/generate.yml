@@ -1,0 +1,42 @@
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: 28 3 * * *
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: v0.39.0
+
+      - name: ⚙️ Add .pixi/envs/default/bin to the $PATH
+        shell: bash
+        run: |
+          echo "$(pwd)/.pixi/envs/default/bin" >> $GITHUB_PATH
+
+      - name: 🧑‍🍳 Generate Rattler Build Recipes
+        run: deno task generate
+
+      - name: 🔼 Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: New Recipes
+          body-path: ./output/pr-body.md
+          commit-message: "chore(bump): recipe versions"
+          sign-commits: true
+          branch: new-recipes
+          delete-branch: true
+          draft: always-true
+          token: ${{ github.token }}

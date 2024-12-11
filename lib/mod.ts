@@ -4,14 +4,11 @@
   eg: import * as r from "lib/mod.ts";
 */
 
-export * from "./fs/mod.ts";
-export * from "./models/platform.ts";
-export * from "./version-sources/mod.ts";
 export { Recipe } from "./models/recipe.ts";
-export type { RecipeProps } from "./models/recipe.ts";
-export * as path from "https://deno.land/std@0.211.0/path/mod.ts";
-export * as semver from "https://deno.land/std@0.211.0/semver/mod.ts";
-export * as shell from "https://deno.land/x/denoexec@v1.1.5/mod.ts";
+export * from "./fs.ts";
+export * as path from "@std/path";
+export * from "./models/platform.ts";
+export { default as http } from "ky";
 export {
   Digest,
   digestFromChecksumFile,
@@ -20,4 +17,7 @@ export {
   OciAlgorithms,
 } from "./digest/mod.ts";
 export type { DigestAlgorithmName, DigestPair, Buffer } from "./digest/mod.ts";
-export { default as http } from "https://esm.sh/ky@1.0.1#^";
+export { $ } from "@david/dax";
+export * from "./versions/mod.ts";
+export * from "./sources/mod.ts";
+export * as archive from "./archive/mod.ts";
