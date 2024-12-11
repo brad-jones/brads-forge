@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
+      id-token: write
     steps:
       - name: ⚙️ Lookup PR RunId
         id: pr-lookup
@@ -22,8 +23,12 @@ jobs:
       - name: ⬇️ Download Built Conda Packages
         uses: actions/download-artifact@v4
         with:
-          path: ./conda/packages
+          path: ./output
           run-id: ${{ steps.pr-lookup.outputs.run-id }}
           github-token: ${{ github.token }}
 
-      - run: ls -R ./conda/packages
+      - name: 🎉 Publish to prefix.dev
+        run: |
+          for file in output/**/*.conda; do
+            rattler-build upload prefix -c brads-forge "$file"
+          done
