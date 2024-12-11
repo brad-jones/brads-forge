@@ -71,3 +71,10 @@ tests:
     requirements:
       build:
         - deno=2.1.2
+about:
+  summary: Fast and powerful Git hooks manager for any type of projects.
+  description: >-
+    https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/README.md
+  homepage: 'https://github.com/evilmartians/lefthook'
+  license_url: >-
+    https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/LICENSE
