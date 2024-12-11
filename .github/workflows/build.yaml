@@ -16,6 +16,8 @@ jobs:
           - { target: osx-arm64, os: macos-14 }
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    outputs:
+      uploaded-artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v4
@@ -36,3 +38,10 @@ jobs:
           rattler-build build --recipe-dir ./forge \
             --skip-existing=all --target-platform=${{ matrix.target }} \
             -c conda-forge -c https://prefix.dev/brads-forge
+
+      - name: ⬆️ Upload Conda Packages
+        uses: actions/upload-artifact@v4
+        id: upload
+        with:
+          name: ${{ matrix.target }}
+          path: output/${{ matrix.target }}/*.conda
