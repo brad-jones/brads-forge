@@ -26,6 +26,9 @@ jobs:
         run: |
           echo "$(pwd)/.pixi/envs/default/bin" >> $GITHUB_PATH
 
+      - name: ⚙️ Install Deno Deps
+        run: deno install
+
       - name: 🧑‍🍳 Generate Rattler Build Recipes
         run: deno task generate
 
