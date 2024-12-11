@@ -12,6 +12,12 @@ export default new r.Recipe({
     osMap: { "linux": "Linux", "osx": "MacOS", "win": "Windows" },
     archMap: { "32": "i386", "64": "x86_64", "aarch64": "arm64" },
   }),
+  about: {
+    homepage: "https://github.com/evilmartians/lefthook",
+    summary: "Fast and powerful Git hooks manager for any type of projects.",
+    description: "https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/README.md",
+    license_url: "https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/LICENSE",
+  },
   build: {
     number: 0,
     dynamic_linking: {
