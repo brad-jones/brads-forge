@@ -61,6 +61,7 @@ for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
 }
 
 const prBodyTxtFile = path.join(fs.toPathString(import.meta.resolve("../output")), "pr-body.md");
+await fs.ensureDir(path.dirname(prBodyTxtFile));
 await Deno.writeTextFile(
   prBodyTxtFile,
   outdent`
