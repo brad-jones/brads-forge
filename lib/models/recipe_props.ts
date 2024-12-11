@@ -17,7 +17,7 @@ export const RecipeProps = z.object({
    * A function that returns the lastest version of this package.
    * A typical source would be the git tags for a remote repo.
    */
-  version: z.promise(z.string()),
+  version: z.function().returns(z.promise(z.string())),
 
   /**
    * A human readable description of the package information

@@ -96,7 +96,7 @@ export class Recipe {
       schema_version: 1,
       package: {
         name: this.props.name,
-        version: await this.props.version,
+        version: await this.props.version(),
       },
     };
 
