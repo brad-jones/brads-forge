@@ -22,8 +22,8 @@ jobs:
       - name: ⬇️ Download Built Conda Packages
         uses: actions/download-artifact@v4
         with:
-          path: /conda/packages
+          path: ./conda/packages
           run-id: ${{ steps.pr-lookup.outputs.run-id }}
           github-token: ${{ github.token }}
 
-      - run: ls -R /conda/packages
+      - run: ls -R ./conda/packages
