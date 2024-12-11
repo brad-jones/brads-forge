@@ -1,0 +1,27 @@
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      - name: ⚙️ Lookup PR RunId
+        id: pr-lookup
+        run: >-
+          echo "run-id=$(gh api /repos/${{ github.repository }}/actions/workflows/build.yaml/runs
+          --method GET -f head_sha=${{ github.event.pull_request.head.sha }} --jq '.workflow_runs[0].id')"
+          >> $GITHUB_OUTPUT
+
+      - name: ⬇️ Download Built Conda Packages
+        uses: actions/download-artifact@v4
+        with:
+          path: /conda/packages
+          run-id: ${{ steps.pr-lookup.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - run: ls -R /conda/packages
