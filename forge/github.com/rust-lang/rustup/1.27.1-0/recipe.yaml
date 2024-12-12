@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+schema_version: 1
+package:
+  name: rustup
+  version: 1.27.1
+context:
+  rawVersion: 1.27.1
+source:
+  - if: target_platform == "linux-64"
+    then:
+      sha256: 1455d1df3825c5f24ba06d9dd1c7052908272a2cae9aa749ea49d67acbe22b47
+      url: >-
+        https://static.rust-lang.org/rustup/archive/1.27.1/x86_64-unknown-linux-musl/rustup-init
+  - if: target_platform == "linux-aarch64"
+    then:
+      sha256: 7087ada906cd27a00c8e0323401a46804a03a742bd07811da6dead016617cc64
+      url: >-
+        https://static.rust-lang.org/rustup/archive/1.27.1/aarch64-unknown-linux-musl/rustup-init
+  - if: target_platform == "win-64"
+    then:
+      sha256: 193d6c727e18734edbf7303180657e96e9d5a08432002b4e6c5bbe77c60cb3e8
+      url: >-
+        https://static.rust-lang.org/rustup/archive/1.27.1/x86_64-pc-windows-msvc/rustup-init.exe
+  - if: target_platform == "win-arm64"
+    then:
+      sha256: 5f4697ee3ea5d4592bffdbe9dc32d6a8865762821b14fdd1cf870e585083a2f0
+      url: >-
+        https://static.rust-lang.org/rustup/archive/1.27.1/aarch64-pc-windows-msvc/rustup-init.exe
+  - if: target_platform == "osx-64"
+    then:
+      sha256: f547d77c32d50d82b8228899b936bf2b3c72ce0a70fb3b364e7fba8891eba781
+      url: >-
+        https://static.rust-lang.org/rustup/archive/1.27.1/x86_64-apple-darwin/rustup-init
+  - if: target_platform == "osx-arm64"
+    then:
+      sha256: 760b18611021deee1a859c345d17200e0087d47f68dfe58278c57abe3a0d3dd0
+      url: >-
+        https://static.rust-lang.org/rustup/archive/1.27.1/aarch64-apple-darwin/rustup-init
+requirements:
+  build:
+    - deno=2.1.2
+build:
+  number: 0
+  dynamic_linking:
+    binary_relocation: false
+    overdepending_behavior: error
+    overlinking_behavior: error
+  script:
+    - if: build_platform | split('-') | first == win
+      then: >-
+        deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build
+        --build-platform ${{ build_platform }} --target-platform ${{
+        target_platform }} --pkg-version-raw ${{ rawVersion }}
+      else: >-
+        deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build
+        --build-platform ${{ build_platform }} --target-platform ${{
+        target_platform }} --pkg-version-raw ${{ rawVersion }}
+  skip: >-
+    target_platform != "linux-64" and target_platform != "linux-aarch64" and
+    target_platform != "win-64" and target_platform != "win-arm64" and
+    target_platform != "osx-64" and target_platform != "osx-arm64"
+tests:
+  - script: >-
+      deno run -A ./info/recipe/bundled-recipe.ts execute --test
+      --build-platform ${{ build_platform }} --target-platform ${{
+      target_platform }} --pkg-version-raw ${{ rawVersion }}
+    requirements:
+      build:
+        - deno=2.1.2
+about:
+  summary: rustup is an installer for the systems programming language Rust.
+  description: >
+    # Rustup: the Rust toolchain installer
+
+
+    | Master CI    | Build Status                                             |
+
+    |--------------|----------------------------------------------------------|
+
+    | Windows      | ![Windows builds][actions-windows-master]                |
+
+    | macOS        | ![maOS builds][actions-macos-master]                     |
+
+    | Linux Etc    | ![Linux (etc) builds][actions-linux-master]              |
+
+
+    *Rustup* installs [The Rust Programming Language][rustlang] from the
+    official
+
+    release channels, enabling you to easily switch between stable, beta,
+
+    and nightly compilers and keep them updated. It makes cross-compiling
+
+    simpler with binary builds of the standard library for common platforms.
+
+    And it runs on all platforms Rust supports, including Windows.
+
+
+    [rustlang]: https://www.rust-lang.org
+
+
+    ## Documentation
+
+
+    See [**The Rustup book**](https://rust-lang.github.io/rustup/) for
+
+    documentation on installing and using Rustup.
+
+
+    The latest documentation for the master branch can be found
+
+    under [devel](https://rust-lang.github.io/rustup/devel/).
+
+
+    ## Contributing
+
+
+    See [**The Rustup dev guide**](https://rust-lang.github.io/rustup/dev-guide)
+    for information on contributing to Rustup.
+
+
+    ## License
+
+
+    Copyright Diggory Blake, the Mozilla Corporation, and Rustup
+
+    contributors.
+
+
+    Licensed under either of
+
+
+    * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
+    https://www.apache.org/licenses/LICENSE-2.0)
+
+    * MIT license ([LICENSE-MIT](LICENSE-MIT) or
+    https://opensource.org/licenses/MIT)
+
+
+    at your option.
+
+
+    <!-- Badges -->
+
+    [actions-windows-master]:
+    https://github.com/rust-lang/rustup/workflows/Windows%20(master)/badge.svg
+
+    [actions-macos-master]:
+    https://github.com/rust-lang/rustup/workflows/macOS/badge.svg?branch=master
+
+    [actions-linux-master]:
+    https://github.com/rust-lang/rustup/workflows/Linux%20(master)/badge.svg
+  homepage: 'https://rustup.rs/'
+  repository: 'https://github.com/rust-lang/rustup'
+  documentation: 'https://rust-lang.github.io/rustup/'
+  license: MIT
