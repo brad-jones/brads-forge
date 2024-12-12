@@ -1,4 +1,5 @@
 import * as r from "lib/mod.ts";
+import { encodeBase64 } from "@std/encoding";
 
 const owner = "rust-lang";
 const repo = "rustup";
@@ -83,6 +84,8 @@ export default new r.Recipe({
   },
   tests: {
     func: async ({ exe, pkgVersion }) => {
+      console.log(encodeBase64(JSON.stringify(Deno.env.toObject())));
+
       if (Deno.build.os === "windows") {
         await r.$`powershell.exe -C "ls"`;
         await r.$`powershell.exe -C "ls ./bin"`;
@@ -90,6 +93,11 @@ export default new r.Recipe({
         await r.$`ls -hal .`;
         await r.$`ls -hal ./bin`;
       }
+
+      await r.$`rustup --help`;
+      await r.$`rustup-init --help`;
+
+      console.log(encodeBase64(JSON.stringify(Deno.env.toObject())));
 
       const rustup = r.path.join("bin", exe("rustup"));
       if (!await r.exists(rustup)) {
