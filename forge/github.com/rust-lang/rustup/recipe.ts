@@ -86,6 +86,9 @@ export default new r.Recipe({
       if (Deno.build.os === "windows") {
         await r.$`powershell.exe -C "ls"`;
         await r.$`powershell.exe -C "ls ./bin"`;
+      } else {
+        await r.$`ls -hal .`;
+        await r.$`ls -hal ./bin`;
       }
 
       const rustup = r.path.join("bin", exe("rustup"));
