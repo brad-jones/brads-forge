@@ -74,51 +74,36 @@ export default new r.Recipe({
       await r.ensureDir(r.path.dirname(envFile));
       await Deno.writeTextFile(
         envFile,
-        JSON.stringify({
-          RUSTUP_HOME: "${CONDA_PREFIX}/.rustup",
-          CARGO_HOME: "${CONDA_PREFIX}/.cargo",
-          PATH: "${CARGO_HOME}/bin:${PATH}",
-        }),
+        JSON.stringify(
+          unix
+            ? {
+              RUSTUP_HOME: "${CONDA_PREFIX}/.rustup",
+              CARGO_HOME: "${CONDA_PREFIX}/.cargo",
+              PATH: "${CARGO_HOME}/bin:${PATH}",
+            }
+            : {
+              RUSTUP_HOME: "%CONDA_PREFIX}%\\.rustup",
+              CARGO_HOME: "%CONDA_PREFIX%\\.cargo",
+              PATH: "%CARGO_HOME%\\bin;%PATH%",
+            },
+        ),
       );
     },
   },
   tests: {
-    func: async ({ exe, pkgVersion }) => {
-      console.log(encodeBase64(JSON.stringify(Deno.env.toObject())));
-
-      if (Deno.build.os === "windows") {
-        await r.$`powershell.exe -C "ls"`;
-        await r.$`powershell.exe -C "ls ./bin"`;
-      } else {
-        await r.$`ls -hal .`;
-        await r.$`ls -hal ./bin`;
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer(await r.$`rustup --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from rustup`);
+      }
+      if (!(await r.$`rustup --help`.text()).includes("The Rust toolchain installer")) {
+        throw new Error(`unexpected help txt returned from rustup`);
       }
 
-      await r.$`rustup --help`;
-      await r.$`rustup-init --help`;
-
-      console.log(encodeBase64(JSON.stringify(Deno.env.toObject())));
-
-      const rustup = r.path.join("bin", exe("rustup"));
-      if (!await r.exists(rustup)) {
-        throw new Error(`failed to locate ${rustup} in package`);
+      if (r.coerceSemVer(await r.$`rustup-init --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from rustup-init`);
       }
-      if (r.coerceSemVer(await r.$`${rustup} --version`.text()) !== pkgVersion) {
-        throw new Error(`unexpected version returned from ${rustup}`);
-      }
-      if (!(await r.$`${rustup} --help`.text()).includes("The Rust toolchain installer")) {
-        throw new Error(`unexpected help txt returned from ${rustup}`);
-      }
-
-      const rustupInit = r.path.join("bin", exe("rustup-init"));
-      if (!await r.exists(rustupInit)) {
-        throw new Error(`failed to locate ${rustupInit} in package`);
-      }
-      if (r.coerceSemVer(await r.$`${rustupInit} --version`.text()) !== pkgVersion) {
-        throw new Error(`unexpected version returned from ${rustupInit}`);
-      }
-      if (!(await r.$`${rustupInit} --help`.text()).includes("The installer for rustup")) {
-        throw new Error(`unexpected help txt returned from ${rustupInit}`);
+      if (!(await r.$`rustup-init --help`.text()).includes("The installer for rustup")) {
+        throw new Error(`unexpected help txt returned from rustup-init`);
       }
     },
   },
