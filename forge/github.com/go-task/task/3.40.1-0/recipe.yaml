@@ -1,0 +1,107 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+schema_version: 1
+package:
+  name: task
+  version: 3.40.1
+context:
+  rawVersion: v3.40.1
+source:
+  - if: target_platform == "osx-64"
+    then:
+      sha256: c3c55c44aee675e30f3e16cdd6e4c17ded38bb5118800ace321425e31c410a01
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_darwin_amd64.tar.gz
+  - if: target_platform == "osx-arm64"
+    then:
+      sha256: b729effcfdd583424e30f58033cbf31a8fa629c1e50c8f90326a06d7ef525154
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_darwin_arm64.tar.gz
+  - if: target_platform == "linux-32"
+    then:
+      sha256: d4a09292b7844232d086956cbc2eba71775282596e3f5eb72b82b2dbc0c411ea
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_linux_386.tar.gz
+  - if: target_platform == "linux-64"
+    then:
+      sha256: a35462ec71410cccfc428072de830e4478bc57a919d0131ef7897759270dff8f
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_linux_amd64.tar.gz
+  - if: target_platform == "linux-arm64"
+    then:
+      sha256: 17f325293d08f6f964e0530842e9ef1410dd5f83ee6475b493087391032b0cfd
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_linux_arm64.tar.gz
+  - if: target_platform == "linux-riscv64"
+    then:
+      sha256: 1bbddaea4cd32e633fd4673efda0c40239ac0f4075ac7cf338c46484c68625c4
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_linux_riscv64.tar.gz
+  - if: target_platform == "win-32"
+    then:
+      sha256: a190e0e6810f50249fda6dc3c462bcc4c7b72f406060b35533f4a84b652b14a8
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_windows_386.zip
+  - if: target_platform == "win-64"
+    then:
+      sha256: b118157d029099d7837f9de4ccc035855bcf0bd433c7a4e3b68425505ec84bc2
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_windows_amd64.zip
+  - if: target_platform == "win-arm64"
+    then:
+      sha256: ca2033815e4d3facfc59804b26b8d26800365692c7ea905ce8b71eebc84bb3bc
+      url: >-
+        https://github.com/go-task/task/releases/download/v3.40.1/task_windows_arm64.zip
+requirements:
+  build:
+    - deno=2.1.2
+build:
+  number: 0
+  dynamic_linking:
+    binary_relocation: false
+    overdepending_behavior: error
+    overlinking_behavior: error
+  script:
+    - if: build_platform | split('-') | first == win
+      then: >-
+        deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build
+        --build-platform ${{ build_platform }} --target-platform ${{
+        target_platform }} --pkg-version-raw ${{ rawVersion }}
+      else: >-
+        deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build
+        --build-platform ${{ build_platform }} --target-platform ${{
+        target_platform }} --pkg-version-raw ${{ rawVersion }}
+  skip: >-
+    target_platform != "osx-64" and target_platform != "osx-arm64" and
+    target_platform != "linux-32" and target_platform != "linux-64" and
+    target_platform != "linux-arm64" and target_platform != "linux-riscv64" and
+    target_platform != "win-32" and target_platform != "win-64" and
+    target_platform != "win-arm64"
+tests:
+  - script: >-
+      deno run -A ./info/recipe/bundled-recipe.ts execute --test
+      --build-platform ${{ build_platform }} --target-platform ${{
+      target_platform }} --pkg-version-raw ${{ rawVersion }}
+    requirements:
+      build:
+        - deno=2.1.2
+about:
+  summary: A task runner / simpler Make alternative written in Go.
+  description: |
+    <div align="center">
+      <a href="https://taskfile.dev">
+        <img src="website/static/img/logo.svg" width="200px" height="200px" />
+      </a>
+
+      <h1>Task</h1>
+
+      <p>
+        Task is a task runner / build tool that aims to be simpler and easier to use than, for example, <a href="https://www.gnu.org/software/make/">GNU Make<a>.
+      </p>
+
+      <p>
+        <a href="https://taskfile.dev/installation/">Installation</a> | <a href="https://taskfile.dev/usage/">Documentation</a> | <a href="https://twitter.com/taskfiledev">Twitter</a> | <a href="https://fosstodon.org/@task">Mastodon</a> | <a href="https://discord.gg/6TY36E39UK">Discord</a>
+      </p>
+    </div>
+  homepage: 'https://taskfile.dev/'
+  repository: 'https://github.com/go-task/task'
+  license: MIT

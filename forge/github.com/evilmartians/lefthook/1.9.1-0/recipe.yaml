@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+schema_version: 1
+package:
+  name: lefthook
+  version: 1.9.1
+context:
+  rawVersion: v1.9.1
+source:
+  - if: target_platform == "linux-arm64"
+    then:
+      sha256: 2ed7a88b5bcdb6ed7d9f605051ab5b05e6ffbf25c46adbf858ec67656dfe148f
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_Linux_arm64.gz
+  - if: target_platform == "linux-64"
+    then:
+      sha256: 90df20ea7cd7d7b4b84c73e746a60490cae51a831720d6f9fffe336bfde826ff
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_Linux_x86_64.gz
+  - if: target_platform == "osx-arm64"
+    then:
+      sha256: 62300d1d1ff9876c7a8fcfe9520dd4f8f2b431431013a64e6cd361d816466320
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_MacOS_arm64.gz
+  - if: target_platform == "osx-64"
+    then:
+      sha256: e3209fe09a2f4b2992b185743ae8c9c20342678629600008a03b2d6c5b9898db
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_MacOS_x86_64.gz
+  - if: target_platform == "win-arm64"
+    then:
+      sha256: 6c633457388105f67b8d84d684ccb67ae1fc0bd7792ccc87ec8357822b4441be
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_Windows_arm64.gz
+  - if: target_platform == "win-32"
+    then:
+      sha256: 4d948a7b52d3f722a1b8a79792097eeecb11f2a47bb4fe53eea70b083ad34724
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_Windows_i386.gz
+  - if: target_platform == "win-64"
+    then:
+      sha256: 4bbf8790996b00c40cdbb304c610915890eaeb1e11235afe09008f3735532dd9
+      url: >-
+        https://github.com/evilmartians/lefthook/releases/download/v1.9.1/lefthook_1.9.1_Windows_x86_64.gz
+requirements:
+  build:
+    - deno=2.1.2
+build:
+  number: 0
+  dynamic_linking:
+    binary_relocation: false
+    overdepending_behavior: error
+    overlinking_behavior: error
+  script:
+    - if: build_platform | split('-') | first == win
+      then: >-
+        deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build
+        --build-platform ${{ build_platform }} --target-platform ${{
+        target_platform }} --pkg-version-raw ${{ rawVersion }}
+      else: >-
+        deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build
+        --build-platform ${{ build_platform }} --target-platform ${{
+        target_platform }} --pkg-version-raw ${{ rawVersion }}
+  skip: >-
+    target_platform != "linux-arm64" and target_platform != "linux-64" and
+    target_platform != "osx-arm64" and target_platform != "osx-64" and
+    target_platform != "win-arm64" and target_platform != "win-32" and
+    target_platform != "win-64"
+tests:
+  - script: >-
+      deno run -A ./info/recipe/bundled-recipe.ts execute --test
+      --build-platform ${{ build_platform }} --target-platform ${{
+      target_platform }} --pkg-version-raw ${{ rawVersion }}
+    requirements:
+      build:
+        - deno=2.1.2
+about:
+  summary: Fast and powerful Git hooks manager for any type of projects.
+  description: "![Build Status](https://github.com/evilmartians/lefthook/actions/workflows/test.yml/badge.svg?branch=master)\n[![Coverage Status](https://coveralls.io/repos/github/evilmartians/lefthook/badge.svg?branch=master)](https://coveralls.io/github/evilmartians/lefthook?branch=master)\n\n# Lefthook\n\n> The fastest polyglot Git hooks manager out there\n\n<img align=\"right\" width=\"147\" height=\"100\" title=\"Lefthook logo\"\n     src=\"./logo_sign.svg\">\n\nA Git hooks manager for Node.js, Ruby, Python and many other types of projects.\n\n* **Fast.** It is written in Go. Can run commands in parallel.\n* **Powerful.** It allows to control execution and files you pass to your commands.\n* **Simple.** It is single dependency-free binary which can work in any environment.\n\n\U0001F4D6 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)\n\n<a href=\"https://evilmartians.com/?utm_source=lefthook\">\n<img src=\"https://evilmartians.com/badges/sponsored-by-evil-martians.svg\" alt=\"Sponsored by Evil Martians\" width=\"236\" height=\"54\"></a>\n\n## Install\n\nWith **Go** (>= 1.23):\n\n```bash\ngo install github.com/evilmartians/lefthook@latest\n```\n\nWith **NPM**:\n\n```bash\nnpm install lefthook --save-dev\n```\n\nFor **Ruby**:\n\n```bash\ngem install lefthook\n```\n\nFor **Python**:\n\n```bash\npip install lefthook\n```\n\n**[Installation guide](./docs/install.md)** with more ways to install lefthook: [apt](./docs/install.md#deb), [brew](./docs/install.md#homebrew), [winget](./docs/install.md#winget), and others.\n\n## Usage\n\nConfigure your hooks, install them once and forget about it: rely on the magic underneath.\n\n#### TL;DR\n\n```bash\n# Configure your hooks\nvim lefthook.yml\n\n# Install them to the git project\nlefthook install\n\n# Enjoy your work with git\ngit add -A && git commit -m '...'\n```\n\n#### More details\n\n- [**Configuration**](./docs/configuration.md) for `lefthook.yml` config options.\n- [**Usage**](./docs/usage.md) for **lefthook** CLI options, supported ENVs, and usage tips.\n- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.\n<!-- - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks. -->\n\n## Why Lefthook\n\n* ### **Parallel execution**\nGives you more speed. [Example](./docs/configuration.md#parallel)\n\n```yml\npre-push:\n  parallel: true\n```\n\n* ### **Flexible list of files**\nIf you want your own list. [Custom](./docs/configuration.md#files) and [prebuilt](./docs/configuration.md#run) examples.\n\n```yml\npre-commit:\n  commands:\n    frontend-linter:\n      run: yarn eslint {staged_files}\n    backend-linter:\n      run: bundle exec rubocop --force-exclusion {all_files}\n    frontend-style:\n      files: git diff --name-only HEAD @{push}\n      run: yarn stylelint {files}\n```\n\n* ### **Glob and regexp filters**\nIf you want to filter list of files. You could find more glob pattern examples [here](https://github.com/gobwas/glob#example).\n\n```yml\npre-commit:\n  commands:\n    backend-linter:\n      glob: \"*.rb\" # glob filter\n      exclude: '(^|/)(application|routes)\\.rb$' # regexp filter\n      run: bundle exec rubocop --force-exclusion {all_files}\n```\n\n* ### **Execute in sub-directory**\nIf you want to execute the commands in a relative path\n\n```yml\npre-commit:\n  commands:\n    backend-linter:\n      root: \"api/\" # Careful to have only trailing slash\n      glob: \"*.rb\" # glob filter\n      run: bundle exec rubocop {all_files}\n```\n\n* ### **Run scripts**\n\nIf oneline commands are not enough, you can execute files. [Example](./docs/configuration.md#script).\n\n```yml\ncommit-msg:\n  scripts:\n    \"template_checker\":\n      runner: bash\n```\n\n* ### **Tags**\nIf you want to control a group of commands. [Example](./docs/configuration.md#tags).\n\n```yml\npre-push:\n  commands:\n    packages-audit:\n      tags: frontend security\n      run: yarn audit\n    gems-audit:\n      tags: backend security\n      run: bundle audit\n```\n\n* ### **Support Docker**\n\nIf you are in the Docker environment. [Example](./docs/configuration.md#cmd-template).\n\n```yml\npre-commit:\n  scripts:\n    \"good_job.js\":\n      runner: docker run -it --rm <container_id_or_name> {cmd}\n```\n\n* ### **Local config**\n\nIf you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [Description](./docs/usage.md#local-config).\n\n```yml\n# lefthook-local.yml\npre-push:\n  exclude_tags:\n    - frontend\n  commands:\n    packages-audit:\n      skip: true\n```\n\n* ### **Direct control**\n\nIf you want to run hooks group directly.\n\n```bash\n$ lefthook run pre-commit\n```\n\n* ### **Your own tasks**\n\nIf you want to run specific group of commands directly.\n\n```yml\nfixer:\n  commands:\n    ruby-fixer:\n      run: bundle exec rubocop --force-exclusion --safe-auto-correct {staged_files}\n    js-fixer:\n      run: yarn eslint --fix {staged_files}\n```\n```bash\n$ lefthook run fixer\n```\n\n* ### **Optional output**\n\nIf you [don't want to see](./docs/configuration.md#skip_output) supporting information:\n\n```yml\nskip_output:\n  - meta #(version and which hook running)\n  - success #(output from runners with exit code 0)\n```\n\n----\n\n### Guides\n\n* [Install with Node.js](./docs/install.md#node)\n* [Install with Ruby](./docs/install.md#ruby)\n* [Install with Homebrew](./docs/install.md#homebrew)\n* [Install with Winget](./docs/install.md#winget)\n* [Install for Debian-based Linux](./docs/install.md#deb)\n* [Install for RPM-based Linux](./docs/install.md#rpm)\n* [Install for Arch Linux](./docs/install.md#arch)\n* [Usage](./docs/usage.md)\n* [Configuration](./docs/configuration.md)\n<!-- * [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting) -->\n\n<!-- ### Migrate from -->\n<!-- * [Husky](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky) -->\n<!-- * [Husky and lint-staged](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky-with-lint-staged) -->\n<!-- * [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit) -->\n\n### Examples\n* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/with_scripts)\n* [Full features](https://github.com/evilmartians/lefthook/tree/master/examples/complete)\n\n<!-- ### Benchmarks -->\n<!-- * [vs Overcommit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-overcommit) -->\n<!-- * [vs pre-commit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-pre-commit) -->\n\n<!-- ### Comparison list -->\n<!-- * [vs Overcommit, Husky, pre-commit](https://github.com/evilmartians/lefthook/wiki/Comparison-with-other-solutions) -->\n\n### Articles\n* [5 cool (and surprising) ways to configure Lefthook for automation joy](https://evilmartians.com/chronicles/5-cool-and-surprising-ways-to-configure-lefthook-for-automation-joy?utm_source=lefthook)\n* [Lefthook: Knock your team’s code back into shape](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)\n* [Lefthook + Crystalball](https://evilmartians.com/chronicles/lefthook-crystalball-and-git-magic?utm_source=lefthook)\n* [Keeping OSS documentation in check with docsify, Lefthook, and friends](https://evilmartians.com/chronicles/keeping-oss-documentation-in-check-with-docsify-lefthook-and-friends?utm_source=lefthook)\n* [Automatically linting docker containers](https://dev.to/nitzano/linting-docker-containers-2lo6?utm_source=lefthook)\n* [Smooth PostgreSQL upgrades in DockerDev environments with Lefthook](https://dev.to/palkan_tula/smooth-postgresql-upgrades-in-dockerdev-environments-with-lefthook-203k?utm_source=lefthook)\n* [Lefthook for React/React Native apps](https://blog.logrocket.com/deep-dive-into-lefthook-react-native?utm_source=lefthook)\n"
+  homepage: 'https://github.com/evilmartians/lefthook'
+  license: MIT
