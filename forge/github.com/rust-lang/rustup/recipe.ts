@@ -56,7 +56,7 @@ export default new r.Recipe({
       // You use rustup-init to do an initial install of rust & then start using
       // rustup to manage what targets you have installed, etc.
       const rustupInit = r.path.join(prefixDir, "bin", exe("rustup-init"));
-      await Deno.symlink(dst, rustupInit, { type: "file" });
+      await Deno.symlink(dst, rustupInit, { type: "junction" });
 
       // Configure rustup to install everything with-in the pixi environment
       const envFile = r.path.join(prefixDir, "etc", "conda", "env_vars.d", "rustup.json");
