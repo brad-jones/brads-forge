@@ -23,7 +23,11 @@ for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
     path.dirname(item.path),
     `${recipe.package.version}-${recipe.build?.number ?? 0}`,
   );
-  await fs.emptyDir(recipeDir);
+  if (await fs.exists(recipeDir, { isDirectory: true })) {
+    console.log(`Skipping ${recipeDir}, already exists. HINT: Increase the build.number if required.`);
+    continue;
+  }
+  await fs.ensureDir(recipeDir);
   console.log(`Created ${recipeDir}`);
 
   // Write the rattler-build yaml file

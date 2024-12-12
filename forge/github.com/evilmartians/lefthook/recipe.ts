@@ -38,7 +38,7 @@ export default new r.Recipe({
         throw new Error(`failed to locate binary in package`);
       }
 
-      if (`v${await r.$`${lefthook} version`.text()}` !== pkgVersion) {
+      if (await r.$`${lefthook} version`.text() !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },

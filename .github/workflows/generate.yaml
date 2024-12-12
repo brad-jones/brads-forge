@@ -1,10 +1,14 @@
 on:
+  push:
+    branches:
+      - master
   schedule:
     - cron: 28 3 * * *
   workflow_dispatch:
 
 jobs:
   generate:
+    if: "!contains(github.event.commits.*.message, 'chore(bump): recipe versions')"
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,6 +39,7 @@ jobs:
           title: New Recipes
           body-path: ./output/pr-body.md
           commit-message: "chore(bump): recipe versions"
+          labels: recipes
           sign-commits: true
           branch: new-recipes
           delete-branch: true

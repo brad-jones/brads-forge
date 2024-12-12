@@ -36,6 +36,12 @@ export const BuildContext = z.object({
   pkgVersion: z.string().default(Deno.env.get("PKG_VERSION") ?? ""),
 
   /**
+   * The untouched version of the package as returned by the
+   * upstream version source without any semver treatmeant.
+   */
+  pkgVersionRaw: z.string(),
+
+  /**
    * The build number defined in the recipe that is used to version the build.
    */
   pkgBuildNo: z.string().default(Deno.env.get("PKG_BUILDNUM") ?? ""),

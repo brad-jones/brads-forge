@@ -4,7 +4,8 @@ on:
       - ready_for_review
 
 jobs:
-  test:
+  build:
+    if: contains(github.event.pull_request.labels.*.name, 'recipes')
     strategy:
       fail-fast: false
       matrix:

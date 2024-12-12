@@ -5,7 +5,9 @@ on:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
+    if: >-
+      github.event.pull_request.merged == true
+      && contains(github.event.pull_request.labels.*.name, 'recipes')
     runs-on: ubuntu-latest
     permissions:
       actions: read

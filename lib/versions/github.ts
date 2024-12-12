@@ -1,3 +1,4 @@
+import { coerceSemVer } from "./coerce.ts";
 import { Octokit } from "@octokit/rest";
 
 const OCTOKIT = new Octokit({
@@ -7,10 +8,10 @@ const OCTOKIT = new Octokit({
 });
 
 export function latestGithubTag(options: { owner: string; repo: string }, octokit = OCTOKIT) {
-  return async () => {
+  return async (): Promise<{ raw: string; semver?: string }> => {
     const tags = await octokit.repos.listTags(options);
     const tag = tags.data[0].name;
     console.log(`Found github/${options.owner}/${options.repo} tag: ${tag}`);
-    return tag;
+    return { raw: tag, semver: coerceSemVer(tag) };
   };
 }

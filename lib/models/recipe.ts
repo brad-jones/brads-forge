@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { z } from "zod";
 import { Ajv, Plugin, AnySchema, ValidateFunction } from "ajv";
 import ajvFormats, { FormatsPluginOptions } from "ajv-formats";
@@ -7,7 +8,7 @@ import * as path from "@std/path";
 import { Command } from "@cliffy/command";
 import { BuildContext } from "./build.ts";
 import { SimpleRecipe } from "./rattler/simple_recipe.ts";
-import { invertPlatforms, Platform } from "./platform.ts";
+import { Platform } from "./platform.ts";
 import { Source } from "./rattler/source.ts";
 
 // see: https://github.com/ajv-validator/ajv-formats/issues/85
@@ -21,6 +22,12 @@ export class Recipe {
   readonly #props: z.input<typeof RecipeProps>;
   #platformSources?: Partial<Record<Platform, z.output<typeof Source>>>;
 
+  /**
+   * If true, it means this recipe contains javascript functions for the build &/or test scripts,
+   * which require additional work to serialise into something rattler-build can execute.
+   *
+   * If false, this this recipe can simply be printed to YAML without any further action.
+   */
   get hasJsFuncs(): boolean {
     if (this.#props.build.func) return true;
     if (this.#props.tests && "func" in this.#props.tests) return true;
@@ -50,7 +57,12 @@ export class Recipe {
         "The platform `{os}-{arch}` that is being targeted by the current build.",
         { required: true },
       )
-      .action(async ({ build, test, buildPlatform, targetPlatform }) => {
+      .option(
+        "--pkg-version-raw <pkgVersionRaw>",
+        "The untouched version of the package as returned by the upstream version source without any semver treatmeant.",
+        { required: true },
+      )
+      .action(async ({ build, test, buildPlatform, targetPlatform, pkgVersionRaw }) => {
         const buildParts = buildPlatform.split("-");
         const buildOs = buildParts[0];
         const buildArch = buildParts[1];
@@ -71,6 +83,7 @@ export class Recipe {
           targetPlatform,
           targetOs,
           targetArch,
+          pkgVersionRaw,
         });
 
         if (build) {
@@ -92,15 +105,20 @@ export class Recipe {
       .parse(Deno.args.slice(1));
 
   async #mapRecipe() {
+    const v = await this.props.version();
+
     const simpleRecipe: any = {
       schema_version: 1,
       package: {
         name: this.props.name,
-        version: await this.props.version(),
+        version: v.semver ?? v.raw,
+      },
+      context: {
+        rawVersion: v.raw,
       },
     };
 
-    const sources = await this.#mapSources(simpleRecipe.package.version);
+    const sources = await this.#mapSources(v.raw);
     if (sources.length > 0) simpleRecipe.source = sources;
 
     simpleRecipe.build = this.#mapBuild(simpleRecipe);
@@ -144,9 +162,9 @@ export class Recipe {
       build.script = [{
         if: "build_platform | split('-') | first == win",
         then:
-          "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build --build-platform ${{ build_platform }} --target-platform ${{ target_platform }}",
+          "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build --build-platform ${{ build_platform }} --target-platform ${{ target_platform }} --pkg-version-raw ${{ rawVersion }}",
         else:
-          "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build --build-platform ${{ build_platform }} --target-platform ${{ target_platform }}",
+          "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build --build-platform ${{ build_platform }} --target-platform ${{ target_platform }} --pkg-version-raw ${{ rawVersion }}",
       }];
       delete build.func;
       if (!simpleRecipe.requirements) simpleRecipe.requirements = {};
@@ -176,7 +194,7 @@ export class Recipe {
     if (tests && !Array.isArray(tests)) {
       if ("func" in tests) {
         tests.script =
-          "deno run -A ./info/recipe/bundled-recipe.ts execute --test --build-platform ${{ build_platform }} --target-platform ${{ target_platform }}";
+          "deno run -A ./info/recipe/bundled-recipe.ts execute --test --build-platform ${{ build_platform }} --target-platform ${{ target_platform }} --pkg-version-raw ${{ rawVersion }}";
         if (!tests.requirements) tests.requirements = {};
         if (!tests.requirements.build) tests.requirements.build = [];
         tests.requirements.build.push(`deno=${Deno.version.deno}`);

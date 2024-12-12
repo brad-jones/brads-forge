@@ -17,7 +17,23 @@ export const RecipeProps = z.object({
    * A function that returns the lastest version of this package.
    * A typical source would be the git tags for a remote repo.
    */
-  version: z.function().returns(z.promise(z.string())),
+  version: z.function().returns(z.promise(
+    z.object({
+      /**
+       * The version string un-altered from the original upstream source.
+       */
+      raw: z.string(),
+
+      /**
+       * A parsed semver string.
+       *
+       * This means it has succesfully been parsed by `@std/semver.parse`.
+       * But not all packages follow the convention so we can not rely on
+       * this to always be available.
+       */
+      semver: z.string().optional(),
+    }),
+  )),
 
   /**
    * A human readable description of the package information
