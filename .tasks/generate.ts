@@ -12,17 +12,17 @@ console.log(`Looking for recipes in ${forgeDir}`);
 const newRecipes = [];
 
 for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
-  // Build the rattler-build recipe object
+  // Import the recipe module
   console.log(`Importing ${item.path}`);
   const r = (await import(item.path))["default"];
   if (!(r instanceof Recipe)) throw new Error(`unexpected recipe export`);
-  const recipe = await r.toObject();
+
+  // Get package version
+  const version = await r.getVersion();
+  const fullVersion = `${version.semver ?? version.raw}-${r.props.build?.number ?? 0}`;
 
   // Create new versioned recipe directory
-  const recipeDir = path.join(
-    path.dirname(item.path),
-    `${recipe.package.version}-${recipe.build?.number ?? 0}`,
-  );
+  const recipeDir = path.join(path.dirname(item.path), fullVersion);
   if (await fs.exists(recipeDir, { isDirectory: true })) {
     console.log(`Skipping ${recipeDir}, already exists. HINT: Increase the build.number if required.`);
     continue;
@@ -31,6 +31,7 @@ for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
   console.log(`Created ${recipeDir}`);
 
   // Write the rattler-build yaml file
+  const recipe = await r.toObject();
   const recipeYamlPath = path.join(recipeDir, "recipe.yaml");
   await Deno.writeTextFile(
     recipeYamlPath,

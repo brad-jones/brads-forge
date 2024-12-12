@@ -104,8 +104,16 @@ export class Recipe {
       })
       .parse(Deno.args.slice(1));
 
+  #cachedVersion?: { raw: string; semver?: string | undefined };
+  async getVersion() {
+    if (!this.#cachedVersion) {
+      this.#cachedVersion = await this.props.version();
+    }
+    return this.#cachedVersion;
+  }
+
   async #mapRecipe() {
-    const v = await this.props.version();
+    const v = await this.getVersion();
 
     const simpleRecipe: any = {
       schema_version: 1,
