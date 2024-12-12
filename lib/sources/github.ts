@@ -50,12 +50,24 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
       );
       if (!os) continue;
 
-      const arch = allArchitectures.find((arch) =>
+      let arch = allArchitectures.find((arch) =>
         asset.name.includes(
           options.archMap ? options.archMap[arch] ?? arch : arch,
         )
       );
       if (!arch) continue;
+
+      // NB: There is no such platform variant as linux-arm64
+      // Instead you probably want linux-aarch64 or linux-armv6l, linux-armv7l.
+      // https://stackoverflow.com/questions/31851611/differences-between-arm64-and-aarch64
+      if (os === "linux" && arch === "arm64") {
+        arch = "aarch64";
+      }
+
+      // Similarly there is no such platform as osx-aarch64
+      if (os === "osx" && arch === "aarch64") {
+        arch = "arm64";
+      }
 
       let digest: string;
       if (checkSumFile) {

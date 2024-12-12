@@ -6,7 +6,7 @@ package:
 context:
   rawVersion: v1.9.1
 source:
-  - if: target_platform == "linux-arm64"
+  - if: target_platform == "linux-aarch64"
     then:
       sha256: 2ed7a88b5bcdb6ed7d9f605051ab5b05e6ffbf25c46adbf858ec67656dfe148f
       url: >-
@@ -61,7 +61,7 @@ build:
         --build-platform ${{ build_platform }} --target-platform ${{
         target_platform }} --pkg-version-raw ${{ rawVersion }}
   skip: >-
-    target_platform != "linux-arm64" and target_platform != "linux-64" and
+    target_platform != "linux-aarch64" and target_platform != "linux-64" and
     target_platform != "osx-arm64" and target_platform != "osx-64" and
     target_platform != "win-arm64" and target_platform != "win-32" and
     target_platform != "win-64"
