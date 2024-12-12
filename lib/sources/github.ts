@@ -24,7 +24,12 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
   return async (tag: string): Promise<Partial<Record<Platform, z.output<typeof Source>>>> => {
     const sources: Partial<Record<Platform, z.output<typeof Source>>> = {};
     console.log(`Finding github release assets for ${options.owner}/${options.repo}@${tag}`);
-    const release = await octokit.repos.getReleaseByTag({ ...options, tag });
+    const release = await octokit.repos.getReleaseByTag({
+      owner: options.owner,
+      repo: options.repo,
+      tag,
+      headers: options.headers,
+    });
 
     let checkSumFile: string | undefined = undefined;
     const checksumFilePattern = options.checksumFilePattern ?? /^.*(checksum|sha256).*$/;
