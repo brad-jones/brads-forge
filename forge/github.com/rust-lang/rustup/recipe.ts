@@ -83,6 +83,11 @@ export default new r.Recipe({
   },
   tests: {
     func: async ({ exe, pkgVersion }) => {
+      if (Deno.build.os === "windows") {
+        await r.$`powershell.exe -C "ls"`;
+        await r.$`powershell.exe -C "ls ./bin"`;
+      }
+
       const rustup = r.path.join("bin", exe("rustup"));
       if (!await r.exists(rustup)) {
         throw new Error(`failed to locate ${rustup} in package`);
@@ -95,9 +100,9 @@ export default new r.Recipe({
       }
 
       const rustupInit = r.path.join("bin", exe("rustup-init"));
-      //if (!await r.exists(rustupInit)) {
-      //  throw new Error(`failed to locate ${rustupInit} in package`);
-      //}
+      if (!await r.exists(rustupInit)) {
+        throw new Error(`failed to locate ${rustupInit} in package`);
+      }
       if (r.coerceSemVer(await r.$`${rustupInit} --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from ${rustupInit}`);
       }
