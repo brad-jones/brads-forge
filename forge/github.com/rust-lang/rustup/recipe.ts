@@ -1,4 +1,3 @@
-import { outdent } from "@cspotcode/outdent";
 import * as r from "lib/mod.ts";
 
 const owner = "rust-lang";
@@ -65,9 +64,7 @@ export default new r.Recipe({
         await r.ensureDir(r.path.dirname(scriptFile));
         await Deno.writeTextFile(
           scriptFile,
-          outdent`
-            mklink /H "%CONDA_PREFIX%\\bin\\rustup-init.exe" "%CONDA_PREFIX%\\bin\\rustup.exe"
-          `,
+          'mklink /H "%CONDA_PREFIX%\\bin\\rustup-init.exe" "%CONDA_PREFIX%\\bin\\rustup.exe"',
         );
       }
 
@@ -104,7 +101,7 @@ export default new r.Recipe({
       if (r.coerceSemVer(await r.$`${rustupInit} --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from ${rustupInit}`);
       }
-      if ((await r.$`${rustupInit} --help`.text()).includes("The installer for rustup")) {
+      if (!(await r.$`${rustupInit} --help`.text()).includes("The installer for rustup")) {
         throw new Error(`unexpected help txt returned from ${rustupInit}`);
       }
     },
