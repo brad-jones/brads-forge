@@ -15,8 +15,9 @@ export default new r.Recipe({
   about: {
     homepage: "https://github.com/evilmartians/lefthook",
     summary: "Fast and powerful Git hooks manager for any type of projects.",
-    description: "https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/README.md",
-    license_url: "https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/LICENSE",
+    description: await r.http.get("https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/README.md")
+      .text(),
+    license: "MIT",
   },
   build: {
     number: 0,
