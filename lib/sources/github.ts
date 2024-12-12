@@ -55,7 +55,7 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
           options.archMap ? options.archMap[arch] ?? arch : arch,
         )
       );
-      if (!os) continue;
+      if (!arch) continue;
 
       let digest: string;
       if (checkSumFile) {
