@@ -1,3 +1,4 @@
+import { outdent } from "@cspotcode/outdent";
 import * as r from "lib/mod.ts";
 
 const owner = "rust-lang";
@@ -55,8 +56,20 @@ export default new r.Recipe({
       // presents a totally different CLI interface based on the name of the binary.
       // You use rustup-init to do an initial install of rust & then start using
       // rustup to manage what targets you have installed, etc.
-      const rustupInit = r.path.join(prefixDir, "bin", exe("rustup-init"));
-      await Deno.symlink(dst, rustupInit, { type: "junction" });
+      if (unix) {
+        await Deno.symlink(dst, r.path.join(prefixDir, "bin/rustup-init"));
+      } else {
+        // Symlinks don't work on windows (atleast not without Admin permissions)
+        // so we create a hardlink on activation.
+        const scriptFile = r.path.join(prefixDir, "etc/conda/activate.d/script.bat");
+        await r.ensureDir(r.path.dirname(scriptFile));
+        await Deno.writeTextFile(
+          scriptFile,
+          outdent`
+            mklink /H "%CONDA_PREFIX%\\bin\\rustup-init.exe" "%CONDA_PREFIX%\\bin\\rustup.exe"
+          `,
+        );
+      }
 
       // Configure rustup to install everything with-in the pixi environment
       const envFile = r.path.join(prefixDir, "etc", "conda", "env_vars.d", "rustup.json");
@@ -74,13 +87,25 @@ export default new r.Recipe({
   tests: {
     func: async ({ exe, pkgVersion }) => {
       const rustup = r.path.join("bin", exe("rustup"));
-
       if (!await r.exists(rustup)) {
-        throw new Error(`failed to locate binary in package`);
+        throw new Error(`failed to locate ${rustup} in package`);
+      }
+      if (r.coerceSemVer(await r.$`${rustup} --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from ${rustup}`);
+      }
+      if (!(await r.$`${rustup} --help`.text()).includes("The Rust toolchain installer")) {
+        throw new Error(`unexpected help txt returned from ${rustup}`);
       }
 
-      if (r.coerceSemVer(await r.$`${rustup} --version`.text()) !== pkgVersion) {
-        throw new Error(`unexpected version returned from binary`);
+      const rustupInit = r.path.join("bin", exe("rustup-init"));
+      if (!await r.exists(rustupInit)) {
+        throw new Error(`failed to locate ${rustupInit} in package`);
+      }
+      if (r.coerceSemVer(await r.$`${rustupInit} --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from ${rustupInit}`);
+      }
+      if ((await r.$`${rustupInit} --help`.text()).includes("The installer for rustup")) {
+        throw new Error(`unexpected help txt returned from ${rustupInit}`);
       }
     },
   },
