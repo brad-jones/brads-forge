@@ -3,7 +3,7 @@ import ky from "ky";
 import { Octokit } from "@octokit/rest";
 import { Source } from "../models/rattler/source.ts";
 import { Platform, PlatformOs, PlatformArch, allOperatingSystems, allArchitectures } from "../models/platform.ts";
-import { digestFromChecksumTXT } from "../digest/mod.ts";
+import { Digest, digestFromChecksumTXT } from "../digest/mod.ts";
 
 const token = Deno.env.get("GH_TOKEN") ??
   Deno.env.get("GITHUB_TOKEN") ??
@@ -73,7 +73,10 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
       if (checkSumFile) {
         digest = digestFromChecksumTXT("SHA-256", asset.name, checkSumFile).digestPair[1];
       } else {
-        throw new Error(`failed to locate checksum file`);
+        console.log(`Downloading ${asset.name} to calc missing digest...`);
+        const r = await ky.get(asset.browser_download_url);
+        if (!r.body) throw new Error(`failed to download asset to calculate digest`);
+        digest = (await Digest.fromBuffer(r.body)).digestPair[1];
       }
 
       sources[Platform.parse(`${os}-${arch}`)] = {
