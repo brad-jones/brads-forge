@@ -21,10 +21,10 @@ for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
   if (!(r instanceof Recipe)) throw new Error(`unexpected recipe export`);
 
   // Check if it is published, bail out if so
-  //if (await r.isFullyPublished()) {
-  //  console.log(`Skipping recipe, already up to date.`);
-  //  continue;
-  //}
+  if (await r.isFullyPublished()) {
+    console.log(`Skipping recipe, already up to date.`);
+    continue;
+  }
 
   // Create directory for generated recipe
   const recipe = await r.toObject();
