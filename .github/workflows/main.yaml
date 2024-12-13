@@ -47,6 +47,8 @@ jobs:
     if: ${{ needs.generate.outputs.artifact-id }}
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
