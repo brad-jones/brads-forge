@@ -14,6 +14,11 @@ export const RecipeProps = z.object({
   name: z.string(),
 
   /**
+   * A human readable description of the package information
+   */
+  about: About.optional(),
+
+  /**
    * A function that returns the lastest version of this package.
    * A typical source would be the git tags for a remote repo.
    */
@@ -34,11 +39,6 @@ export const RecipeProps = z.object({
       semver: z.string().optional(),
     }),
   )),
-
-  /**
-   * A human readable description of the package information
-   */
-  about: About.optional(),
 
   /**
    * The source items to be downloaded and used for the build.

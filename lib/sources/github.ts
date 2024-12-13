@@ -32,19 +32,25 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
     });
 
     let checkSumFile: string | undefined = undefined;
+    let checkSumFileDownloader: (() => Promise<string>) | undefined = undefined;
     const checksumFilePattern = options.checksumFilePattern ?? /^.*(checksum|sha256).*$/;
     const checkSumFileUrl = release.data.assets.find((_) => _.name.match(checksumFilePattern))?.browser_download_url;
     if (checkSumFileUrl) {
-      console.log(`Downloading checksum file ${checkSumFileUrl}`);
-      checkSumFile = await ky.get(checkSumFileUrl, {
-        redirect: "follow",
-        headers: token
-          ? {
-            "Authorization": `Bearer ${token}`,
-            ...options.headers,
-          }
-          : { ...options.headers },
-      }).text();
+      checkSumFileDownloader = async () => {
+        if (!checkSumFile) {
+          console.log(`Downloading checksum file ${checkSumFileUrl}`);
+          checkSumFile = await ky.get(checkSumFileUrl, {
+            redirect: "follow",
+            headers: token
+              ? {
+                "Authorization": `Bearer ${token}`,
+                ...options.headers,
+              }
+              : { ...options.headers },
+          }).text();
+        }
+        return checkSumFile;
+      };
     }
 
     for (const asset of release.data.assets) {
@@ -53,40 +59,34 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
           options.osMap ? options.osMap[os] ?? os : os,
         )
       );
-      if (!os) continue;
+      if (!os || os === "unknown") continue;
 
       let arch = allArchitectures.find((arch) =>
         asset.name.includes(
           options.archMap ? options.archMap[arch] ?? arch : arch,
         )
       );
-      if (!arch) continue;
+      if (!arch || arch === "unknown") continue;
 
       // NB: There is no such platform variant as linux-arm64
       // Instead you probably want linux-aarch64 or linux-armv6l, linux-armv7l.
       // https://stackoverflow.com/questions/31851611/differences-between-arm64-and-aarch64
-      if (os === "linux" && arch === "arm64") {
-        arch = "aarch64";
-      }
-
-      // Similarly there is no such platform as osx-aarch64
-      if (os === "osx" && arch === "aarch64") {
-        arch = "arm64";
-      }
-
-      let digest: string;
-      if (checkSumFile) {
-        digest = digestFromChecksumTXT("SHA-256", asset.name, checkSumFile).digestPair[1];
-      } else {
-        console.log(`Downloading ${asset.name} to calc missing digest...`);
-        const r = await ky.get(asset.browser_download_url);
-        if (!r.body) throw new Error(`failed to download asset to calculate digest`);
-        digest = (await Digest.fromBuffer(r.body)).digestPair[1];
-      }
+      if (os === "linux" && arch === "arm64") arch = "aarch64";
+      if (os === "osx" && arch === "aarch64") arch = "arm64";
+      if (os === "win" && arch === "aarch64") arch = "arm64";
 
       sources[Platform.parse(`${os}-${arch}`)] = {
         url: asset.browser_download_url,
-        sha256: digest,
+        sha256: async () => {
+          if (checkSumFileDownloader) {
+            return digestFromChecksumTXT("SHA-256", asset.name, await checkSumFileDownloader()).digestPair[1];
+          } else {
+            console.log(`Downloading ${asset.name} to calc missing digest...`);
+            const r = await ky.get(asset.browser_download_url);
+            if (!r.body) throw new Error(`failed to download asset to calculate digest`);
+            return (await Digest.fromBuffer(r.body)).digestPair[1];
+          }
+        },
       };
     }
 

@@ -8,8 +8,9 @@ import * as path from "@std/path";
 import { Command } from "@cliffy/command";
 import { BuildContext } from "./build.ts";
 import { SimpleRecipe } from "./rattler/simple_recipe.ts";
-import { Platform } from "./platform.ts";
+import { Platform, PlatformArch, PlatformOs, splitPlatform } from "./platform.ts";
 import { Source } from "./rattler/source.ts";
+import { PrefixClient } from "lib/prefix_client/mod.ts";
 
 // see: https://github.com/ajv-validator/ajv-formats/issues/85
 const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
@@ -18,9 +19,10 @@ const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
 const JSON_SCHEMA_URL = "https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json";
 
 export class Recipe {
+  /**
+   * Parsed & Validated Recipe Properties
+   */
   readonly props: z.output<typeof RecipeProps>;
-  readonly #props: z.input<typeof RecipeProps>;
-  #platformSources?: Partial<Record<Platform, z.output<typeof Source>>>;
 
   /**
    * If true, it means this recipe contains javascript functions for the build &/or test scripts,
@@ -29,15 +31,16 @@ export class Recipe {
    * If false, this this recipe can simply be printed to YAML without any further action.
    */
   get hasJsFuncs(): boolean {
-    if (this.#props.build.func) return true;
-    if (this.#props.tests && "func" in this.#props.tests) return true;
+    if (this.props.build.func) return true;
+    if (this.props.tests && "func" in this.props.tests) return true;
     return false;
   }
 
   constructor(props: z.input<typeof RecipeProps>) {
     this.props = RecipeProps.parse(props);
-    this.#props = props;
 
+    // Make this class executable
+    // This is how we allow rattler to run our build funcs
     if (Deno.args.length > 0 && Deno.args[0] === "execute") {
       this.#executeCmd();
     }
@@ -87,9 +90,11 @@ export class Recipe {
         });
 
         if (build) {
-          const buildFunc = this.props.build.func;
-          if (!buildFunc) throw new Error(`missing build func`);
-          await buildFunc(buildCtx);
+          if (this.props.build && "func" in this.props.build && this.props.build.func) {
+            await this.props.build.func(buildCtx);
+          } else {
+            throw new Error(`missing build func`);
+          }
         }
 
         if (test) {
@@ -105,11 +110,87 @@ export class Recipe {
       .parse(Deno.args.slice(1));
 
   #cachedVersion?: { raw: string; semver?: string | undefined };
-  async getVersion() {
+
+  /**
+   * Returns & caches the latest version number of the recipe.
+   * Calling this many times will produce the same output
+   * & not result in additional network calls.
+   */
+  async getVersion(): Promise<{ raw: string; semver?: string | undefined }> {
     if (!this.#cachedVersion) {
       this.#cachedVersion = await this.props.version();
     }
     return this.#cachedVersion;
+  }
+
+  #cachedSources?:
+    | z.output<typeof Source>
+    | z.output<typeof Source>[]
+    | Partial<Record<Platform, z.output<typeof Source>>>;
+
+  /**
+   * Returns & caches the latest sources fo the recipe.
+   * Calling this many times will produce the same output
+   * & not result in additional network calls.
+   */
+  async getSources() {
+    if (!this.#cachedSources) {
+      this.#cachedSources = await this.props.sources((await this.getVersion()).raw);
+    }
+    return this.#cachedSources;
+  }
+
+  /**
+   * Returns a list of platforms that this recipe supports.
+   *
+   * If platforms have been explicitly defined by the recipe we just return those.
+   * Otherwise platforms can be infered from the sources object.
+   *
+   * But if sources also does not contain platform information this will
+   * return an empty array, which should interpretted as all platforms.
+   */
+  async getPlatforms(): Promise<Platform[]> {
+    if (this.props.platforms) return this.props.platforms;
+    const sources = await this.getSources();
+    if ("git" in sources || "url" in sources || "path" in sources) {
+      return [];
+    } else {
+      return Object.keys(sources) as Platform[];
+    }
+  }
+
+  /**
+   * Returns a list of all variants supported by the recipe.
+   * A varient is a combintion of the version & platform.
+   */
+  async getVariants(): Promise<
+    { name: string; version: string; buildNo: number; platform: Platform }[]
+  > {
+    const v = await this.getVersion();
+    const version = v.semver ?? v.raw;
+    const name = this.props.name;
+    const buildNo = this.props.build.number ?? 0;
+    const platforms = await this.getPlatforms();
+    return platforms.map((platform) => {
+      return { name, version, buildNo, platform };
+    });
+  }
+
+  /**
+   * Returns true if all variants have been published to prefix.dev
+   */
+  async isFullyPublished(): Promise<boolean> {
+    const prefix = new PrefixClient();
+    const forgeSupportedPlatforms = ["linux-64", "osx-64", "osx-arm64", "win-64"];
+
+    for (const variant of await this.getVariants()) {
+      if (!forgeSupportedPlatforms.includes(variant.platform)) continue;
+      if (!await prefix.variantExists(variant)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   async #mapRecipe() {
@@ -126,10 +207,10 @@ export class Recipe {
       },
     };
 
-    const sources = await this.#mapSources(v.raw);
+    const sources = await this.#mapSources();
     if (sources.length > 0) simpleRecipe.source = sources;
 
-    simpleRecipe.build = this.#mapBuild(simpleRecipe);
+    simpleRecipe.build = await this.#mapBuild(simpleRecipe);
 
     const tests = this.#mapTests();
     if (tests) simpleRecipe.tests = tests;
@@ -140,8 +221,8 @@ export class Recipe {
     return simpleRecipe;
   }
 
-  async #mapSources(version: string) {
-    const resolvedSources = await this.props.sources(version);
+  async #mapSources() {
+    const resolvedSources = await this.getSources();
     if (Array.isArray(resolvedSources)) return resolvedSources;
 
     const sources = [];
@@ -149,8 +230,10 @@ export class Recipe {
     if ("git" in resolvedSources || "url" in resolvedSources || "path" in resolvedSources) {
       sources.push(resolvedSources);
     } else {
-      this.#platformSources = resolvedSources;
       for (const [platform, src] of Object.entries(resolvedSources)) {
+        if ("sha256" in src && typeof src.sha256 === "function") {
+          src.sha256 = await src.sha256();
+        }
         sources.push(
           {
             if: `target_platform == "${platform}"`,
@@ -163,16 +246,20 @@ export class Recipe {
     return sources;
   }
 
-  #mapBuild(simpleRecipe: any) {
+  async #mapBuild(simpleRecipe: any) {
     const build = this.props.build as any;
 
     if (build.func) {
       build.script = [{
         if: "build_platform | split('-') | first == win",
-        then:
-          "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build --build-platform ${{ build_platform }} --target-platform ${{ target_platform }} --pkg-version-raw ${{ rawVersion }}",
-        else:
-          "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build --build-platform ${{ build_platform }} --target-platform ${{ target_platform }} --pkg-version-raw ${{ rawVersion }}",
+        then: "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build " +
+          "--build-platform ${{ build_platform }} " +
+          "--target-platform ${{ target_platform }} " +
+          "--pkg-version-raw ${{ rawVersion }}",
+        else: "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build " +
+          "--build-platform ${{ build_platform }} " +
+          "--target-platform ${{ target_platform }} " +
+          "--pkg-version-raw ${{ rawVersion }}",
       }];
       delete build.func;
       if (!simpleRecipe.requirements) simpleRecipe.requirements = {};
@@ -180,18 +267,9 @@ export class Recipe {
       simpleRecipe.requirements.build.push(`deno=${Deno.version.deno}`);
     }
 
-    const buildInversePlatformList = (platforms: Platform[]) =>
-      platforms.map((_) => `target_platform != "${_}"`).join(" and ");
-
-    if (this.props.platforms) {
-      build.skip = buildInversePlatformList(this.props.platforms);
-    } else {
-      if (this.#platformSources) {
-        build.skip = buildInversePlatformList(
-          Object.keys(this.#platformSources).map((_) => Platform.parse(_)),
-        );
-      }
-    }
+    build.skip = (await this.getPlatforms())
+      .map((_) => `target_platform != "${_}"`)
+      .join(" and ");
 
     return build;
   }
@@ -201,8 +279,10 @@ export class Recipe {
 
     if (tests && !Array.isArray(tests)) {
       if ("func" in tests) {
-        tests.script =
-          "deno run -A ./info/recipe/bundled-recipe.ts execute --test --build-platform ${{ build_platform }} --target-platform ${{ target_platform }} --pkg-version-raw ${{ rawVersion }}";
+        tests.script = "deno run -A ./info/recipe/bundled-recipe.ts execute --test " +
+          "--build-platform ${{ build_platform }} " +
+          "--target-platform ${{ target_platform }} " +
+          "--pkg-version-raw ${{ rawVersion }}";
         if (!tests.requirements) tests.requirements = {};
         if (!tests.requirements.build) tests.requirements.build = [];
         tests.requirements.build.push(`deno=${Deno.version.deno}`);

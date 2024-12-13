@@ -1,6 +1,8 @@
 import { load } from "@std/dotenv";
 import ky from "ky";
 import { Command } from "@cliffy/command";
+import { PrefixClient } from "lib/prefix_client/mod.ts";
+import { Platform } from "lib/models/platform.ts";
 
 await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 
@@ -11,9 +13,10 @@ await new Command()
   .option("--platform <platform:string>", "Platform name", { required: true })
   .option("--filename <filename:string>", "Package file name", { required: true })
   .action(async ({ channel, platform, filename }) => {
-    await ky.delete(`https://prefix.dev/api/v1/delete/${channel}/${platform}/${filename}`, {
-      headers: { "Authorization": `Bearer ${Deno.env.get("PREFIX_TOKEN")}` },
-      timeout: 120 * 1000,
+    await new PrefixClient().deletePackage({
+      channel,
+      filename,
+      platform: Platform.parse(platform),
     });
   })
   .parse(Deno.args);

@@ -1,5 +1,4 @@
 import * as r from "lib/mod.ts";
-import { encodeBase64 } from "@std/encoding";
 
 const owner = "rust-lang";
 const repo = "rustup";

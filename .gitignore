@@ -239,3 +239,4 @@ $RECYCLE.BIN/
 # pixi environments
 .pixi
 output/
+generated-forge/

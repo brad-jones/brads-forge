@@ -5,13 +5,6 @@ const repo = "cocogitto";
 
 export default new r.Recipe({
   name: "cocogitto",
-  version: r.latestGithubTag({ owner, repo }),
-  sources: r.githubReleaseAssets({
-    owner,
-    repo,
-    osMap: { "osx": "apple-darwin", "win": "pc-windows-msvc" },
-    archMap: { "64": "x86_64", "armv7l": "armv7" },
-  }),
   about: {
     homepage: "https://docs.cocogitto.io/",
     summary: "The Conventional Commits toolbox",
@@ -20,6 +13,13 @@ export default new r.Recipe({
       .text(),
     license: "MIT",
   },
+  version: r.latestGithubTag({ owner, repo }),
+  sources: r.githubReleaseAssets({
+    owner,
+    repo,
+    osMap: { "osx": "apple-darwin", "win": "pc-windows-msvc" },
+    archMap: { "64": "x86_64", "armv7l": "armv7" },
+  }),
   build: {
     number: 0,
     dynamic_linking: {

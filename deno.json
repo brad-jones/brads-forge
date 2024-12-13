@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "clean": "rm -rf ./output",
+    "clean": "rm -rf ./output ./generated-forge",
     "delete": "deno run -qA ./.tasks/delete.ts",
     "generate": "deno run -qA ./.tasks/generate.ts",
     "test": "deno run -qA ./.tasks/test.ts"
