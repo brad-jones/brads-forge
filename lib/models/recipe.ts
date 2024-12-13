@@ -23,6 +23,7 @@ export class Recipe {
    * Parsed & Validated Recipe Properties
    */
   readonly props: z.output<typeof RecipeProps>;
+  readonly #props: z.input<typeof RecipeProps>;
 
   /**
    * If true, it means this recipe contains javascript functions for the build &/or test scripts,
@@ -31,13 +32,14 @@ export class Recipe {
    * If false, this this recipe can simply be printed to YAML without any further action.
    */
   get hasJsFuncs(): boolean {
-    if (this.props.build.func) return true;
-    if (this.props.tests && "func" in this.props.tests) return true;
+    if (this.#props.build.func) return true;
+    if (this.#props.tests && "func" in this.#props.tests) return true;
     return false;
   }
 
   constructor(props: z.input<typeof RecipeProps>) {
     this.props = RecipeProps.parse(props);
+    this.#props = props;
 
     // Make this class executable
     // This is how we allow rattler to run our build funcs
