@@ -9,6 +9,8 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.recipes.outputs.artifact-id }}
     steps:
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v4
@@ -34,12 +36,15 @@ jobs:
 
       - name: ⬆️ Upload Rattler Build Recipes
         uses: actions/upload-artifact@v4
+        id: recipes
         with:
           name: recipes
           path: generated-forge/**/*
+          if-no-files-found: ignore
 
   build:
     needs: generate
+    if: ${{ needs.generate.outputs.artifact-id }}
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
