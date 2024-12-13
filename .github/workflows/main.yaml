@@ -82,5 +82,7 @@ jobs:
         shell: bash
         run: |
           for file in output/**/*.conda; do
-            rattler-build upload prefix -c brads-forge "$file"
+            if [ -f "$file" ]; then
+              rattler-build upload prefix -c brads-forge "$file"
+            fi
           done
