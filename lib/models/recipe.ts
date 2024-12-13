@@ -181,7 +181,16 @@ export class Recipe {
    */
   async isFullyPublished(): Promise<boolean> {
     const prefix = new PrefixClient();
-    const forgeSupportedPlatforms = ["linux-64", "osx-64", "osx-arm64", "win-64"];
+    const forgeSupportedPlatforms = [
+      "linux-32",
+      "linux-64",
+      "linux-aarch64",
+      "win-32",
+      "win-64",
+      "win-arm64",
+      "osx-64",
+      "osx-arm64",
+    ];
 
     for (const variant of await this.getVariants()) {
       if (!forgeSupportedPlatforms.includes(variant.platform)) continue;

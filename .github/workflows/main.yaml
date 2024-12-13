@@ -41,7 +41,7 @@ jobs:
   build:
     needs: generate
     if: ${{ needs.generate.outputs.artifact-id }}
-    name: ${{ matrix.target }}
+    name: ${{ join(matrix.targets) }}
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -49,11 +49,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: linux-64, os: ubuntu-latest }
-          - { target: win-64, os: windows-latest }
-          # force older macos-13 to get x86_64 runners
-          - { target: osx-64, os: macos-13 }
-          - { target: osx-arm64, os: macos-14 }
+          - { targets: [linux-32, linux-64, linux-aarch64], os: ubuntu-latest }
+          - { targets: [win-32, win-64, win-arm64], os: windows-latest }
+          - { targets: [osx-64], os: macos-13 }
+          - { targets: [osx-arm64], os: macos-14 }
     steps:
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v4
@@ -72,9 +71,12 @@ jobs:
       - name: 📦 Build Generated Recipes
         shell: bash
         run: |
-          rattler-build build --recipe-dir ./generated-forge \
-            --skip-existing=all --target-platform=${{ matrix.target }} \
-            -c conda-forge -c https://prefix.dev/brads-forge
+          targets="${{ join(matrix.targets) }}"
+          for target in ${targets//,/ }; do
+            rattler-build build --recipe-dir ./generated-forge \
+              --skip-existing=all --target-platform=$target --test=native \
+              -c conda-forge -c https://prefix.dev/brads-forge
+          done
 
       - name: 🎉 Publish to prefix.dev
         shell: bash
