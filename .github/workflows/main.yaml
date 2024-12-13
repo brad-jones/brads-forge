@@ -18,12 +18,8 @@ jobs:
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.39.0
-
-      - name: ⚙️ Add .pixi/envs/default/bin to the $PATH
-        shell: bash
-        run: |
-          echo "$(pwd)/.pixi/envs/default/bin" >> $GITHUB_PATH
+          pixi-version: v0.39.2
+          activate-environment: true
 
       - name: ⚙️ Install Deno Deps
         run: deno install
@@ -70,12 +66,8 @@ jobs:
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.39.0
-
-      - name: ⚙️ Add .pixi/envs/default/bin to the $PATH
-        shell: bash
-        run: |
-          echo "$(pwd)/.pixi/envs/default/bin" >> $GITHUB_PATH
+          pixi-version: v0.39.2
+          activate-environment: true
 
       - name: 📦 Build Generated Recipes
         shell: bash
