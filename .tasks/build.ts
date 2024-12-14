@@ -47,6 +47,16 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
   const recipePlatforms = await r.getPlatforms();
   if (!recipePlatforms.includes(targetPlatform)) {
     console.log(`Skipping, recipe does not support: ${targetPlatform}`);
+    const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
+    if (ghaSummary) {
+      await Deno.writeTextFile(
+        ghaSummary,
+        outdent`
+            - ${targetPlatform}/${r.props.name}: skipped (recipe does not support platform)
+          `,
+        { append: true },
+      );
+    }
     return;
   }
 
@@ -60,9 +70,19 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     platform: targetPlatform,
     channel,
   };
-  const variantString = `${variant.name}-${variant.version}-${variant.buildNo}-${variant.platform}`;
+  const variantString = `${variant.platform}/${variant.name}-${variant.version}-${variant.buildNo}`;
   if (upload && await prefix.variantExists(variant)) {
     console.log(`Skipping, variant already published: ${variantString}`);
+    const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
+    if (ghaSummary) {
+      await Deno.writeTextFile(
+        ghaSummary,
+        outdent`
+            - ${variantString}: skipped (already published)
+          `,
+        { append: true },
+      );
+    }
     return;
   }
 
@@ -122,7 +142,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
         await Deno.writeTextFile(
           ghaSummary,
           outdent`
-            - ${targetPlatform}/${path.basename(artifact)}
+            - ${targetPlatform}/${path.basename(artifact)}: published
           `,
           { append: true },
         );
