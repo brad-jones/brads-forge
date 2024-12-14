@@ -230,7 +230,7 @@ export class Recipe {
   async #mapBuild(simpleRecipe: any, targetPlatform?: Platform) {
     const build = this.props.build as any;
 
-    if (build.func) {
+    if (this.#props.build.func) {
       if (targetPlatform) {
         if (targetPlatform.startsWith("win")) {
           build.script = [
