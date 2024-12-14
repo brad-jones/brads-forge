@@ -35,7 +35,7 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
     let checkSumFileDownloader: (() => Promise<string>) | undefined = undefined;
     const checksumFilePattern = options.checksumFilePattern ?? /^.*(checksum|sha256).*$/;
     const checkSumFileUrl = release.data.assets.find((_) => _.name.match(checksumFilePattern))?.browser_download_url;
-    if (checkSumFileUrl) {
+    if (checkSumFileUrl && !checkSumFileUrl.endsWith(".sha256")) {
       checkSumFileDownloader = async () => {
         if (!checkSumFile) {
           console.log(`Downloading checksum file ${checkSumFileUrl}`);
@@ -54,6 +54,8 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
     }
 
     for (const asset of release.data.assets) {
+      if (asset.browser_download_url.endsWith(".sha256")) continue;
+
       const os = allOperatingSystems.find((os) =>
         asset.name.includes(
           options.osMap ? options.osMap[os] ?? os : os,
@@ -81,10 +83,20 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
           if (checkSumFileDownloader) {
             return digestFromChecksumTXT("SHA-256", asset.name, await checkSumFileDownloader()).digestPair[1];
           } else {
-            console.log(`Downloading ${asset.name} to calc missing digest...`);
-            const r = await ky.get(asset.browser_download_url);
-            if (!r.body) throw new Error(`failed to download asset to calculate digest`);
-            return (await Digest.fromBuffer(r.body)).digestPair[1];
+            const checksumFile = release.data.assets.find((_) => _.name.endsWith(`${asset.name}.sha256`));
+            if (checksumFile) {
+              const digestFileTxt = await ky.get(checksumFile.browser_download_url).text();
+              try {
+                return digestFromChecksumTXT("SHA-256", asset.name, digestFileTxt).digestPair[1];
+              } catch (_) {
+                return digestFileTxt;
+              }
+            } else {
+              console.log(`Downloading ${asset.name} to calc missing digest...`);
+              const r = await ky.get(asset.browser_download_url);
+              if (!r.body) throw new Error(`failed to download asset to calculate digest`);
+              return (await Digest.fromBuffer(r.body)).digestPair[1];
+            }
           }
         },
       };

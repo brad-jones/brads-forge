@@ -28,6 +28,8 @@ export const About = z.object({
 
   /**
    * An license in SPDX format.
+   *
+   * @see https://spdx.org/licenses/
    */
   license: z.string().optional(),
 
