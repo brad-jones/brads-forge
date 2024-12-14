@@ -19,7 +19,7 @@ export async function addEnvVars(vars: Record<string, string>) {
 
   if (platform.startsWith("win")) {
     for (const k in vars) {
-      vars[k] = convertUnixEnvVarsToWindowsFormat(vars[k]);
+      vars[k] = transformEnvVars(vars[k]);
     }
   }
 
@@ -28,9 +28,40 @@ export async function addEnvVars(vars: Record<string, string>) {
   await Deno.writeTextFile(envConfigPath, JSON.stringify(vars, null, "  "));
 }
 
-function convertUnixEnvVarsToWindowsFormat(unixEnv: string): string {
+export async function addLink(existingPath: string, linkPath: string) {
+  const prefix = Deno.env.get("PREFIX");
+  if (!prefix) throw new Error(`PREFIX not set`);
+
+  const pkgName = Deno.env.get("PKG_NAME");
+  if (!pkgName) throw new Error(`PKG_NAME not set`);
+
+  const platform = Deno.env.get("target_platform");
+  if (!platform) throw new Error(`target_platform not set`);
+
+  if (platform.startsWith("win")) {
+    const activateScript = path.join(prefix, "etc/conda/activate.d", `${pkgName}.bat`);
+    await ensureDir(path.dirname(activateScript));
+    await Deno.writeTextFile(
+      activateScript,
+      `mklink /H "${transformEnvVars(linkPath)}" "${transformEnvVars(existingPath)}"\r\n`,
+      { append: true },
+    );
+
+    const deactivateScript = path.join(prefix, "etc/conda/deactivate.d", `${pkgName}.bat`);
+    await ensureDir(path.dirname(deactivateScript));
+    await Deno.writeTextFile(
+      deactivateScript,
+      `del "${transformEnvVars(linkPath)}"\r\n`,
+      { append: true },
+    );
+  } else {
+    await Deno.symlink(existingPath, linkPath);
+  }
+}
+
+function transformEnvVars(unixEnv: string): string {
   return unixEnv.replace(/\$(\w+)|\$\{(\w+)\}/g, (_, var1, var2) => {
     const variable = var1 || var2;
     return `%${variable}%`;
-  });
+  }).replaceAll("/", "\\");
 }

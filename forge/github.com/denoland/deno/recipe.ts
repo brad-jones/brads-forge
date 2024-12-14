@@ -23,7 +23,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 1,
+    number: 2,
     dynamic_linking: {
       binary_relocation: false,
     },

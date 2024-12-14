@@ -20,24 +20,15 @@ export default new r.Recipe({
     license: "Apache-2.0",
   },
   build: {
-    number: 2,
+    number: 3,
     dynamic_linking: {
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("kubelogin"));
       await r.moveGlob("./kubelogin*/kubelogin*", dst);
-      if (unix) {
-        await Deno.chmod(dst, 0o755);
-        await Deno.symlink(dst, r.path.join(prefixDir, "bin/kubectl-oidc_login"));
-      } else {
-        const scriptFile = r.path.join(prefixDir, "etc/conda/activate.d/script.bat");
-        await r.ensureDir(r.path.dirname(scriptFile));
-        await Deno.writeTextFile(
-          scriptFile,
-          'mklink /H "%CONDA_PREFIX%\\bin\\kubectl-oidc_login.exe" "%CONDA_PREFIX%\\bin\\kubelogin.exe"',
-        );
-      }
+      if (unix) await Deno.chmod(dst, 0o755);
+      await r.activation.addLink(dst, r.path.join(prefixDir, "bin", exe("kubectl-oidc_login")));
     },
   },
   tests: {

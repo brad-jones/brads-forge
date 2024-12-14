@@ -41,7 +41,7 @@ export default new r.Recipe({
     };
   },
   build: {
-    number: 2,
+    number: 3,
     dynamic_linking: {
       binary_relocation: false,
     },
@@ -55,38 +55,14 @@ export default new r.Recipe({
       // presents a totally different CLI interface based on the name of the binary.
       // You use rustup-init to do an initial install of rust & then start using
       // rustup to manage what targets you have installed, etc.
-      if (unix) {
-        await Deno.symlink(dst, r.path.join(prefixDir, "bin/rustup-init"));
-      } else {
-        // Symlinks don't work on windows (atleast not without Admin permissions)
-        // so we create a hardlink on activation.
-        const scriptFile = r.path.join(prefixDir, "etc/conda/activate.d/script.bat");
-        await r.ensureDir(r.path.dirname(scriptFile));
-        await Deno.writeTextFile(
-          scriptFile,
-          'mklink /H "%CONDA_PREFIX%\\bin\\rustup-init.exe" "%CONDA_PREFIX%\\bin\\rustup.exe"',
-        );
-      }
+      await r.activation.addLink(dst, r.path.join(prefixDir, "bin", exe("rustup-init")));
 
       // Configure rustup to install everything with-in the pixi environment
-      const envFile = r.path.join(prefixDir, "etc", "conda", "env_vars.d", "rustup.json");
-      await r.ensureDir(r.path.dirname(envFile));
-      await Deno.writeTextFile(
-        envFile,
-        JSON.stringify(
-          unix
-            ? {
-              RUSTUP_HOME: "${CONDA_PREFIX}/.rustup",
-              CARGO_HOME: "${CONDA_PREFIX}/.cargo",
-              PATH: "${CARGO_HOME}/bin:${PATH}",
-            }
-            : {
-              RUSTUP_HOME: "%CONDA_PREFIX}%\\.rustup",
-              CARGO_HOME: "%CONDA_PREFIX%\\.cargo",
-              PATH: "%CARGO_HOME%\\bin;%PATH%",
-            },
-        ),
-      );
+      await r.activation.addEnvVars({
+        "RUSTUP_HOME": "${CONDA_PREFIX}/.rustup",
+        "CARGO_HOME": "${CONDA_PREFIX}/.cargo",
+        "PATH": "${CARGO_HOME}/bin:${PATH}",
+      });
     },
   },
   tests: {
