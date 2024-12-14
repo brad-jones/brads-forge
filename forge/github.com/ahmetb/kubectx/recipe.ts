@@ -30,13 +30,6 @@ export default new r.Recipe({
       if (unix) {
         await Deno.chmod(kubectx, 0o755);
         await Deno.symlink(kubectx, r.path.join(prefixDir, "bin/kubectl-ctx"));
-      } else {
-        const scriptFile = r.path.join(prefixDir, "etc/conda/activate.d/script.bat");
-        await r.ensureDir(r.path.dirname(scriptFile));
-        await Deno.writeTextFile(
-          scriptFile,
-          'mklink /H "%CONDA_PREFIX%\\bin\\kubectl-ctx.exe" "%CONDA_PREFIX%\\bin\\kubectx.exe"',
-        );
       }
 
       const kubens = r.path.join(prefixDir, "bin", exe("kubens"));
@@ -44,12 +37,15 @@ export default new r.Recipe({
       if (unix) {
         await Deno.chmod(kubens, 0o755);
         await Deno.symlink(kubens, r.path.join(prefixDir, "bin/kubectl-ns"));
-      } else {
+      }
+
+      if (!unix) {
         const scriptFile = r.path.join(prefixDir, "etc/conda/activate.d/script.bat");
         await r.ensureDir(r.path.dirname(scriptFile));
         await Deno.writeTextFile(
           scriptFile,
-          'mklink /H "%CONDA_PREFIX%\\bin\\kubectl-ns.exe" "%CONDA_PREFIX%\\bin\\kubens.exe"',
+          'mklink /H "%CONDA_PREFIX%\\bin\\kubectl-ctx.exe" "%CONDA_PREFIX%\\bin\\kubectx.exe"\r\n' +
+            'mklink /H "%CONDA_PREFIX%\\bin\\kubectl-ns.exe" "%CONDA_PREFIX%\\bin\\kubens.exe"',
         );
       }
     },
