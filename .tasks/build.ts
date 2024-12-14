@@ -31,7 +31,8 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
 
   // Import the recipe module
   if (!recipeModules[recipePath]) {
-    const v = (await import(import.meta.resolve(recipePath)))["default"];
+    console.log(`recipePath: ${recipePath}`);
+    const v = (await import(recipePath))["default"];
     if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export: ${recipePath}`);
     recipeModules[recipePath] = v;
   }
