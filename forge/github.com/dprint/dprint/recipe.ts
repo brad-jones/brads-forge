@@ -9,9 +9,10 @@ export default new r.Recipe({
   sources: r.githubReleaseAssets({
     owner,
     repo,
+    fileName: (_, os, arch) => `dprint-${arch}-${os}.zip`,
     checksumFilePattern: /SHASUMS256.txt/,
     osMap: { "osx": "apple-darwin", "win": "pc-windows-msvc", "linux": "unknown-linux-gnu" },
-    archMap: { "64": "x86_64" },
+    archMap: { "64": "x86_64", "arm64": "aarch64" },
   }),
   about: {
     homepage: "https://dprint.dev/",
@@ -21,13 +22,13 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("dprint"));
-      await r.moveGlob("./dprint*/dprint", dst);
+      await r.moveGlob("./dprint*/dprint*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },

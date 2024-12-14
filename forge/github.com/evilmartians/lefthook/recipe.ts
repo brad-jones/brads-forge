@@ -11,6 +11,7 @@ export default new r.Recipe({
     repo,
     osMap: { "linux": "Linux", "osx": "MacOS", "win": "Windows" },
     archMap: { "32": "i386", "64": "x86_64", "aarch64": "arm64" },
+    fileName: (version, os, arch) => `lefthook_${version.slice(1)}_${os}_${arch}${os === "Windows" ? ".exe" : ""}`,
   }),
   about: {
     homepage: "https://github.com/evilmartians/lefthook",
@@ -20,14 +21,13 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("lefthook"));
-      await r.archive.gunzipFile("./lefthook*", "./lefthook");
-      await r.move("./lefthook", dst);
+      await r.moveGlob("./lefthook*/lefthook*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },

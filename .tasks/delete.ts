@@ -1,5 +1,4 @@
 import { load } from "@std/dotenv";
-import ky from "ky";
 import { Command } from "@cliffy/command";
 import { PrefixClient } from "lib/prefix_client/mod.ts";
 import { Platform } from "lib/models/platform.ts";

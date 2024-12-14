@@ -1,9 +1,8 @@
 {
   "tasks": {
-    "clean": "rm -rf ./output ./generated-forge",
-    "delete": "deno run -qA ./.tasks/delete.ts",
-    "generate": "deno run -qA ./.tasks/generate.ts",
-    "test": "deno run -qA ./.tasks/test.ts"
+    "clean": "rm -rf ./output ./forge/**/generated",
+    "build": "deno run -qA ./.tasks/build.ts",
+    "delete": "deno run -qA ./.tasks/delete.ts"
   },
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.7",

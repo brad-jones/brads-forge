@@ -11,6 +11,7 @@ export default new r.Recipe({
     repo,
     osMap: { "osx": "darwin", "win": "windows" },
     archMap: { "32": "386", "64": "amd64", "aarch64": "arm64" },
+    fileName: (_, os, arch) => `task_${os}_${arch}.${os === "windows" ? "zip" : "tar.gz"}`,
   }),
   about: {
     homepage: "https://taskfile.dev/",
@@ -20,13 +21,13 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("task"));
-      await r.moveGlob("./task*/task", dst);
+      await r.moveGlob("./task*/task*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },

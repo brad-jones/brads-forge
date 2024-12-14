@@ -8,9 +8,8 @@ import * as path from "@std/path";
 import { Command } from "@cliffy/command";
 import { BuildContext } from "./build.ts";
 import { SimpleRecipe } from "./rattler/simple_recipe.ts";
-import { Platform, PlatformArch, PlatformOs, splitPlatform } from "./platform.ts";
+import { Platform } from "./platform.ts";
 import { Source } from "./rattler/source.ts";
-import { PrefixClient } from "lib/prefix_client/mod.ts";
 
 // see: https://github.com/ajv-validator/ajv-formats/issues/85
 const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
@@ -161,50 +160,7 @@ export class Recipe {
     }
   }
 
-  /**
-   * Returns a list of all variants supported by the recipe.
-   * A varient is a combintion of the version & platform.
-   */
-  async getVariants(): Promise<
-    { name: string; version: string; buildNo: number; platform: Platform }[]
-  > {
-    const v = await this.getVersion();
-    const version = v.semver ?? v.raw;
-    const name = this.props.name;
-    const buildNo = this.props.build.number ?? 0;
-    const platforms = await this.getPlatforms();
-    return platforms.map((platform) => {
-      return { name, version, buildNo, platform };
-    });
-  }
-
-  /**
-   * Returns true if all variants have been published to prefix.dev
-   */
-  async isFullyPublished(): Promise<boolean> {
-    const prefix = new PrefixClient();
-    const forgeSupportedPlatforms = [
-      "linux-32",
-      "linux-64",
-      "linux-aarch64",
-      "win-32",
-      "win-64",
-      "win-arm64",
-      "osx-64",
-      "osx-arm64",
-    ];
-
-    for (const variant of await this.getVariants()) {
-      if (!forgeSupportedPlatforms.includes(variant.platform)) continue;
-      if (!await prefix.variantExists(variant)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  async #mapRecipe() {
+  async #mapRecipe(targetPlatform?: Platform) {
     const v = await this.getVersion();
 
     const simpleRecipe: any = {
@@ -218,10 +174,10 @@ export class Recipe {
       },
     };
 
-    const sources = await this.#mapSources();
+    const sources = await this.#mapSources(targetPlatform);
     if (sources.length > 0) simpleRecipe.source = sources;
 
-    simpleRecipe.build = await this.#mapBuild(simpleRecipe);
+    simpleRecipe.build = await this.#mapBuild(simpleRecipe, targetPlatform);
 
     const tests = this.#mapTests();
     if (tests) simpleRecipe.tests = tests;
@@ -232,7 +188,7 @@ export class Recipe {
     return simpleRecipe;
   }
 
-  async #mapSources() {
+  async #mapSources(targetPlatform?: Platform) {
     const resolvedSources = await this.getSources();
     if (Array.isArray(resolvedSources)) return resolvedSources;
 
@@ -241,17 +197,29 @@ export class Recipe {
     if ("git" in resolvedSources || "url" in resolvedSources || "path" in resolvedSources) {
       sources.push(resolvedSources);
     } else {
-      for (const [platform, newSources] of Object.entries(resolvedSources)) {
-        for (const newSource of newSources) {
-          if ("sha256" in newSource && typeof newSource.sha256 === "function") {
-            newSource.sha256 = await newSource.sha256();
+      if (targetPlatform) {
+        const newSources = resolvedSources[targetPlatform];
+        if (newSources) {
+          for (const newSource of newSources) {
+            if ("sha256" in newSource && typeof newSource.sha256 === "function") {
+              newSource.sha256 = await newSource.sha256();
+            }
+            sources.push(newSource);
           }
-          sources.push(
-            {
-              if: `target_platform == "${platform}"`,
-              then: newSource,
-            },
-          );
+        }
+      } else {
+        for (const [platform, newSources] of Object.entries(resolvedSources)) {
+          for (const newSource of newSources) {
+            if ("sha256" in newSource && typeof newSource.sha256 === "function") {
+              newSource.sha256 = await newSource.sha256();
+            }
+            sources.push(
+              {
+                if: `target_platform == "${platform}"`,
+                then: newSource,
+              },
+            );
+          }
         }
       }
     }
@@ -259,30 +227,50 @@ export class Recipe {
     return sources;
   }
 
-  async #mapBuild(simpleRecipe: any) {
+  async #mapBuild(simpleRecipe: any, targetPlatform?: Platform) {
     const build = this.props.build as any;
 
     if (build.func) {
-      build.script = [{
-        if: "build_platform | split('-') | first == win",
-        then: "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build " +
-          "--build-platform ${{ build_platform }} " +
-          "--target-platform ${{ target_platform }} " +
-          "--pkg-version-raw ${{ rawVersion }}",
-        else: "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build " +
-          "--build-platform ${{ build_platform }} " +
-          "--target-platform ${{ target_platform }} " +
-          "--pkg-version-raw ${{ rawVersion }}",
-      }];
+      if (targetPlatform) {
+        if (targetPlatform.startsWith("win")) {
+          build.script = [
+            "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build " +
+            "--build-platform ${{ build_platform }} " +
+            "--target-platform ${{ target_platform }} " +
+            "--pkg-version-raw ${{ rawVersion }}",
+          ];
+        } else {
+          build.script = [
+            "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build " +
+            "--build-platform ${{ build_platform }} " +
+            "--target-platform ${{ target_platform }} " +
+            "--pkg-version-raw ${{ rawVersion }}",
+          ];
+        }
+      } else {
+        build.script = [{
+          if: "build_platform | split('-') | first == win",
+          then: "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build " +
+            "--build-platform ${{ build_platform }} " +
+            "--target-platform ${{ target_platform }} " +
+            "--pkg-version-raw ${{ rawVersion }}",
+          else: "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build " +
+            "--build-platform ${{ build_platform }} " +
+            "--target-platform ${{ target_platform }} " +
+            "--pkg-version-raw ${{ rawVersion }}",
+        }];
+      }
       delete build.func;
       if (!simpleRecipe.requirements) simpleRecipe.requirements = {};
       if (!simpleRecipe.requirements.build) simpleRecipe.requirements.build = [];
       simpleRecipe.requirements.build.push(`deno=${Deno.version.deno}`);
     }
 
-    build.skip = (await this.getPlatforms())
-      .map((_) => `target_platform != "${_}"`)
-      .join(" and ");
+    if (!targetPlatform) {
+      build.skip = (await this.getPlatforms())
+        .map((_) => `target_platform != "${_}"`)
+        .join(" and ");
+    }
 
     return build;
   }
@@ -329,8 +317,8 @@ export class Recipe {
     return ajv.compile(await this.#jsonSchema());
   }
 
-  async toObject(): Promise<z.output<typeof SimpleRecipe>> {
-    const recipe = await this.#mapRecipe();
+  async toObject(targetPlatform?: Platform): Promise<z.output<typeof SimpleRecipe>> {
+    const recipe = await this.#mapRecipe(targetPlatform);
     const validate = await this.#ajvValidator();
     if (!validate(recipe)) {
       throw new Error(`JSON Schema Invalid: ${JSON.stringify(validate.errors)}`);

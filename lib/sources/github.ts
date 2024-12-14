@@ -5,12 +5,6 @@ import { Source } from "../models/rattler/source.ts";
 import { Platform, PlatformOs, PlatformArch, allOperatingSystems, allArchitectures } from "../models/platform.ts";
 import { Digest, digestFromChecksumTXT } from "../digest/mod.ts";
 
-const token = Deno.env.get("GH_TOKEN") ??
-  Deno.env.get("GITHUB_TOKEN") ??
-  Deno.env.get("GITHUB_API_TOKEN");
-
-const OCTOKIT = new Octokit({ auth: token });
-
 export interface Options {
   owner: string;
   repo: string;
@@ -21,10 +15,15 @@ export interface Options {
   headers?: Record<string, string>;
 }
 
-export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
+export function githubReleaseAssets(options: Options) {
   return async (tag: string): Promise<Partial<Record<Platform, z.output<typeof Source>[]>>> => {
     const sources: Partial<Record<Platform, z.output<typeof Source>[]>> = {};
     console.log(`Finding github release assets for ${options.owner}/${options.repo}@${tag}`);
+    const octokit = new Octokit({
+      auth: Deno.env.get("GH_TOKEN") ??
+        Deno.env.get("GITHUB_TOKEN") ??
+        Deno.env.get("GITHUB_API_TOKEN"),
+    });
     const release = await octokit.repos.getReleaseByTag({
       owner: options.owner,
       repo: options.repo,
@@ -40,6 +39,9 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
       checkSumFileDownloader = async () => {
         if (!checkSumFile) {
           console.log(`Downloading checksum file ${checkSumFileUrl}`);
+          const token = Deno.env.get("GH_TOKEN") ??
+            Deno.env.get("GITHUB_TOKEN") ??
+            Deno.env.get("GITHUB_API_TOKEN");
           checkSumFile = await ky.get(checkSumFileUrl, {
             redirect: "follow",
             headers: token
@@ -79,15 +81,13 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
       if (os === "win" && arch === "aarch64") arch = "arm64";
 
       if (options.fileName) {
-        const z = options.fileName(
-          tag,
-          options.osMap ? options.osMap[os] ?? os : os,
-          options.archMap ? options.archMap[arch] ?? arch : arch,
-        );
-        if (asset.name !== z) {
-          console.log(`${asset.name} !== ${z}`);
-          continue;
-        }
+        if (
+          asset.name !== options.fileName(
+            tag,
+            options.osMap ? options.osMap[os] ?? os : os,
+            options.archMap ? options.archMap[arch] ?? arch : arch,
+          )
+        ) continue;
       }
 
       const sourceKey = Platform.parse(`${os}-${arch}`);

@@ -7,40 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate:
-    runs-on: ubuntu-latest
-    outputs:
-      artifact-id: ${{ steps.recipes.outputs.artifact-id }}
-    steps:
-      - name: ⬇️ Git Checkout
-        uses: actions/checkout@v4
-
-      - name: ⚙️ Install pixi env
-        uses: prefix-dev/setup-pixi@v0.8.1
-        with:
-          pixi-version: v0.39.2
-          activate-environment: true
-
-      - name: ⚙️ Install Deno Deps
-        run: deno install
-
-      - name: 🧑‍🍳 Generate Rattler Build Recipes
-        run: deno task generate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
-
-      - name: ⬆️ Upload Rattler Build Recipes
-        uses: actions/upload-artifact@v4
-        id: recipes
-        with:
-          name: recipes
-          path: generated-forge/**/*
-          if-no-files-found: ignore
-
   build:
-    needs: generate
-    if: ${{ needs.generate.outputs.artifact-id }}
     name: ${{ join(matrix.targets) }}
     runs-on: ${{ matrix.os }}
     permissions:
@@ -57,32 +24,11 @@ jobs:
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v4
 
-      - name: ⬇️ Download Generated Recipes
-        uses: actions/download-artifact@v4
-        with:
-          path: ./generated-forge
-
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
           pixi-version: v0.39.2
           activate-environment: true
 
-      - name: 📦 Build Generated Recipes
-        shell: bash
-        run: |
-          targets="${{ join(matrix.targets) }}"
-          for target in ${targets//,/ }; do
-            rattler-build build --recipe-dir ./generated-forge \
-              --skip-existing=all --target-platform=$target --test=native \
-              -c conda-forge -c https://prefix.dev/brads-forge
-          done
-
-      - name: 🎉 Publish to prefix.dev
-        shell: bash
-        run: |
-          for file in output/**/*.conda; do
-            if [ -f "$file" ]; then
-              rattler-build upload prefix -c brads-forge "$file"
-            fi
-          done
+      - name: 🧑‍🍳 Build & Publish Recipes
+        run: deno task build --target-platforms ${{ join(matrix.targets, ' ') }}

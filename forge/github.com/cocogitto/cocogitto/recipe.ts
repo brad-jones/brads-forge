@@ -21,7 +21,7 @@ export default new r.Recipe({
     archMap: { "64": "x86_64", "armv7l": "armv7" },
   }),
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },

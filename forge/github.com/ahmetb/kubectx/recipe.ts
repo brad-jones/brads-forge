@@ -20,13 +20,13 @@ export default new r.Recipe({
     license: "Apache-2.0",
   },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
       const kubectx = r.path.join(prefixDir, "bin", exe("kubectx"));
-      await r.moveGlob("./kubectx*/kubectx", kubectx);
+      await r.moveGlob("./kubectx*/kubectx*", kubectx);
       if (unix) {
         await Deno.chmod(kubectx, 0o755);
         await Deno.symlink(kubectx, r.path.join(prefixDir, "bin/kubectl-ctx"));
@@ -40,7 +40,7 @@ export default new r.Recipe({
       }
 
       const kubens = r.path.join(prefixDir, "bin", exe("kubens"));
-      await r.moveGlob("./kubens*/kubens", kubens);
+      await r.moveGlob("./kubens*/kubens*", kubens);
       if (unix) {
         await Deno.chmod(kubens, 0o755);
         await Deno.symlink(kubens, r.path.join(prefixDir, "bin/kubectl-ns"));
