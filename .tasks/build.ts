@@ -13,48 +13,7 @@ import { $ } from "@david/dax";
 
 await load({ envPath: fs.toPathString(import.meta.resolve("../.env")), export: true });
 
-await new Command()
-  .name("build")
-  .description("Builds all recipes")
-  .option("-r, --recipe-path <recipePath:string>", "Specfic recipe to build")
-  .option("--channel <channel:string>", "Channel name", {
-    default: "brads-forge",
-  })
-  .option("--forge-dir <forgeDir:string>", "Directory to find recipes in.", {
-    default: fs.toPathString(import.meta.resolve("../forge")),
-  })
-  .option("--target-platforms [platform...:string]", "Platforms to build for.", {
-    default: [currentPlatform],
-  })
-  .option("--no-build", "Skip the rattler-build, just generate the YAML recipe.")
-  .option("--no-upload", "Skip upload to prefix.dev, just do the build locally.")
-  .action(async ({ recipePath, forgeDir, targetPlatforms, channel, upload, build }) => {
-    const prefix = new PrefixClient();
-    const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
-    if (recipePath) {
-      recipePath = await Deno.realPath(recipePath);
-      for (const targetPlatform of platforms) {
-        await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
-      }
-    } else {
-      for await (const item of fs.walk(forgeDir, { match: [/recipe.ts$/] })) {
-        const recipePath = item.path;
-        for (const targetPlatform of platforms) {
-          console.log(
-            `::group::${path.dirname(recipePath).replace(`${forgeDir}/`, "")}-${targetPlatform}`,
-          );
-          try {
-            await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
-          } catch (e) {
-            console.log(`::error title=${recipePath}::recipe failed to cook`);
-            console.warn(e);
-          }
-          console.log(`::endgroup::`);
-        }
-      }
-    }
-  })
-  .parse(Deno.args);
+const recipeModules: Record<string, Recipe> = {};
 
 interface BuildOptions {
   prefix: PrefixClient;
@@ -66,16 +25,14 @@ interface BuildOptions {
   forgeDir: string;
 }
 
-const recipeModules: Record<string, Recipe> = {};
-
-async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build, upload, forgeDir }: BuildOptions) {
+async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build, upload }: BuildOptions) {
   // Can not upload if we are not building
   upload = build ? upload : false;
 
   // Import the recipe module
   if (!recipeModules[recipePath]) {
     const v = (await import(recipePath))["default"];
-    if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export`);
+    if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export: ${recipePath}`);
     recipeModules[recipePath] = v;
   }
   const r = recipeModules[recipePath];
@@ -163,3 +120,50 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     }
   }
 }
+
+await new Command()
+  .name("build")
+  .description("Builds all recipes")
+  .option("-r, --recipe-path <recipePath:string>", "Specfic recipe to build")
+  .option("--channel <channel:string>", "Channel name", {
+    default: "brads-forge",
+  })
+  .option("--forge-dir <forgeDir:string>", "Directory to find recipes in.", {
+    default: fs.toPathString(import.meta.resolve("../forge")),
+  })
+  .option("--target-platforms [platform...:string]", "Platforms to build for.", {
+    default: [currentPlatform],
+  })
+  .option("--no-build", "Skip the rattler-build, just generate the YAML recipe.")
+  .option("--no-upload", "Skip upload to prefix.dev, just do the build locally.")
+  .action(async ({ recipePath, forgeDir, targetPlatforms, channel, upload, build }) => {
+    const prefix = new PrefixClient();
+    const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
+    if (recipePath) {
+      recipePath = await Deno.realPath(recipePath);
+      for (const targetPlatform of platforms) {
+        await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+      }
+    } else {
+      for await (
+        const item of fs.walk(forgeDir, { match: [Deno.build.os === "windows" ? /\\recipe.ts$/ : /\/recipe.ts$/] })
+      ) {
+        const recipePath = item.path;
+        for (const targetPlatform of platforms) {
+          console.log(
+            `::group::${
+              path.dirname(recipePath).replace(`${forgeDir}/`, "").replace("/generated/", "/")
+            }-${targetPlatform}`,
+          );
+          try {
+            await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+          } catch (e) {
+            console.log(`::error title=${recipePath}::recipe failed to cook`);
+            console.warn(e);
+          }
+          console.log(`::endgroup::`);
+        }
+      }
+    }
+  })
+  .parse(Deno.args);
