@@ -152,7 +152,9 @@ await new Command()
         for (const targetPlatform of platforms) {
           console.log(
             `::group::${
-              path.dirname(recipePath).replaceAll("\\", "/").replace(`${forgeDir}/`, "").replace("/generated/", "/")
+              path.dirname(recipePath).replaceAll("\\", "/")
+                .replace(`${forgeDir.replaceAll("\\", "/")}/`, "")
+                .replace("/generated/", "/")
             }-${targetPlatform}`,
           );
           try {
