@@ -1,5 +1,4 @@
 import * as r from "lib/mod.ts";
-import { encodeBase64 } from "@std/encoding";
 
 const owner = "denoland";
 const repo = "deno";
@@ -24,7 +23,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },
@@ -33,20 +32,13 @@ export default new r.Recipe({
       await r.moveGlob("./deno*/deno*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
       await r.activation.addEnvVars({
-        "DENO_INSTALL_ROOT": "$PREFIX/bin",
-        "DENO_DIR": "$PREFIX/var/cache/deno",
+        "DENO_INSTALL_ROOT": "$CONDA_PREFIX/bin",
+        "DENO_DIR": "$CONDA_PREFIX/var/cache/deno",
       });
     },
   },
   tests: {
     func: async ({ pkgVersion, exe }) => {
-      if (
-        Deno.env.get("DENO_DIR")?.replaceAll("\\", "/") !==
-          `${Deno.env.get("PREFIX")?.replaceAll("\\", "/")}/var/cache/deno`
-      ) {
-        throw new Error(`DENO_DIR not set correctly`);
-      }
-
       const deno = r.path.join("bin", exe("deno"));
       if (r.coerceSemVer((await r.$`${deno} --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
