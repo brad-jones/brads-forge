@@ -12,6 +12,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
