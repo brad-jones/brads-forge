@@ -31,8 +31,6 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
 
   // Import the recipe module
   if (!recipeModules[recipePath]) {
-    console.log(`recipePath: ${recipePath}`);
-    console.log(`recipePath URL: ${path.toFileUrl(recipePath).toString()}`);
     const v = (await import(path.toFileUrl(recipePath).toString()))["default"];
     if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export: ${recipePath}`);
     recipeModules[recipePath] = v;
@@ -92,7 +90,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     const configPath = fs.toPathString(import.meta.resolve("../deno.json"));
     const recipeJsFile = path.join(recipeDir, "bundled-recipe.ts");
     await esbuild.build({
-      entryPoints: [recipePath],
+      entryPoints: [path.toFileUrl(recipePath).toString()],
       outfile: recipeJsFile,
       format: "esm",
       minify: true,
