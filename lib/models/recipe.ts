@@ -128,7 +128,7 @@ export class Recipe {
   #cachedSources?:
     | z.output<typeof Source>
     | z.output<typeof Source>[]
-    | Partial<Record<Platform, z.output<typeof Source>>>;
+    | Partial<Record<Platform, z.output<typeof Source>[]>>;
 
   /**
    * Returns & caches the latest sources fo the recipe.
@@ -241,16 +241,18 @@ export class Recipe {
     if ("git" in resolvedSources || "url" in resolvedSources || "path" in resolvedSources) {
       sources.push(resolvedSources);
     } else {
-      for (const [platform, src] of Object.entries(resolvedSources)) {
-        if ("sha256" in src && typeof src.sha256 === "function") {
-          src.sha256 = await src.sha256();
+      for (const [platform, newSources] of Object.entries(resolvedSources)) {
+        for (const newSource of newSources) {
+          if ("sha256" in newSource && typeof newSource.sha256 === "function") {
+            newSource.sha256 = await newSource.sha256();
+          }
+          sources.push(
+            {
+              if: `target_platform == "${platform}"`,
+              then: newSource,
+            },
+          );
         }
-        sources.push(
-          {
-            if: `target_platform == "${platform}"`,
-            then: src,
-          },
-        );
       }
     }
 

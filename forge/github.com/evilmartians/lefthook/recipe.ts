@@ -32,14 +32,8 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ exe, pkgVersion }) => {
-      const lefthook = r.path.join("bin", exe("lefthook"));
-
-      if (!await r.exists(lefthook)) {
-        throw new Error(`failed to locate binary in package`);
-      }
-
-      if (await r.$`${lefthook} version`.text() !== pkgVersion) {
+    func: async ({ pkgVersion }) => {
+      if (await r.$`lefthook version`.text() !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },

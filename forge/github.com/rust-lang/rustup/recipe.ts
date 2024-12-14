@@ -26,10 +26,10 @@ export default new r.Recipe({
       (await r.http.get(`${url}.sha256`).text())
         .split("\n")[0].split(" ")[0].trim();
 
-    const buildSource = async (platform: string) => ({
+    const buildSource = async (platform: string) => [{
       url: buildUrl(platform),
       sha256: await getDigest(buildUrl(platform)),
-    });
+    }];
 
     return {
       "linux-64": await buildSource("x86_64-unknown-linux-musl"),

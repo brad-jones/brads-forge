@@ -27,19 +27,13 @@ export default new r.Recipe({
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("dprint"));
-      await r.moveGlob("./dprint*", dst);
+      await r.moveGlob("./dprint*/dprint", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },
   tests: {
-    func: async ({ exe, pkgVersion }) => {
-      const dprint = r.path.join("bin", exe("dprint"));
-
-      if (!await r.exists(dprint)) {
-        throw new Error(`failed to locate binary in package`);
-      }
-
-      if (r.coerceSemVer(await r.$`${dprint} --version`.text()) !== pkgVersion) {
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer(await r.$`dprint --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },

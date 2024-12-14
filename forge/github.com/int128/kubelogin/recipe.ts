@@ -25,21 +25,28 @@ export default new r.Recipe({
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
-      const dst = r.path.join(prefixDir, "bin", exe("kubectl-oidc_login"));
-      await r.moveGlob("./kubelogin*", dst);
-      if (unix) await Deno.chmod(dst, 0o755);
+      const dst = r.path.join(prefixDir, "bin", exe("kubelogin"));
+      await r.moveGlob("./kubelogin*/kubelogin", dst);
+      if (unix) {
+        await Deno.chmod(dst, 0o755);
+        await Deno.symlink(dst, r.path.join(prefixDir, "bin/kubectl-oidc_login"));
+      } else {
+        const scriptFile = r.path.join(prefixDir, "etc/conda/activate.d/script.bat");
+        await r.ensureDir(r.path.dirname(scriptFile));
+        await Deno.writeTextFile(
+          scriptFile,
+          'mklink /H "%CONDA_PREFIX%\\bin\\kubectl-oidc_login.exe" "%CONDA_PREFIX%\\bin\\kubelogin.exe"',
+        );
+      }
     },
   },
   tests: {
-    func: async ({ exe, pkgVersion }) => {
-      const kubelogin = r.path.join("bin", exe("kubectl-oidc_login"));
-
-      if (!await r.exists(kubelogin)) {
-        throw new Error(`failed to locate binary in package`);
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer(await r.$`kubelogin --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from kubelogin`);
       }
-
-      if (r.coerceSemVer(await r.$`${kubelogin} --version`.text()) !== pkgVersion) {
-        throw new Error(`unexpected version returned from binary`);
+      if (r.coerceSemVer(await r.$`kubectl-oidc_login --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from kubectl-oidc_login`);
       }
     },
   },

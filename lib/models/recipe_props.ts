@@ -47,8 +47,8 @@ export const RecipeProps = z.object({
     .args(z.string())
     .returns(
       z.union([
-        z.union([Source, z.array(Source), z.record(Platform, Source)]),
-        z.promise(z.union([Source, z.array(Source), z.record(Platform, Source)])),
+        z.union([Source, z.array(Source), z.record(Platform, z.array(Source))]),
+        z.promise(z.union([Source, z.array(Source), z.record(Platform, z.array(Source))])),
       ]),
     ),
 

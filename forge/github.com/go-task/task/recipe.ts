@@ -26,19 +26,13 @@ export default new r.Recipe({
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("task"));
-      await r.moveGlob("./task*", dst);
+      await r.moveGlob("./task*/task", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },
   tests: {
-    func: async ({ exe, pkgVersion }) => {
-      const task = r.path.join("bin", exe("task"));
-
-      if (!await r.exists(task)) {
-        throw new Error(`failed to locate binary in package`);
-      }
-
-      if (r.coerceSemVer(await r.$`${task} --version`.text()) !== pkgVersion) {
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer(await r.$`task --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },

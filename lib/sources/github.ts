@@ -16,13 +16,14 @@ export interface Options {
   repo: string;
   osMap?: Partial<Record<PlatformOs, string>>;
   archMap?: Partial<Record<PlatformArch, string>>;
+  fileName?: (version: string, os: string, arch: string) => string;
   checksumFilePattern?: RegExp;
   headers?: Record<string, string>;
 }
 
 export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
-  return async (tag: string): Promise<Partial<Record<Platform, z.output<typeof Source>>>> => {
-    const sources: Partial<Record<Platform, z.output<typeof Source>>> = {};
+  return async (tag: string): Promise<Partial<Record<Platform, z.output<typeof Source>[]>>> => {
+    const sources: Partial<Record<Platform, z.output<typeof Source>[]>> = {};
     console.log(`Finding github release assets for ${options.owner}/${options.repo}@${tag}`);
     const release = await octokit.repos.getReleaseByTag({
       owner: options.owner,
@@ -77,7 +78,22 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
       if (os === "osx" && arch === "aarch64") arch = "arm64";
       if (os === "win" && arch === "aarch64") arch = "arm64";
 
-      sources[Platform.parse(`${os}-${arch}`)] = {
+      if (options.fileName) {
+        const z = options.fileName(
+          tag,
+          options.osMap ? options.osMap[os] ?? os : os,
+          options.archMap ? options.archMap[arch] ?? arch : arch,
+        );
+        if (asset.name !== z) {
+          console.log(`${asset.name} !== ${z}`);
+          continue;
+        }
+      }
+
+      const sourceKey = Platform.parse(`${os}-${arch}`);
+      if (!Array.isArray(sources[sourceKey])) sources[sourceKey] = [];
+      sources[sourceKey]!.push({
+        target_directory: `${asset.name}`,
         url: asset.browser_download_url,
         sha256: async () => {
           if (checkSumFileDownloader) {
@@ -99,7 +115,7 @@ export function githubReleaseAssets(options: Options, octokit = OCTOKIT) {
             }
           }
         },
-      };
+      });
     }
 
     return sources;
