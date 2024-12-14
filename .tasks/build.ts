@@ -33,18 +33,16 @@ await new Command()
     const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
     if (recipePath) {
       recipePath = await Deno.realPath(recipePath);
-      await buildRecipe({ prefix, channel, build, upload, recipePath, platforms });
+      await buildRecipe({ prefix, channel, build, upload, recipePath, platforms, forgeDir });
     } else {
       for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
         const recipePath = item.path;
-        const friendlyPath = recipePath.replace(forgeDir, "");
-        console.log(`::group::${friendlyPath}`);
         try {
-          await buildRecipe({ prefix, channel, build, upload, recipePath, platforms });
+          await buildRecipe({ prefix, channel, build, upload, recipePath, platforms, forgeDir });
         } catch (e) {
+          console.log(`::error title=${recipePath}::recipe failed to cook`);
           console.warn(e);
         }
-        console.log(`::endgroup::`);
       }
     }
   })
@@ -57,9 +55,10 @@ interface BuildOptions {
   channel: string;
   upload: boolean;
   build: boolean;
+  forgeDir: string;
 }
 
-async function buildRecipe({ prefix, recipePath, platforms, channel, build, upload }: BuildOptions) {
+async function buildRecipe({ prefix, recipePath, platforms, channel, build, upload, forgeDir }: BuildOptions) {
   // Can not upload if we are not building
   upload = build ? upload : false;
 
@@ -75,7 +74,9 @@ async function buildRecipe({ prefix, recipePath, platforms, channel, build, uplo
   // Loop through each platform that we need to build
   const recipePlatforms = await r.getPlatforms();
   for (const platform of platforms) {
-    console.log(`::group::${platform}`);
+    console.log(
+      `::group::${path.dirname(recipePath).replace(`${forgeDir}/`, "")}-${platform}-${await lastestVersion()}`,
+    );
     try {
       // Bail out if the recipe does not support the platform
       if (!recipePlatforms.includes(platform)) {
