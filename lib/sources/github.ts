@@ -12,6 +12,8 @@ export interface Options {
   archMap?: Partial<Record<PlatformArch, string>>;
   fileName?: (version: string, os: string, arch: string) => string;
   checksumFilePattern?: RegExp;
+  checksumFileExt?: string;
+  checksumExtractor?: (txt: string) => string;
   headers?: Record<string, string>;
 }
 
@@ -31,11 +33,13 @@ export function githubReleaseAssets(options: Options) {
       headers: options.headers,
     });
 
+    const checksumFileExt = options.checksumFileExt ?? ".sha256";
+
     let checkSumFile: string | undefined = undefined;
     let checkSumFileDownloader: (() => Promise<string>) | undefined = undefined;
     const checksumFilePattern = options.checksumFilePattern ?? /^.*(checksum|sha256).*$/;
     const checkSumFileUrl = release.data.assets.find((_) => _.name.match(checksumFilePattern))?.browser_download_url;
-    if (checkSumFileUrl && !checkSumFileUrl.endsWith(".sha256")) {
+    if (checkSumFileUrl && !checkSumFileUrl.endsWith(checksumFileExt)) {
       checkSumFileDownloader = async () => {
         if (!checkSumFile) {
           console.log(`Downloading checksum file ${checkSumFileUrl}`);
@@ -57,7 +61,7 @@ export function githubReleaseAssets(options: Options) {
     }
 
     for (const asset of release.data.assets) {
-      if (asset.browser_download_url.endsWith(".sha256")) continue;
+      if (asset.browser_download_url.endsWith(checksumFileExt)) continue;
 
       const os = allOperatingSystems.find((os) =>
         asset.name.includes(
@@ -99,12 +103,15 @@ export function githubReleaseAssets(options: Options) {
           if (checkSumFileDownloader) {
             return digestFromChecksumTXT("SHA-256", asset.name, await checkSumFileDownloader()).digestPair[1];
           } else {
-            const checksumFile = release.data.assets.find((_) => _.name.endsWith(`${asset.name}.sha256`));
+            const checksumFile = release.data.assets.find((_) => _.name.endsWith(`${asset.name}${checksumFileExt}`));
             if (checksumFile) {
               const digestFileTxt = await ky.get(checksumFile.browser_download_url).text();
               try {
                 return digestFromChecksumTXT("SHA-256", asset.name, digestFileTxt).digestPair[1];
               } catch (_) {
+                if (options.checksumExtractor) {
+                  return options.checksumExtractor(digestFileTxt);
+                }
                 return digestFileTxt;
               }
             } else {

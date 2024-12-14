@@ -21,3 +21,4 @@ export { $ } from "@david/dax";
 export * from "./versions/mod.ts";
 export * from "./sources/mod.ts";
 export * as archive from "./archive/mod.ts";
+export * as activation from "./activation/mod.ts";
