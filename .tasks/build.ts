@@ -33,17 +33,23 @@ await new Command()
     const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
     if (recipePath) {
       recipePath = await Deno.realPath(recipePath);
-      await buildRecipe({ prefix, channel, build, upload, recipePath, platforms, forgeDir });
+      for (const targetPlatform of platforms) {
+        await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+      }
     } else {
-      console.log(`forgeDir: ${forgeDir}`);
-      for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
+      for await (const item of fs.walk(forgeDir, { match: [/recipe.ts$/] })) {
         const recipePath = item.path;
-        console.log(`recipePath: ${recipePath}`);
-        try {
-          await buildRecipe({ prefix, channel, build, upload, recipePath, platforms, forgeDir });
-        } catch (e) {
-          console.log(`::error title=${recipePath}::recipe failed to cook`);
-          console.warn(e);
+        for (const targetPlatform of platforms) {
+          console.log(
+            `::group::${path.dirname(recipePath).replace(`${forgeDir}/`, "")}-${targetPlatform}`,
+          );
+          try {
+            await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+          } catch (e) {
+            console.log(`::error title=${recipePath}::recipe failed to cook`);
+            console.warn(e);
+          }
+          console.log(`::endgroup::`);
         }
       }
     }
@@ -53,110 +59,107 @@ await new Command()
 interface BuildOptions {
   prefix: PrefixClient;
   recipePath: string;
-  platforms: Platform[];
+  targetPlatform: Platform;
   channel: string;
   upload: boolean;
   build: boolean;
   forgeDir: string;
 }
 
-async function buildRecipe({ prefix, recipePath, platforms, channel, build, upload, forgeDir }: BuildOptions) {
+const recipeModules: Record<string, Recipe> = {};
+
+async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build, upload, forgeDir }: BuildOptions) {
   // Can not upload if we are not building
   upload = build ? upload : false;
 
   // Import the recipe module
-  const r = (await import(recipePath))["default"];
-  if (!(r instanceof Recipe)) throw new Error(`unexpected recipe export`);
+  if (!recipeModules[recipePath]) {
+    const v = (await import(recipePath))["default"];
+    if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export`);
+    recipeModules[recipePath] = v;
+  }
+  const r = recipeModules[recipePath];
 
+  // Select the latest version number
   const lastestVersion = async () => {
     const v = await r.getVersion();
     return v.semver ?? v.raw;
   };
 
-  // Loop through each platform that we need to build
+  // Bail out if the recipe does not support the platform
   const recipePlatforms = await r.getPlatforms();
-  for (const platform of platforms) {
-    console.log(
-      `::group::${path.dirname(recipePath).replace(`${forgeDir}/`, "")}-${platform}`,
-    );
-    try {
-      // Bail out if the recipe does not support the platform
-      if (!recipePlatforms.includes(platform)) {
-        console.log(`Skipping, recipe does not support: ${platform}`);
-        continue;
-      }
+  if (!recipePlatforms.includes(targetPlatform)) {
+    console.log(`Skipping, recipe does not support: ${targetPlatform}`);
+    return;
+  }
 
-      // Bail out if the recipe has already been published to prefix.dev
-      // Unless the user is skipping the upload, at that point we assume
-      // they want to build for test purposes.
-      const variant = {
-        name: r.props.name,
-        version: await lastestVersion(),
-        buildNo: r.props.build.number ?? 0,
-        platform,
-        channel,
-      };
-      const variantString = `${variant.name}-${variant.version}-${variant.buildNo}-${variant.platform}`;
-      if (upload && await prefix.variantExists(variant)) {
-        console.log(`Skipping, variant already published: ${variantString}`);
-        continue;
-      }
+  // Bail out if the recipe has already been published to prefix.dev
+  // Unless the user is skipping the upload, at that point we assume
+  // they want to build for test purposes.
+  const variant = {
+    name: r.props.name,
+    version: await lastestVersion(),
+    buildNo: r.props.build.number ?? 0,
+    platform: targetPlatform,
+    channel,
+  };
+  const variantString = `${variant.name}-${variant.version}-${variant.buildNo}-${variant.platform}`;
+  if (upload && await prefix.variantExists(variant)) {
+    console.log(`Skipping, variant already published: ${variantString}`);
+    return;
+  }
 
-      // Create new versioned recipe directory to stage our generated artifacts
-      const recipeDir = path.join(
-        path.dirname(recipePath),
-        `generated/${platform}/${variant.version}-${variant.buildNo}`,
-      );
-      await fs.emptyDir(recipeDir);
-      console.log(`Created ${recipeDir}`);
+  // Create new versioned recipe directory to stage our generated artifacts
+  const recipeDir = path.join(
+    path.dirname(recipePath),
+    `generated/${targetPlatform}/${variant.version}-${variant.buildNo}`,
+  );
+  await fs.emptyDir(recipeDir);
+  console.log(`Created ${recipeDir}`);
 
-      // Write the rattler-build yaml file
-      const recipeYamlPath = path.join(recipeDir, "recipe.yaml");
-      await Deno.writeTextFile(
-        recipeYamlPath,
-        outdent`
+  // Write the rattler-build yaml file
+  const recipeYamlPath = path.join(recipeDir, "recipe.yaml");
+  await Deno.writeTextFile(
+    recipeYamlPath,
+    outdent`
         # yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
-        ${yaml.stringify(await r.toObject(platform))}
+        ${yaml.stringify(await r.toObject(targetPlatform))}
       `,
-      );
-      console.log(`Written ${recipeYamlPath}`);
+  );
+  console.log(`Written ${recipeYamlPath}`);
 
-      // Write the Javascript
-      if (r.hasJsFuncs) {
-        const configPath = fs.toPathString(import.meta.resolve("../deno.json"));
-        const recipeJsFile = path.join(recipeDir, "bundled-recipe.ts");
-        await esbuild.build({
-          entryPoints: [recipePath],
-          outfile: recipeJsFile,
-          format: "esm",
-          minify: true,
-          bundle: true,
-          plugins: [...denoPlugins({ configPath })],
-        });
-        console.log(`Written ${recipeJsFile}`);
-      }
+  // Write the Javascript
+  if (r.hasJsFuncs) {
+    const configPath = fs.toPathString(import.meta.resolve("../deno.json"));
+    const recipeJsFile = path.join(recipeDir, "bundled-recipe.ts");
+    await esbuild.build({
+      entryPoints: [recipePath],
+      outfile: recipeJsFile,
+      format: "esm",
+      minify: true,
+      bundle: true,
+      plugins: [...denoPlugins({ configPath })],
+    });
+    console.log(`Written ${recipeJsFile}`);
+  }
 
-      if (build) {
-        await $`rattler-build build
-        -r ${recipeYamlPath} --target-platform ${platform} --test native
-        -c conda-forge -c https://prefix.dev/${channel}
-      `;
-      }
+  if (build) {
+    await $`rattler-build build
+      -r ${recipeYamlPath} --target-platform ${targetPlatform} --test native
+      -c conda-forge -c https://prefix.dev/${channel}
+    `;
+  }
 
-      if (upload) {
-        const artifact = await fs.expandGlobFirst(
-          path.join(
-            "output",
-            platform,
-            `${variant.name}-${variant.version}-*_${variant.buildNo}.conda`,
-          ),
-        );
-        if (artifact) {
-          await $`rattler-build upload prefix -c ${channel} ${artifact}`;
-        }
-      }
-    } finally {
-      console.log(`::endgroup::`);
+  if (upload) {
+    const artifact = await fs.expandGlobFirst(
+      path.join(
+        "output",
+        targetPlatform,
+        `${variant.name}-${variant.version}-*_${variant.buildNo}.conda`,
+      ),
+    );
+    if (artifact) {
+      await $`rattler-build upload prefix -c ${channel} ${artifact}`;
     }
   }
 }
