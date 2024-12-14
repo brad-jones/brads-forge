@@ -41,7 +41,7 @@ export default new r.Recipe({
     };
   },
   build: {
-    number: 1,
+    number: 2,
     dynamic_linking: {
       binary_relocation: false,
     },

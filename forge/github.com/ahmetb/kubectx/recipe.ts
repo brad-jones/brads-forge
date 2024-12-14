@@ -20,7 +20,7 @@ export default new r.Recipe({
     license: "Apache-2.0",
   },
   build: {
-    number: 1,
+    number: 2,
     dynamic_linking: {
       binary_relocation: false,
     },
