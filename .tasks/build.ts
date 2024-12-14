@@ -35,8 +35,10 @@ await new Command()
       recipePath = await Deno.realPath(recipePath);
       await buildRecipe({ prefix, channel, build, upload, recipePath, platforms, forgeDir });
     } else {
+      console.log(`forgeDir: ${forgeDir}`);
       for await (const item of fs.walk(forgeDir, { match: [/\/recipe.ts$/] })) {
         const recipePath = item.path;
+        console.log(`recipePath: ${recipePath}`);
         try {
           await buildRecipe({ prefix, channel, build, upload, recipePath, platforms, forgeDir });
         } catch (e) {
@@ -75,7 +77,7 @@ async function buildRecipe({ prefix, recipePath, platforms, channel, build, uplo
   const recipePlatforms = await r.getPlatforms();
   for (const platform of platforms) {
     console.log(
-      `::group::${path.dirname(recipePath).replace(`${forgeDir}/`, "")}-${platform}-${await lastestVersion()}`,
+      `::group::${path.dirname(recipePath).replace(`${forgeDir}/`, "")}-${platform}`,
     );
     try {
       // Bail out if the recipe does not support the platform
