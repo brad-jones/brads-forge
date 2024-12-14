@@ -119,7 +119,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
   if (build) {
     await $`rattler-build build
       -r ${recipeYamlPath} --target-platform ${targetPlatform} --test native
-      -c conda-forge -c https://prefix.dev/${channel}
+      -c https://prefix.dev/${channel} -c conda-forge
     `;
   }
 

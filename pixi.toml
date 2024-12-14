@@ -3,13 +3,13 @@ name = "brads-forge"
 version = "0.1.0"
 description = "Brads personal conda forge, filled will rattler builds."
 authors = ["Brad Jones <brad@bjc.id.au>"]
-channels = ["conda-forge", "https://repo.prefix.dev/brads-forge"]
+channels = ["https://repo.prefix.dev/brads-forge", "conda-forge"]
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 
 [tasks.code]
 cmd = "code ."
 
 [dependencies]
-deno = ">=2.1.2,<2.2"
+deno = ">=2.1.4,<2.2"
 dprint = ">=0.47.6,<0.48"
-rattler-build = ">=0.31.1,<0.32"
+rattler-build = ">=0.32.1,<0.33"
