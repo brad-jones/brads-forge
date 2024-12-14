@@ -51,9 +51,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     if (ghaSummary) {
       await Deno.writeTextFile(
         ghaSummary,
-        outdent`
-            - ${targetPlatform}/${r.props.name}: skipped (recipe does not support platform)
-          `,
+        `- ${targetPlatform}/${r.props.name}: skipped (no platform support)\n`,
         { append: true },
       );
     }
@@ -77,9 +75,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     if (ghaSummary) {
       await Deno.writeTextFile(
         ghaSummary,
-        outdent`
-            - ${variantString}: skipped (already published)
-          `,
+        `- ${variantString}: skipped (already published)\n`,
         { append: true },
       );
     }
@@ -141,9 +137,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
       if (ghaSummary) {
         await Deno.writeTextFile(
           ghaSummary,
-          outdent`
-            - ${targetPlatform}/${path.basename(artifact)}: published
-          `,
+          `- ${targetPlatform}/${path.basename(artifact)}: published\n`,
           { append: true },
         );
       }
