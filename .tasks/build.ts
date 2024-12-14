@@ -117,6 +117,16 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     );
     if (artifact) {
       await $`rattler-build upload prefix -c ${channel} ${artifact}`;
+      const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
+      if (ghaSummary) {
+        await Deno.writeTextFile(
+          ghaSummary,
+          outdent`
+            - ${targetPlatform}/${path.basename(artifact)}
+          `,
+          { append: true },
+        );
+      }
     }
   }
 }
