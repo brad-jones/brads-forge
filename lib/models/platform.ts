@@ -97,7 +97,8 @@ export const currentPlatform: Platform = `${currentOs}-${currentArch}`;
 
 export const splitPlatform = (p: Platform) => p.split("-") as [PlatformOs, PlatformArch];
 
-export const suffixExe = (targetOs: string) => (filename: string) => `${filename}${targetOs === "win" ? ".exe" : ""}`;
+export const suffixExe = (targetOs: string) => (filename: string) =>
+  `${filename}${targetOs.startsWith("win") ? ".exe" : ""}`;
 
 export function isUnix(v: Platform | PlatformOs) {
   if (v.includes("-")) v = splitPlatform(v as Platform)[0];
