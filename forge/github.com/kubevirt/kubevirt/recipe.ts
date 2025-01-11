@@ -31,12 +31,16 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion }) => {
-      const line1 = (await r.$`virtctl version`.text()).split("\n")[0];
-      const gitVersion = line1.match(/.*GitVersion:"(.*?)".*/);
-      if (gitVersion === null) throw new Error(`missing version`);
-      if (r.coerceSemVer(gitVersion[1]) !== pkgVersion) {
-        throw new Error(`unexpected version returned from kubectx`);
+    func: async () => {
+      // NB: We can not call "virtctl version" because it also attempts to find
+      // the version of kubevirt on a cluster and we don't have a cluster in
+      // this environment obviously. So the best we can do is simply validate
+      // that the binary outputs some help text.
+      if (
+        (await r.$`virtctl --help`.text()).split("\n")[0] !==
+          "virtctl controls virtual machine related operations on your kubernetes cluster."
+      ) {
+        throw new Error(`virtctl help txt does not match`);
       }
     },
   },
