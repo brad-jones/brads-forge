@@ -9,7 +9,7 @@ export function latestGithubTag(options: { owner: string; repo: string }) {
         Deno.env.get("GITHUB_API_TOKEN"),
     });
     const tags = await octokit.repos.listTags(options);
-    const tag = tags.data[0].name;
+    const tag = tags.data.filter((_) => !_.name.includes("-"))[0].name;
     console.log(`Found github/${options.owner}/${options.repo} tag: ${tag}`);
     return { raw: tag, semver: coerceSemVer(tag) };
   };
