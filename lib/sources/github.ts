@@ -37,7 +37,7 @@ export function githubReleaseAssets(options: Options) {
 
     let checkSumFile: string | undefined = undefined;
     let checkSumFileDownloader: (() => Promise<string>) | undefined = undefined;
-    const checksumFilePattern = options.checksumFilePattern ?? /^.*(checksum|sha256).*$/;
+    const checksumFilePattern = options.checksumFilePattern ?? /^.*(checksum|sha256).*$/i;
     const checkSumFileUrl = release.data.assets.find((_) => _.name.match(checksumFilePattern))?.browser_download_url;
     if (checkSumFileUrl && !checkSumFileUrl.endsWith(checksumFileExt)) {
       checkSumFileDownloader = async () => {
