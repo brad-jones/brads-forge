@@ -30,7 +30,7 @@ jobs:
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.39.2
+          pixi-version: v0.40.3
           activate-environment: true
 
       - name: 🧑‍🍳 Build & Publish Recipes
