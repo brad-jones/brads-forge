@@ -70,6 +70,17 @@ export class Digest {
   }
 
   /**
+   * Same as `parse` but catches and returns any exception.
+   */
+  static tryParse(s: string): [true, Digest] | [unknown, undefined] {
+    try {
+      return [true, Digest.parse(s)];
+    } catch (e) {
+      return [e, undefined];
+    }
+  }
+
+  /**
    * Calculates a new digest of the given data.
    */
   static async fromBuffer(

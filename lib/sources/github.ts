@@ -100,27 +100,35 @@ export function githubReleaseAssets(options: Options) {
         target_directory: `${asset.name}`,
         url: asset.browser_download_url,
         sha256: async () => {
+          // The Github API now returns a digest value for every asset.
+          // So the previous functionality probably isn't needed but kept for posterity.
+          if (Object.hasOwn(asset, "digest")) {
+            // deno-lint-ignore no-explicit-any
+            const [ok, d] = Digest.tryParse((asset as any)["digest"] as string);
+            if (ok && d?.algorithm === "SHA-256") return d.hashString;
+          }
+
           if (checkSumFileDownloader) {
             return digestFromChecksumTXT("SHA-256", asset.name, await checkSumFileDownloader()).digestPair[1];
-          } else {
-            const checksumFile = release.data.assets.find((_) => _.name.endsWith(`${asset.name}${checksumFileExt}`));
-            if (checksumFile) {
-              const digestFileTxt = await ky.get(checksumFile.browser_download_url).text();
-              try {
-                return digestFromChecksumTXT("SHA-256", asset.name, digestFileTxt).digestPair[1];
-              } catch (_) {
-                if (options.checksumExtractor) {
-                  return options.checksumExtractor(digestFileTxt);
-                }
-                return digestFileTxt;
+          }
+
+          const checksumFile = release.data.assets.find((_) => _.name.endsWith(`${asset.name}${checksumFileExt}`));
+          if (checksumFile) {
+            const digestFileTxt = await ky.get(checksumFile.browser_download_url).text();
+            try {
+              return digestFromChecksumTXT("SHA-256", asset.name, digestFileTxt).digestPair[1];
+            } catch (_) {
+              if (options.checksumExtractor) {
+                return options.checksumExtractor(digestFileTxt);
               }
-            } else {
-              console.log(`Downloading ${asset.name} to calc missing digest...`);
-              const r = await ky.get(asset.browser_download_url);
-              if (!r.body) throw new Error(`failed to download asset to calculate digest`);
-              return (await Digest.fromBuffer(r.body)).digestPair[1];
+              return digestFileTxt;
             }
           }
+
+          console.log(`Downloading ${asset.name} to calc missing digest...`);
+          const r = await ky.get(asset.browser_download_url);
+          if (!r.body) throw new Error(`failed to download asset to calculate digest`);
+          return (await Digest.fromBuffer(r.body)).digestPair[1];
         },
       });
     }
