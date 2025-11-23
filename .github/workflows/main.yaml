@@ -21,8 +21,8 @@ jobs:
         include:
           - { targets: [linux-32, linux-64, linux-aarch64], os: ubuntu-latest }
           - { targets: [win-32, win-64, win-arm64], os: windows-latest }
-          - { targets: [osx-64], os: macos-13 }
-          - { targets: [osx-arm64], os: macos-14 }
+          - { targets: [osx-64], os: macos-15-intel }
+          - { targets: [osx-arm64], os: macos-latest }
     steps:
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v6
