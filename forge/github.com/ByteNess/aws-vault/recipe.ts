@@ -10,7 +10,7 @@ export default new r.Recipe({
     owner,
     repo,
     osMap: { "osx": "darwin", "win": "windows" },
-    archMap: { "64": "amd64", "arm64": "aarch64" },
+    archMap: { "64": "amd64" },
   }),
   about: {
     repository: `https://github.com/${owner}/${repo}`,
@@ -20,6 +20,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
+    number: 2,
     dynamic_linking: {
       binary_relocation: false,
     },
