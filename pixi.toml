@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "brads-forge"
 version = "0.1.0"
 description = "Brads personal conda forge, filled will rattler builds."
@@ -10,6 +10,6 @@ platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 cmd = "code ."
 
 [dependencies]
-deno = ">=2.4.5,<2.5"
-dprint = ">=0.50.1,<0.51"
-rattler-build = ">=0.47.0,<0.48"
+deno = ">=2.5.6,<2.6"
+dprint = ">=0.50.2,<0.51"
+rattler-build = ">=0.51.0,<0.52"

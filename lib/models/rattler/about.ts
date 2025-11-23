@@ -14,17 +14,17 @@ export const About = z.object({
   /**
    * Url of the homepage of the package.
    */
-  homepage: z.string().url().optional(),
+  homepage: z.url().optional(),
 
   /**
    * Url that points to where the source code is hosted e.g. (github.com)
    */
-  repository: z.string().url().optional(),
+  repository: z.url().optional(),
 
   /**
    * Url that points to where the documentation is hosted.
    */
-  documentation: z.string().url().optional(),
+  documentation: z.url().optional(),
 
   /**
    * An license in SPDX format.
@@ -41,7 +41,7 @@ export const About = z.object({
   /**
    * A url that points to the license file.
    */
-  license_url: z.string().url().optional(),
+  license_url: z.url().optional(),
 
   prelink_message: z.string().optional(),
 });

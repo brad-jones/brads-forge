@@ -5,10 +5,7 @@ export const FuncTest = z.object({
   /**
    * Instead of brittle bash/powershell scripts just write your tests using TypeScript.
    */
-  func: z.function()
-    .args(BuildContext)
-    .returns(z.promise(z.void()))
-    .optional(),
+  func: z.custom<(ctx: z.output<typeof BuildContext>) => Promise<void>>().optional(),
 
   /**
    * Additional dependencies to install before running the test.

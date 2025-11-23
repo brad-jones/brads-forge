@@ -9,28 +9,28 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-2_gnu.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
-      - conda: https://repo.prefix.dev/brads-forge/linux-64/deno-2.4.5-h81b34b9_2.conda
-      - conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.50.1-h81b34b9_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/linux-64/deno-2.5.6-h81b34b9_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.50.2-h81b34b9_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-15.1.0-h767d61c_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-15.1.0-h69a702a_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgomp-15.1.0-h767d61c_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-15.1.0-h8f9b012_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-15.1.0-h4852527_4.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.5.2-h26f9b46_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.6.0-h26f9b46_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/patchelf-0.17.2-h58526e2_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.47.0-h60886be_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.51.0-he64ecbb_0.conda
       osx-64:
-      - conda: https://repo.prefix.dev/brads-forge/osx-64/deno-2.4.5-he0f4bc8_2.conda
-      - conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.50.1-he0f4bc8_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/rattler-build-0.47.0-h9113d71_0.conda
+      - conda: https://repo.prefix.dev/brads-forge/osx-64/deno-2.5.6-he0f4bc8_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.50.2-he0f4bc8_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/rattler-build-0.51.0-h9113d71_0.conda
       osx-arm64:
-      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/deno-2.4.5-he8ea13f_2.conda
-      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.50.1-he8ea13f_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rattler-build-0.47.0-h8d80559_0.conda
+      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/deno-2.5.6-he8ea13f_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.50.2-he8ea13f_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rattler-build-0.51.0-h8d80559_0.conda
       win-64:
-      - conda: https://repo.prefix.dev/brads-forge/win-64/deno-2.4.5-h3c70cbc_2.conda
-      - conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.50.1-h3c70cbc_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.47.0-h18a1a76_0.conda
+      - conda: https://repo.prefix.dev/brads-forge/win-64/deno-2.5.6-h3c70cbc_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.50.2-h3c70cbc_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.51.0-h18a1a76_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ucrt-10.0.26100.0-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h41ae7f8_31.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.44.35208-h818238b_31.conda
@@ -63,46 +63,46 @@ packages:
   license: ISC
   size: 154402
   timestamp: 1754210968730
-- conda: https://repo.prefix.dev/brads-forge/linux-64/deno-2.4.5-h81b34b9_2.conda
-  sha256: c56191dd81cecab803e8223222deab43c540b042e91f4fb1dd716a100dcd5718
+- conda: https://repo.prefix.dev/brads-forge/linux-64/deno-2.5.6-h81b34b9_2.conda
+  sha256: 765e5d428baae7e8bb5e89577344713f0de8b1ab81084ac5cec347e00f4fcf36
   license: MIT
-  size: 38742546
-  timestamp: 1755834766356
-- conda: https://repo.prefix.dev/brads-forge/osx-64/deno-2.4.5-he0f4bc8_2.conda
-  sha256: e1bfe961b59a2c37ca9259103a5cc5461e650584be79b918dba4bead65c14773
+  size: 39572362
+  timestamp: 1761882908584
+- conda: https://repo.prefix.dev/brads-forge/osx-64/deno-2.5.6-he0f4bc8_2.conda
+  sha256: fee717c0ac433bafd45e3668e2fe18dd5729c1bc3cae25dc15c820aad22ef830
   license: MIT
-  size: 36966339
-  timestamp: 1755834777824
-- conda: https://repo.prefix.dev/brads-forge/osx-arm64/deno-2.4.5-he8ea13f_2.conda
-  sha256: 173e8bf68d24718ce65963640cc01d70153dd93f300b00f2987db80d3a4c9780
+  size: 37567645
+  timestamp: 1761882917321
+- conda: https://repo.prefix.dev/brads-forge/osx-arm64/deno-2.5.6-he8ea13f_2.conda
+  sha256: f57e52171c80b9eb0822f7e4fb71eb4ce4bf76406e290cdee99db08c655bb965
   license: MIT
-  size: 35816179
-  timestamp: 1755834776080
-- conda: https://repo.prefix.dev/brads-forge/win-64/deno-2.4.5-h3c70cbc_2.conda
-  sha256: c29e00f6f7f576f64e5b77ec871ed733187e7992441469b7786d78f04720a8d9
+  size: 36439393
+  timestamp: 1761882930448
+- conda: https://repo.prefix.dev/brads-forge/win-64/deno-2.5.6-h3c70cbc_2.conda
+  sha256: 002863c311ffb03dae20db8e5df842c9bc004c183e32ae0ae36e1e6b641b3f92
   license: MIT
-  size: 39528064
-  timestamp: 1755834771420
-- conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.50.1-h81b34b9_2.conda
-  sha256: edd15008b5f865a37bdff619e53ad59f77f1b399d3b66311a2e8eed70daa14f0
+  size: 39988052
+  timestamp: 1761882916372
+- conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.50.2-h81b34b9_2.conda
+  sha256: 06497a9067e51a5e9ca80a5d7aba43352955ed3891a461919559e7d4f97f714d
   license: MIT
-  size: 7403522
-  timestamp: 1751343726294
-- conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.50.1-he0f4bc8_2.conda
-  sha256: 7de7767b26944655965dcc57b02d28c410a26242184bbbb8cc20d60e8ba11362
+  size: 7400987
+  timestamp: 1757821626110
+- conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.50.2-he0f4bc8_2.conda
+  sha256: 42e16fb862721200fe94d3688d5c35e5c8619c3cc5daa66d97e05ab5e00d5400
   license: MIT
-  size: 6936856
-  timestamp: 1751343734647
-- conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.50.1-he8ea13f_2.conda
-  sha256: 5b283c2b43eb93a7df13d4c18a614e44c1ad8c4a5ed6758197b624addcd65689
+  size: 6960452
+  timestamp: 1757821628082
+- conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.50.2-he8ea13f_2.conda
+  sha256: 61d2e05909410755177d7e41bb53f8de3bee4fb6f9d84fef4c7ae15ef6b74d2b
   license: MIT
-  size: 6701337
-  timestamp: 1751343732356
-- conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.50.1-h3c70cbc_2.conda
-  sha256: 626c4e673f372480a80d67d755ba266710bbae7f505e98b69cc567608f3502e2
+  size: 6731129
+  timestamp: 1757821623633
+- conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.50.2-h3c70cbc_2.conda
+  sha256: 73651f0d73505a3a9b23de156473a22b92186a98188fb1e913a1f0a3c36c81d4
   license: MIT
-  size: 6641601
-  timestamp: 1751343741035
+  size: 6675355
+  timestamp: 1757821640540
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-15.1.0-h767d61c_4.conda
   sha256: 144e35c1c2840f2dc202f6915fc41879c19eddbb8fa524e3ca4aa0d14018b26f
   md5: f406dcbb2e7bef90d793e50e79a2882b
@@ -153,17 +153,17 @@ packages:
   license_family: GPL
   size: 29317
   timestamp: 1753903924491
-- conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.5.2-h26f9b46_0.conda
-  sha256: c9f54d4e8212f313be7b02eb962d0cb13a8dae015683a403d3accd4add3e520e
-  md5: ffffb341206dd0dab0c36053c048d621
+- conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.6.0-h26f9b46_0.conda
+  sha256: a47271202f4518a484956968335b2521409c8173e123ab381e775c358c67fe6d
+  md5: 9ee58d5c534af06558933af3c845a780
   depends:
   - __glibc >=2.17,<3.0.a0
   - ca-certificates
   - libgcc >=14
   license: Apache-2.0
   license_family: Apache
-  size: 3128847
-  timestamp: 1754465526100
+  size: 3165399
+  timestamp: 1762839186699
 - conda: https://conda.anaconda.org/conda-forge/linux-64/patchelf-0.17.2-h58526e2_0.conda
   sha256: eb355ac225be2f698e19dba4dcab7cb0748225677a9799e9cc8e4cadc3cb738f
   md5: ba76a6a448819560b5f8b08a9c74f415
@@ -174,42 +174,42 @@ packages:
   license_family: GPL
   size: 94048
   timestamp: 1673473024463
-- conda: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.47.0-h60886be_0.conda
-  sha256: aa71bcaf81c71da4a9137777249970c426a37afd46b7960b3e8c397f553a7f40
-  md5: 98366f1ada223a785f0dc24ed211a99c
+- conda: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.51.0-he64ecbb_0.conda
+  sha256: 012910563838a08db870ffedb27e00fd2db3049c197b19df973de0826a10c157
+  md5: e1689c761143daa09f16a728c7f94a0a
   depends:
   - patchelf
-  - libgcc >=14
   - __glibc >=2.17,<3.0.a0
-  - openssl >=3.5.2,<4.0a0
+  - libgcc >=14
+  - openssl >=3.5.4,<4.0a0
   constrains:
   - __glibc >=2.17
   license: BSD-3-Clause
-  size: 16827195
-  timestamp: 1756921257075
-- conda: https://conda.anaconda.org/conda-forge/osx-64/rattler-build-0.47.0-h9113d71_0.conda
-  sha256: 03d8c45aec0e1d8e4485a54e7e61e464ecc4752c1ec6e8fdd5458c226988eba8
-  md5: b2f5ad0a287f0712c23abb0f45fbce6d
+  size: 17067128
+  timestamp: 1763755548799
+- conda: https://conda.anaconda.org/conda-forge/osx-64/rattler-build-0.51.0-h9113d71_0.conda
+  sha256: e17e73328b209a3c11854ba59e3bdf3a4754d95f06c064130bb866dd7ae5d9f3
+  md5: c175a1b50a1281485dd4a02a303ee847
   depends:
   - __osx >=10.13
   constrains:
   - __osx >=10.13
   license: BSD-3-Clause
-  size: 15200171
-  timestamp: 1756921285627
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/rattler-build-0.47.0-h8d80559_0.conda
-  sha256: d747d7d36bd38d37f6e80cb78358c373fb5776147e21f9da4121e736f9212796
-  md5: dd3bf0dde45e18b8644b97a401f08ba2
+  size: 15431883
+  timestamp: 1763755567447
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/rattler-build-0.51.0-h8d80559_0.conda
+  sha256: 3010da129c2c9a617f0f48062eef3a61da2e3eed970b83a8f00477870aa048ff
+  md5: b1fbf24ce4a37a2b2934e60af9709d3f
   depends:
   - __osx >=11.0
   constrains:
   - __osx >=11.0
   license: BSD-3-Clause
-  size: 14273395
-  timestamp: 1756921328894
-- conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.47.0-h18a1a76_0.conda
-  sha256: 30e17e3741a7d98b937198cf2f4e6eedbadac9ecb0725334c63e2960cd5a5bc3
-  md5: c8e0123a1fdee1980eff4ea01fbaac88
+  size: 14533100
+  timestamp: 1763755556496
+- conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.51.0-h18a1a76_0.conda
+  sha256: 291e596a28c5dfce1490101bb8cf641653a8fa7bceed59e80344a6a954473a0d
+  md5: a45f673ba39c62438b6e1ce653af72a5
   depends:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
@@ -218,8 +218,8 @@ packages:
   - vc14_runtime >=14.44.35208
   - ucrt >=10.0.20348.0
   license: BSD-3-Clause
-  size: 17784676
-  timestamp: 1756921275818
+  size: 17990927
+  timestamp: 1763755574147
 - conda: https://conda.anaconda.org/conda-forge/win-64/ucrt-10.0.26100.0-h57928b3_0.conda
   sha256: 3005729dce6f3d3f5ec91dfc49fc75a0095f9cd23bab49efb899657297ac91a5
   md5: 71b24316859acd00bdb8b38f5e2ce328

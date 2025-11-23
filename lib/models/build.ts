@@ -94,15 +94,12 @@ export const BuildContext = z.object({
    * A function you can use to automatically suffix a filename with
    * `.exe` based on if the `targetOs` is `win`.
    */
-  exe: z.function().args(z.string()).returns(z.string()),
+  exe: z.custom<(name: string) => string>(),
 });
 
 export const Build = RattlerBuild.extend({
   /**
    * Instead of brittle bash/powershell scripts just write your build using TypeScript.
    */
-  func: z.function()
-    .args(BuildContext)
-    .returns(z.promise(z.void()))
-    .optional(),
+  func: z.custom<(ctx: z.output<typeof BuildContext>) => Promise<void>>().optional(),
 });

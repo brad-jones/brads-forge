@@ -13,7 +13,7 @@ const BaseScript = z.object({
    * You can use Jinja to pass through environments variables
    * with the env object (e.g. ${{ env.get("MYVAR") }}).
    */
-  env: z.record(z.string()).optional(),
+  env: z.record(z.string(), z.string()).optional(),
 
   /**
    * Secrets that are set as environment variables

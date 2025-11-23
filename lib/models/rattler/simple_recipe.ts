@@ -48,5 +48,5 @@ export const SimpleRecipe = z.object({
   /**
    * An set of arbitrary values that are included in the package manifest
    */
-  extra: z.record(z.string()).optional(),
+  extra: z.record(z.string(), z.string()).optional(),
 });

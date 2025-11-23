@@ -41,12 +41,12 @@ export const Build = z.object({
   /**
    * Files to be included even if they are present in the PREFIX before building.
    */
-  always_include_files: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+  always_include_files: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 
   /**
    * Do not soft- or hard-link these files but instead always copy them into the environment
    */
-  always_copy_files: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+  always_copy_files: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 
   /**
    * Options that influence how the different variants are computed.
@@ -80,7 +80,7 @@ export const Build = z.object({
     /**
      * Skip compiling pyc for some files
      */
-    skip_pyc_compilation: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+    skip_pyc_compilation: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 
     /**
      * The path to the site-packages folder.
@@ -118,12 +118,12 @@ export const Build = z.object({
     /**
      * Allow linking against libraries that are not in the run requirements.
      */
-    missing_dso_allowlist: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+    missing_dso_allowlist: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 
     /**
      * Allow runpath/rpath to point to these locations outside of the environment
      */
-    rpath_allowlist: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+    rpath_allowlist: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 
     /**
      * What to do when detecting overdepending.
@@ -174,12 +174,12 @@ export const Build = z.object({
       /**
        * force TEXT file type
        */
-      text: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+      text: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 
       /**
        * force BINARY file type
        */
-      binary: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+      binary: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
     }).optional(),
 
     /**
@@ -196,5 +196,5 @@ export const Build = z.object({
   /**
    * Glob patterns to include or exclude files from the package.
    */
-  files: z.union([z.string(), GlobDict, z.array(z.string(), GlobDict)]).optional(),
+  files: z.union([z.string(), GlobDict, z.tuple([z.string(), GlobDict])]).optional(),
 });

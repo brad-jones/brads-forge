@@ -22,12 +22,12 @@ export const RecipeProps = z.object({
    * A function that returns the lastest version of this package.
    * A typical source would be the git tags for a remote repo.
    */
-  version: z.function().returns(z.promise(
-    z.object({
+  version: z.custom<
+    () => Promise<{
       /**
        * The version string un-altered from the original upstream source.
        */
-      raw: z.string(),
+      raw: string;
 
       /**
        * A parsed semver string.
@@ -36,21 +36,26 @@ export const RecipeProps = z.object({
        * But not all packages follow the convention so we can not rely on
        * this to always be available.
        */
-      semver: z.string().optional(),
-    }),
-  )),
+      semver?: string;
+    }>
+  >(),
 
   /**
    * The source items to be downloaded and used for the build.
    */
-  sources: z.function()
-    .args(z.string())
-    .returns(
-      z.union([
-        z.union([Source, z.array(Source), z.record(Platform, z.array(Source))]),
-        z.promise(z.union([Source, z.array(Source), z.record(Platform, z.array(Source))])),
-      ]),
-    ),
+  sources: z.custom<
+    (tag: string) =>
+      | z.output<typeof Source>
+      | z.output<typeof Source>[]
+      | Record<Platform, z.output<typeof Source>[]>
+      | Partial<Record<Platform, z.output<typeof Source>[]>>
+      | Promise<
+        | z.output<typeof Source>
+        | z.output<typeof Source>[]
+        | Record<Platform, z.output<typeof Source>[]>
+        | Partial<Record<Platform, z.output<typeof Source>[]>>
+      >
+  >(),
 
   /**
    * A list of platforms that this recipe supports.
@@ -79,5 +84,5 @@ export const RecipeProps = z.object({
   /**
    * An set of arbitrary values that are included in the package manifest
    */
-  extra: z.record(z.string()).optional(),
+  extra: z.record(z.string(), z.string()).optional(),
 });

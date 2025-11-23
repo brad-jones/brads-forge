@@ -16,7 +16,7 @@ const BaseFileSource = BaseSource.extend({
   /**
    * The SHA256 hash of the source archive
    */
-  sha256: z.string().or(z.function().returns(z.promise(z.string()))),
+  sha256: z.union([z.string(), z.custom<() => Promise<string>>()]),
 
   /**
    * A file name to rename the downloaded file to (does not apply to archives).
