@@ -10,7 +10,7 @@ export default new r.Recipe({
     homepage: "https://rustup.rs/",
     documentation: "https://rust-lang.github.io/rustup/",
     repository: `https://github.com/${owner}/${repo}`,
-    description: await r.http.get("https://raw.githubusercontent.com/rust-lang/rustup/refs/heads/master/README.md")
+    description: await r.http.get("https://raw.githubusercontent.com/rust-lang/rustup/refs/heads/main/README.md")
       .text(),
     license: "MIT",
   },
