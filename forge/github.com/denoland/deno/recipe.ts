@@ -23,18 +23,19 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 2,
+    number: 3,
     dynamic_linking: {
       binary_relocation: false,
     },
     func: async ({ prefixDir, exe, unix }) => {
-      const dst = r.path.join(prefixDir, "bin", exe("deno"));
-      await r.moveGlob("./deno*/deno*", dst);
-      if (unix) await Deno.chmod(dst, 0o755);
+      const deno = r.path.join(prefixDir, "bin", exe("deno"));
+      await r.moveGlob("./deno*/deno*", deno);
+      if (unix) await Deno.chmod(deno, 0o755);
       await r.activation.addEnvVars({
         "DENO_INSTALL_ROOT": "$CONDA_PREFIX/bin",
         "DENO_DIR": "$CONDA_PREFIX/var/cache/deno",
       });
+      await r.activation.addLink(deno, r.path.join(prefixDir, "bin", exe("dx")));
     },
   },
   tests: {
@@ -42,6 +43,11 @@ export default new r.Recipe({
       const deno = r.path.join("bin", exe("deno"));
       if (r.coerceSemVer((await r.$`${deno} --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
+      }
+
+      const dx = r.path.join("bin", exe("dx"));
+      if ((await r.$`${dx} --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
+        throw new Error(`dx alias not working`);
       }
     },
   },
