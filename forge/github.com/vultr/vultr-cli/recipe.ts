@@ -10,7 +10,7 @@ export default new r.Recipe({
     owner,
     repo,
     osMap: { "osx": "macOs", "win": "windows" },
-    archMap: { "64": "amd64", "aarch64": "arm64" },
+    archMap: { "64": "amd64", "aarch64": "arm64", "32": "skip" },
   }),
   about: {
     homepage: "https://github.com/vultr/vultr-cli",
