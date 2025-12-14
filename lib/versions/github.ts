@@ -21,7 +21,8 @@ export function latestGithubTag(options: { owner: string; repo: string; tagFilte
         return !_.name.includes("-");
       })
       .map((_) => ({ raw: _.name, semver: coerceSemVer(_.name) }))
-      .toSorted((a, b) => semver.compare(semver.parse(b.semver), semver.parse(a.semver)));
+      .filter((_) => _.semver !== undefined)
+      .toSorted((a, b) => semver.compare(semver.parse(b.semver!), semver.parse(a.semver!)));
 
     console.log(`Found github/${options.owner}/${options.repo} tag: ${tags[0].raw} semver: ${tags[0].semver}`);
     return tags[0];

@@ -12,5 +12,5 @@ export function coerceSemVer(version: string) {
     if (parsedVersion) return semver.format(parsedVersion);
   }
 
-  throw new Error(`Could not coerce version ${version}`);
+  return undefined;
 }
