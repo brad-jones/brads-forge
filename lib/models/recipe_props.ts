@@ -44,7 +44,7 @@ export const RecipeProps = z.object({
    * The source items to be downloaded and used for the build.
    */
   sources: z.custom<
-    (tag: string) =>
+    (tag: string, semver?: string) =>
       | z.output<typeof Source>
       | z.output<typeof Source>[]
       | Record<Platform, z.output<typeof Source>[]>

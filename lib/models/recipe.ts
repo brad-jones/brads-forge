@@ -136,7 +136,8 @@ export class Recipe {
    */
   async getSources() {
     if (!this.#cachedSources) {
-      this.#cachedSources = await this.props.sources((await this.getVersion()).raw);
+      const version = await this.getVersion();
+      this.#cachedSources = await this.props.sources(version.raw, version.semver);
     }
     return this.#cachedSources;
   }
@@ -321,7 +322,7 @@ export class Recipe {
     const recipe = await this.#mapRecipe(targetPlatform);
     const validate = await this.#ajvValidator();
     if (!validate(recipe)) {
-      throw new Error(`JSON Schema Invalid: ${JSON.stringify(validate.errors)}`);
+      throw new Error(`JSON Schema Invalid: ${JSON.stringify(validate.errors)} - ${JSON.stringify(recipe)}`);
     }
     return recipe as z.output<typeof SimpleRecipe>;
   }
