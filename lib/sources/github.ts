@@ -71,9 +71,13 @@ export function githubReleaseAssets(options: Options) {
       if (!os || os === "unknown") continue;
 
       let arch = allArchitectures.find((arch) =>
-        asset.name.includes(
-          options.archMap ? options.archMap[arch] ?? arch : arch,
-        )
+        asset.name
+          // The moniker win32 sometimes gets uses to describe the OS & not the arch.
+          // eg: copilot-win32-x64.zip
+          .replaceAll("win32", "")
+          .includes(
+            options.archMap ? options.archMap[arch] ?? arch : arch,
+          )
       );
       if (!arch || arch === "unknown") continue;
 
