@@ -31,9 +31,8 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion, exe }) => {
-      const awsVault = r.path.join("bin", exe("aws-vault"));
-      if (r.coerceSemVer(await r.$`${awsVault} --version`.text("combined")) !== pkgVersion) {
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer(await r.$`aws-vault --version`.text("combined")) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },

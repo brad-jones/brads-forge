@@ -32,8 +32,7 @@ export default new r.Recipe({
   },
   tests: {
     func: async ({ pkgVersion, exe }) => {
-      const bun = r.path.join("bin", exe("bun"));
-      if (r.coerceSemVer((await r.$`${bun} --version`.text()).split("\n")[0]) !== pkgVersion) {
+      if (r.coerceSemVer((await r.$`bun --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },

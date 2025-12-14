@@ -30,9 +30,8 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion, exe }) => {
-      const awsVault = r.path.join("bin", exe("aws-sso"));
-      const versionLine = (await r.$`${awsVault} version`.text("combined")).split("\n")[1];
+    func: async ({ pkgVersion }) => {
+      const versionLine = (await r.$`aws-sso version`.text("combined")).split("\n")[1];
       const versionText = versionLine.match(/\(v([^\)]+)\)/)?.[1] || "";
       if (r.coerceSemVer(versionText) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);

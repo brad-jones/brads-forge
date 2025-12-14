@@ -39,14 +39,12 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion, exe }) => {
-      const deno = r.path.join("bin", exe("deno"));
-      if (r.coerceSemVer((await r.$`${deno} --version`.text()).split("\n")[0]) !== pkgVersion) {
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer((await r.$`deno --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
 
-      const dx = r.path.join("bin", exe("dx"));
-      if ((await r.$`${dx} --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
+      if ((await r.$`dx --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
         throw new Error(`dx alias not working`);
       }
     },
