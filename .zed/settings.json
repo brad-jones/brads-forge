@@ -1,4 +1,12 @@
 {
+  "wrap_guides": [80, 120],
+  "show_whitespaces": "boundary",
+  "formatter": {
+    "external": {
+      "command": "dprint",
+      "arguments": ["fmt", "--stdin", "{buffer_path}"]
+    }
+  },
   "lsp": {
     "deno": {
       "settings": {
@@ -31,8 +39,7 @@
         "!typescript-language-server",
         "!vtsls",
         "!eslint"
-      ],
-      "formatter": "language_server"
+      ]
     },
     "TypeScript": {
       "language_servers": [
@@ -40,8 +47,7 @@
         "!typescript-language-server",
         "!vtsls",
         "!eslint"
-      ],
-      "formatter": "language_server"
+      ]
     },
     "TSX": {
       "language_servers": [
@@ -49,8 +55,7 @@
         "!typescript-language-server",
         "!vtsls",
         "!eslint"
-      ],
-      "formatter": "language_server"
+      ]
     }
   }
 }
