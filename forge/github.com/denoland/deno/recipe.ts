@@ -35,19 +35,21 @@ export default new r.Recipe({
         "DENO_INSTALL_ROOT": "$CONDA_PREFIX/bin",
         "DENO_DIR": "$CONDA_PREFIX/var/cache/deno",
       });
-      await r.activation.addLink(deno, r.path.join(prefixDir, "bin", exe("dx")));
+
+      if (unix) {
+        await r.activation.addLink(deno, r.path.join(prefixDir, "bin", exe("dx")));
+      }
     },
   },
   tests: {
-    func: async ({ pkgVersion, exe, prefixDir }) => {
+    func: async ({ pkgVersion, unix }) => {
       if (r.coerceSemVer((await r.$`deno --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
-
-      const dx = r.path.join(prefixDir, "bin", exe("dx"));
-      console.log(await r.$`${dx} --help`.text());
-      if ((await r.$`${dx} --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
-        throw new Error(`dx alias not working`);
+      if (unix) {
+        if ((await r.$`dx --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
+          throw new Error(`dx alias not working`);
+        }
       }
     },
   },
