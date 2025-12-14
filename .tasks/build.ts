@@ -7,8 +7,6 @@ import { Platform, currentPlatform } from "lib/models/platform.ts";
 import { Recipe } from "lib/models/recipe.ts";
 import { path } from "lib/mod.ts";
 import { outdent } from "@cspotcode/outdent";
-import * as esbuild from "esbuild";
-import { denoPlugins } from "@luca/esbuild-deno-loader";
 import { $ } from "@david/dax";
 
 await load({ envPath: fs.toPathString(import.meta.resolve("../.env")), export: true });
@@ -103,15 +101,13 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
 
   // Write the Javascript
   if (r.hasJsFuncs) {
-    const configPath = fs.toPathString(import.meta.resolve("../deno.json"));
     const recipeJsFile = path.join(recipeDir, "bundled-recipe.ts");
-    await esbuild.build({
-      entryPoints: [path.toFileUrl(recipePath).toString()],
-      outfile: recipeJsFile,
+    await Deno.bundle({
+      entrypoints: [path.toFileUrl(recipePath).toString()],
+      outputPath: recipeJsFile,
       format: "esm",
       minify: true,
-      bundle: true,
-      plugins: [...denoPlugins({ configPath })],
+      platform: "deno",
     });
     console.log(`Written ${recipeJsFile}`);
   }
