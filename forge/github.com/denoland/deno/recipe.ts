@@ -45,6 +45,7 @@ export default new r.Recipe({
       }
 
       const dx = r.path.join(prefixDir, "bin", exe("dx"));
+      console.log(await r.$`${dx} --help`.text());
       if ((await r.$`${dx} --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
         throw new Error(`dx alias not working`);
       }
