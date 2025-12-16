@@ -23,7 +23,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 3,
+    number: 4,
     dynamic_linking: {
       binary_relocation: false,
     },
@@ -42,12 +42,15 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion, unix }) => {
-      if (r.coerceSemVer((await r.$`deno --version`.text()).split("\n")[0]) !== pkgVersion) {
+    func: async ({ pkgVersion, unix, prefixDir, exe }) => {
+      const deno = r.path.join(prefixDir, "bin", exe("deno"));
+      if (r.coerceSemVer((await r.$`${deno} --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
+
       if (unix) {
-        if ((await r.$`dx --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
+        const dx = r.path.join(prefixDir, "bin", exe("dx"));
+        if ((await r.$`${dx} --help`.text()).split("\n")[0] !== "Execute a binary from npm or jsr, like npx") {
           throw new Error(`dx alias not working`);
         }
       }
