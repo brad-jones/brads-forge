@@ -29,8 +29,6 @@ export const PlatformOs = z.custom<PlatformOs>((val) => {
 });
 
 export const allArchitectures = [
-  "32",
-  "64",
   "arm64",
   "aarch64",
   "armv6l",
@@ -41,6 +39,8 @@ export const allArchitectures = [
   "riscv32",
   "riscv64",
   "wasm32",
+  "32",
+  "64",
   "unknown",
 ] as const;
 
