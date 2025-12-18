@@ -29,9 +29,7 @@ export default new r.Recipe({
   tests: {
     func: async ({ pkgVersion }) => {
       const versionText = await r.$`az --version`.text();
-      console.log({ versionText });
-      const parts = versionText.split("\n")[0].split(" ");
-      console.log(JSON.stringify(parts));
+      const parts = versionText.split(Deno.build.os === "windows" ? "\r\n" : "\n")[0].split(" ");
       const binVersion = parts[parts.length - 1];
       if (binVersion !== pkgVersion.split("+")[0]) {
         throw new Error(`unexpected version returned from binary`);
