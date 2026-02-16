@@ -10,10 +10,10 @@ export default new r.Recipe({
   sources: r.githubReleaseAssets({
     owner,
     repo,
-    osMap: { "osx": "macOS", "win": "Windows", "linux": "Linux-musl" },
+    osMap: { "osx": "macOS", "win": "Windows-msvc", "linux": "Linux-musl" },
     archMap: { "32": "i686", "64": "x86_64", "aarch64": "arm64" },
     fileName: (_, os, arch) =>
-      `ubi-${os}-${arch}.${os === "windows" ? "zip" : "tar.gz"}`,
+      `ubi-${os}-${arch}.${os === "Windows-msvc" ? "zip" : "tar.gz"}`,
   }),
   about: {
     summary: "The Universal Binary Installer",
