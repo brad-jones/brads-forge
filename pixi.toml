@@ -14,5 +14,4 @@ cmd = "zed ."
 
 [dependencies]
 deno = ">=2.6.1,<2.7"
-dprint = ">=0.50.2,<0.51"
 rattler-build = ">=0.54.0,<0.55"

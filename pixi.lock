@@ -12,7 +12,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-2_gnu.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.1.4-hbd8a1cb_0.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-64/deno-2.6.8-h81b34b9_4.conda
-      - conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.50.2-h81b34b9_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-15.2.0-he0feb66_17.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-15.2.0-h69a702a_17.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgomp-15.2.0-he0feb66_17.conda
@@ -23,15 +22,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.54.0-he64ecbb_0.conda
       osx-64:
       - conda: https://repo.prefix.dev/brads-forge/osx-64/deno-2.6.8-he0f4bc8_4.conda
-      - conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.50.2-he0f4bc8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/rattler-build-0.54.0-h9113d71_0.conda
       osx-arm64:
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/deno-2.6.8-he8ea13f_4.conda
-      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.50.2-he8ea13f_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rattler-build-0.54.0-h8d80559_0.conda
       win-64:
       - conda: https://repo.prefix.dev/brads-forge/win-64/deno-2.6.8-h3c70cbc_4.conda
-      - conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.50.2-h3c70cbc_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.54.0-h18a1a76_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ucrt-10.0.26100.0-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h41ae7f8_34.conda
@@ -85,26 +81,6 @@ packages:
   license: MIT
   size: 41235828
   timestamp: 1770095071248
-- conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.50.2-h81b34b9_2.conda
-  sha256: 06497a9067e51a5e9ca80a5d7aba43352955ed3891a461919559e7d4f97f714d
-  license: MIT
-  size: 7400987
-  timestamp: 1757821626110
-- conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.50.2-he0f4bc8_2.conda
-  sha256: 42e16fb862721200fe94d3688d5c35e5c8619c3cc5daa66d97e05ab5e00d5400
-  license: MIT
-  size: 6960452
-  timestamp: 1757821628082
-- conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.50.2-he8ea13f_2.conda
-  sha256: 61d2e05909410755177d7e41bb53f8de3bee4fb6f9d84fef4c7ae15ef6b74d2b
-  license: MIT
-  size: 6731129
-  timestamp: 1757821623633
-- conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.50.2-h3c70cbc_2.conda
-  sha256: 73651f0d73505a3a9b23de156473a22b92186a98188fb1e913a1f0a3c36c81d4
-  license: MIT
-  size: 6675355
-  timestamp: 1757821640540
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-15.2.0-he0feb66_17.conda
   sha256: 43860222cf3abf04ded0cf24541a105aa388e0e1d4d6ca46258e186d4e87ae3e
   md5: 3c281169ea25b987311400d7a7e28445
