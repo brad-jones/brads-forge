@@ -6,11 +6,14 @@ const repo = "rustup";
 export default new r.Recipe({
   name: "rustup",
   about: {
-    summary: "rustup is an installer for the systems programming language Rust.",
+    summary:
+      "rustup is an installer for the systems programming language Rust.",
     homepage: "https://rustup.rs/",
     documentation: "https://rust-lang.github.io/rustup/",
     repository: `https://github.com/${owner}/${repo}`,
-    description: await r.http.get("https://raw.githubusercontent.com/rust-lang/rustup/refs/heads/main/README.md")
+    description: await r.http.get(
+      "https://raw.githubusercontent.com/rust-lang/rustup/refs/heads/main/README.md",
+    )
       .text(),
     license: "MIT",
   },
@@ -41,7 +44,7 @@ export default new r.Recipe({
     };
   },
   build: {
-    number: 3,
+    number: 4,
     dynamic_linking: {
       binary_relocation: false,
     },
@@ -55,14 +58,18 @@ export default new r.Recipe({
       // presents a totally different CLI interface based on the name of the binary.
       // You use rustup-init to do an initial install of rust & then start using
       // rustup to manage what targets you have installed, etc.
-      await r.activation.addLink(dst, r.path.join(prefixDir, "bin", exe("rustup-init")));
+      await r.activation.addLink(
+        dst,
+        r.path.join(prefixDir, "bin", exe("rustup-init")),
+      );
 
       // Configure rustup to install everything with-in the pixi environment
       await r.activation.addEnvVars({
         "RUSTUP_HOME": "${CONDA_PREFIX}/.rustup",
         "CARGO_HOME": "${CONDA_PREFIX}/.cargo",
-        "PATH": "${CARGO_HOME}/bin:${PATH}",
       });
+
+      await r.activation.prependToPATH("$CARGO_HOME/bin");
     },
   },
   tests: {
@@ -70,14 +77,24 @@ export default new r.Recipe({
       if (r.coerceSemVer(await r.$`rustup --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from rustup`);
       }
-      if (!(await r.$`rustup --help`.text()).includes("The Rust toolchain installer")) {
+      if (
+        !(await r.$`rustup --help`.text()).includes(
+          "The Rust toolchain installer",
+        )
+      ) {
         throw new Error(`unexpected help txt returned from rustup`);
       }
 
-      if (r.coerceSemVer(await r.$`rustup-init --version`.text()) !== pkgVersion) {
+      if (
+        r.coerceSemVer(await r.$`rustup-init --version`.text()) !== pkgVersion
+      ) {
         throw new Error(`unexpected version returned from rustup-init`);
       }
-      if (!(await r.$`rustup-init --help`.text()).includes("The installer for rustup")) {
+      if (
+        !(await r.$`rustup-init --help`.text()).includes(
+          "The installer for rustup",
+        )
+      ) {
         throw new Error(`unexpected help txt returned from rustup-init`);
       }
     },

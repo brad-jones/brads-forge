@@ -102,7 +102,7 @@ export default new r.Recipe({
     license: "BSD-3-Clause",
   },
   build: {
-    number: 1,
+    number: 2,
     dynamic_linking: {
       binary_relocation: false,
     },
@@ -120,8 +120,8 @@ export default new r.Recipe({
         "GOROOT": "$CONDA_PREFIX/go",
         "GOBIN": "$GOROOT/bin",
         "GOMODCACHE": "$CONDA_PREFIX/var/cache/go/pkg/mod",
-        "PATH": "$GOBIN:$PATH",
       });
+      await r.activation.prependToPATH("$GOBIN");
     },
   },
   tests: {
