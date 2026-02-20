@@ -125,8 +125,9 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion }) => {
-      if (r.coerceSemVer(await r.$`go version`.text()) !== pkgVersion) {
+    func: async ({ pkgVersion, exe, prefixDir }) => {
+      const goBin = r.path.join(prefixDir, "go/bin", exe("go"));
+      if (r.coerceSemVer(await r.$`${goBin} version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },
