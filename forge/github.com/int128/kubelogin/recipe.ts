@@ -39,21 +39,41 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersionRaw: tag }) => {
-      const octokit = new Octokit({
-        auth: Deno.env.get("GH_TOKEN") ??
-          Deno.env.get("GITHUB_TOKEN") ??
-          Deno.env.get("GITHUB_API_TOKEN"),
-      });
-      const release = await octokit.repos.getReleaseByTag({ owner, repo, tag });
-      const gitSha = release.data.target_commitish;
-      const expectedVersion = `kubelogin version ${gitSha}`;
+    func: async ({ pkgVersionRaw: tag, unix }) => {
+      if (unix) {
+        const octokit = new Octokit({
+          auth: Deno.env.get("GH_TOKEN") ??
+            Deno.env.get("GITHUB_TOKEN") ??
+            Deno.env.get("GITHUB_API_TOKEN"),
+        });
+        const release = await octokit.repos.getReleaseByTag({
+          owner,
+          repo,
+          tag,
+        });
+        const gitSha = release.data.target_commitish;
+        const expectedVersion = `kubelogin version ${gitSha}`;
 
-      if (await r.$`kubelogin --version`.text() !== expectedVersion) {
-        throw new Error(`unexpected version returned from kubelogin`);
-      }
-      if (await r.$`kubectl-oidc_login --version`.text() !== expectedVersion) {
-        throw new Error(`unexpected version returned from kubectl-oidc_login`);
+        if (await r.$`kubelogin --version`.text() !== expectedVersion) {
+          throw new Error(`unexpected version returned from kubelogin`);
+        }
+        if (
+          await r.$`kubectl-oidc_login --version`.text() !== expectedVersion
+        ) {
+          throw new Error(
+            `unexpected version returned from kubectl-oidc_login`,
+          );
+        }
+      } else {
+        // NB: The Windows binary throws: error: unknown flag: --version
+        // And running kubelogin.exe version only returns: kubelogin version  (go1.26.1 windows_amd64)
+        if (
+          !/^kubelogin version\s+\(go[\d.]+ windows_amd64\)$/.test(
+            await r.$`kubelogin version`.text(),
+          )
+        ) {
+          throw new Error(`unexpected version returned from kubelogin`);
+        }
       }
     },
   },
