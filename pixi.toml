@@ -9,5 +9,5 @@ cmd = "code ."
 cmd = "zed ."
 
 [dependencies]
-deno = ">=2.7.5,<2.8"
-rattler-build = ">=0.60.0,<0.61"
+deno = ">=2.7.14,<2.8"
+rattler-build = ">=0.64.1,<0.65"
