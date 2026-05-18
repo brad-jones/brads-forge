@@ -69,7 +69,7 @@ export default new r.Recipe({
         // And running kubelogin.exe version only returns: kubelogin version  (go1.26.1 windows_amd64)
         if (
           !/^kubelogin version\s+\(go[\d.]+ windows_amd64\)$/.test(
-            await r.$`kubelogin version`.text(),
+            (await r.$`kubelogin version`.text("combined")).trim(),
           )
         ) {
           throw new Error(`unexpected version returned from kubelogin`);
