@@ -237,6 +237,15 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,visualstudiocode,node
 
 # pixi environments
-.pixi
+.pixi/*
+!.pixi/config.toml
+
+# xcaffold
+.xcaffold/
+xcaf/project.vars.local
+.claude/
+CLAUDE.md
+
+# generated files
 output/
 generated/

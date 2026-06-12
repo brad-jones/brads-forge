@@ -2,12 +2,25 @@
 channels = ["https://repo.prefix.dev/brads-forge", "conda-forge"]
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 
+[tasks]
+init = "task init"
+
 [tasks.code]
+depends-on = ["init"]
 cmd = "code ."
 
 [tasks.zed]
+depends-on = ["init"]
 cmd = "zed ."
 
+[target.unix.activation.env]
+PATH = "$PWD/scripts:$PATH"
+
 [dependencies]
-deno = ">=2.7.14,<2.8"
-rattler-build = ">=0.64.1,<0.65"
+deno = ">=2.8.3,<2.9"
+rattler-build = ">=0.65.1,<0.66"
+lefthook = ">=2.1.9,<3"
+xcaffold = ">=0.12.0,<0.13"
+cocogitto = ">=7.0.0,<8"
+task = ">=3.51.1,<4"
+dprint = ">=0.54.0,<0.55"

@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# https://taskfile.dev
+version: 3
+
+dotenv: [".env"]
+set: [pipefail]
+shopt: [globstar]
+
+tasks:
+  init:
+    desc: Setup dev env (anything that pixi can't install and setup for us).
+    status:
+      - test "$DIRENV_INIT" = "1"
+    cmds:
+      - xcaffold apply --yes
+      - "{{if not .CI}}lefthook install -f{{end}}"
+      - git config pull.rebase true
+      - '{{if not .CI}}git config core.editor "code --wait"{{end}}'
+      - '{{if not .CI}}git config commit.template "$PWD/.gitmsgtpl"{{end}}'
+      - "{{if .CI}}git config --global user.name github-actions[bot]{{end}}"
+      - "{{if .CI}}git config --global user.email github-actions[bot]@users.noreply.github.com{{end}}"
+
+  update:
+    desc: Interactively updates our dependencies to their latest versions.
+    summary: |
+      As per docs/decisions/0011-use-renovate-over-dependabot-for-dependency-updates.md
+      we use Renovate for automated dependency updates, but this task can be run manually
+      by a developer when they want to update all dependencies in one hit.
+    cmds:
+      - pixi self-update
+      - deno run -A ./scripts/sync-gha-pixi-version.ts
+      - pixi upgrade
+      - dprint config upgrade
+      - deno update --latest --recursive
+
+  lint:
+    desc: Lints our code to ensure it remains of a high quality.
+    cmds:
+      - dprint check
+
+  fmt:
+    desc: Formats our code to ensure it looks consistent.
+    cmds:
+      - dprint fmt
+
+  build:
+    desc: Main entry point for building the forge package.
+    cmds:
+      - deno run --unstable-bundle -qA ./scripts/build.ts {{.CLI_ARGS}}
+
+  generate:
+    desc: Generates rattler build recipe files for a given typescript recipe.
+    requires:
+      vars:
+        - RECIPE
+    cmds:
+      - >-
+        deno run --unstable-bundle -qA ./scripts/build.ts --no-build --no-upload -r {{.RECIPE}}
+        --target-platforms linux-64 linux-aarch64 win-64 win-arm64 osx-64 osx-arm64
+
+  dryrun:
+    desc: Generates, builds & tests a recipe for the current platform but does not upload the resulting package.
+    requires:
+      vars:
+        - RECIPE
+    cmds:
+      - deno run --unstable-bundle -qA ./scripts/build.ts --no-upload -r {{.RECIPE}}
+
+  clean:
+    desc: Deletes all generated files and folders to ensure a clean state.
+    cmds:
+      - rm -rf ./output ./forge/**/generated
+
+  prefix-delete:
+    desc: Deletes packages from prefix.dev in case of a mis-publish (use with caution).
+    cmds:
+      - deno run -qA ./scripts/prefix-delete.ts {{.CLI_ARGS}}

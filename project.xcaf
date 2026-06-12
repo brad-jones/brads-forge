@@ -1,0 +1,6 @@
+kind: project
+version: "1.0"
+name: brads-forge
+targets:
+  - claude
+  - copilot

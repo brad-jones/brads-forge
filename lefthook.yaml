@@ -1,0 +1,16 @@
+# spec: https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+
+pre-commit:
+  scripts:
+    "fix-script-execute-bit.ts":
+      runner: deno run -qA
+      stage_fixed: true
+  commands:
+    dprint:
+      run: dprint fmt --allow-no-files {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  commands:
+    lint:
+      run: cog verify -f {1}
