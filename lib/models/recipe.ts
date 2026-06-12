@@ -1,15 +1,15 @@
 // deno-lint-ignore-file no-explicit-any
-import { z } from "zod";
-import { Ajv, Plugin, AnySchema, ValidateFunction } from "ajv";
+import { Command } from "@cliffy/command";
+import * as path from "@std/path";
+import { Ajv, AnySchema, Plugin, ValidateFunction } from "ajv";
 import ajvFormats, { FormatsPluginOptions } from "ajv-formats";
 import ky from "ky";
-import { RecipeProps } from "./recipe_props.ts";
-import * as path from "@std/path";
-import { Command } from "@cliffy/command";
+import { z } from "zod";
 import { BuildContext } from "./build.ts";
-import { SimpleRecipe } from "./rattler/simple_recipe.ts";
 import { Platform } from "./platform.ts";
+import { SimpleRecipe } from "./rattler/simple_recipe.ts";
 import { Source } from "./rattler/source.ts";
+import { RecipeProps } from "./recipe_props.ts";
 
 // see: https://github.com/ajv-validator/ajv-formats/issues/85
 const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
@@ -182,6 +182,33 @@ export class Recipe {
 
     const tests = this.#mapTests();
     if (tests) simpleRecipe.tests = tests;
+
+    if (this.props.requirements) {
+      if (!simpleRecipe.requirements) simpleRecipe.requirements = {};
+      const userReqs = this.props.requirements;
+      if (userReqs.build) {
+        if (!simpleRecipe.requirements.build) simpleRecipe.requirements.build = [];
+        const items = Array.isArray(userReqs.build) ? userReqs.build : [userReqs.build];
+        simpleRecipe.requirements.build.push(...items);
+      }
+      if (userReqs.host) {
+        if (!simpleRecipe.requirements.host) simpleRecipe.requirements.host = [];
+        const items = Array.isArray(userReqs.host) ? userReqs.host : [userReqs.host];
+        simpleRecipe.requirements.host.push(...items);
+      }
+      if (userReqs.run) {
+        if (!simpleRecipe.requirements.run) simpleRecipe.requirements.run = [];
+        const items = Array.isArray(userReqs.run) ? userReqs.run : [userReqs.run];
+        simpleRecipe.requirements.run.push(...items);
+      }
+      if (userReqs.run_constraints) {
+        if (!simpleRecipe.requirements.run_constraints) simpleRecipe.requirements.run_constraints = [];
+        const items = Array.isArray(userReqs.run_constraints) ? userReqs.run_constraints : [userReqs.run_constraints];
+        simpleRecipe.requirements.run_constraints.push(...items);
+      }
+      if (userReqs.run_exports) simpleRecipe.requirements.run_exports = userReqs.run_exports;
+      if (userReqs.ignore_run_exports) simpleRecipe.requirements.ignore_run_exports = userReqs.ignore_run_exports;
+    }
 
     if (this.props.about) simpleRecipe.about = this.props.about;
     if (this.props.extra) simpleRecipe.extra = this.props.extra;
