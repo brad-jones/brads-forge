@@ -1,7 +1,8 @@
-import { load } from "@std/dotenv";
+#!/usr/bin/env -S deno run -qA --ext=ts
 import { Command } from "@cliffy/command";
-import { PrefixClient } from "lib/prefix_client/mod.ts";
+import { load } from "@std/dotenv";
 import { Platform } from "lib/models/platform.ts";
+import { PrefixClient } from "lib/prefix_client/mod.ts";
 
 await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 

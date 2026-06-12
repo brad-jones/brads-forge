@@ -1,15 +1,16 @@
-import { load } from "@std/dotenv";
+#!/usr/bin/env -S deno run --unstable-bundle -qA --ext=ts
 import { Command } from "@cliffy/command";
-import * as fs from "lib/fs.ts";
-import * as yaml from "@std/yaml";
-import { PrefixClient } from "lib/prefix_client/mod.ts";
-import { Platform, currentPlatform } from "lib/models/platform.ts";
-import { Recipe } from "lib/models/recipe.ts";
-import { path } from "lib/mod.ts";
 import { outdent } from "@cspotcode/outdent";
 import { $ } from "@david/dax";
+import { load } from "@std/dotenv";
+import * as yaml from "@std/yaml";
+import * as fs from "lib/fs.ts";
+import { path } from "lib/mod.ts";
+import { currentPlatform, Platform } from "lib/models/platform.ts";
+import { Recipe } from "lib/models/recipe.ts";
+import { PrefixClient } from "lib/prefix_client/mod.ts";
 
-await load({ envPath: fs.toPathString(import.meta.resolve("../.env")), export: true });
+await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 
 const recipeModules: Record<string, Recipe> = {};
 
@@ -113,10 +114,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
   }
 
   if (build) {
-    await $`rattler-build build
-      -r ${recipeYamlPath} --target-platform ${targetPlatform} --test native
-      -c https://prefix.dev/${channel} -c conda-forge
-    `;
+    await $`rattler-build build -r ${recipeYamlPath} --target-platform ${targetPlatform} --test native -c https://prefix.dev/${channel} -c conda-forge`;
   }
 
   if (upload) {
