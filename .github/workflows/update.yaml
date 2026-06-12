@@ -1,0 +1,53 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 5 1 * *
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v6
+
+      - name: 🤖 Run Renovate
+        uses: renovatebot/github-action@v46.1.14
+        env:
+          RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+
+  pixi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v6
+
+      - name: ✨ Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.9.6
+        with:
+          pixi-version: v0.70.2
+          run-install: false
+
+      - name: Update lockfiles
+        run: |
+          set -o pipefail
+          pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "chore(pixi): update pixi lockfile"
+          title: "chore(pixi): update pixi lockfile"
+          body-path: diff.md
+          branch: update-pixi
+          base: master
+          labels: pixi
+          delete-branch: true
+          add-paths: pixi.lock
