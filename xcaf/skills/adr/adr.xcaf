@@ -1,0 +1,140 @@
+---
+kind: skill
+version: "1.0"
+name: adr
+description: |
+  Write new Architecture Decision Records (ADRs) under ./docs/decisions
+  following the MADR (Markdown Any Decision Records) format. Use when the
+  user asks to create an ADR, record a decision, or document an architecture choice.
+license: MIT
+allowed-tools:
+  - Read
+  - Write
+  - Grep
+  - Bash
+artifacts:
+  - references
+---
+
+# ADR Authoring Skill (MADR Format)
+
+## Overview
+
+Create Architecture Decision Records (ADRs) in `./docs/decisions/` following the [MADR](https://adr.github.io/madr/)
+(Markdown Any Decision Records) format.
+
+Two templates are available as references:
+
+- **`adr-template.md`** — full template with all optional sections
+- **`adr-template-minimal.md`** — stripped-down template for quick decisions
+
+## File Naming Convention
+
+ADRs are numbered sequentially with four-digit zero-padded prefixes:
+
+```txt
+docs/decisions/NNNN-kebab-case-title.md
+```
+
+Examples:
+
+- `docs/decisions/0001-use-postgresql-for-primary-datastore.md`
+- `docs/decisions/0002-adopt-conventional-commits.md`
+
+## Workflow
+
+### 1. Determine the next ADR number
+
+```bash
+ls docs/decisions/*.md 2>/dev/null | grep -E '[0-9]{4}-' | sort | tail -1
+```
+
+If no ADRs exist yet, start at `0001`. Otherwise increment the highest number by one.
+
+### 2. Choose a template
+
+- Use **`adr-template-minimal.md`** when the decision is straightforward or the user provides enough context to fill
+  just the core sections.
+
+- Use **`adr-template.md`** (full) when the decision is complex, multiple options were evaluated, or the user wants to
+  capture decision drivers, pros/cons, or validation criteria.
+
+Ask the user if it is unclear which template to use.
+
+### 3. Fill in the content
+
+Replace every `{placeholder}` with real content. Remove optional sections (marked
+`<!-- This is an optional element. Feel free to remove. -->`) that are not applicable.
+
+**Required fields:**
+
+| Section                       | Guidance                                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| Title (H1)                    | Short, imperative phrase — describes the problem and solution together                            |
+| `status`                      | One of: `proposed`, `accepted`, `rejected`, `deprecated`, `superseded by [ADR-XXXX](XXXX-....md)` |
+| `date`                        | ISO 8601 date: `YYYY-MM-DD` (today's date unless specified)                                       |
+| Context and Problem Statement | 2–3 sentences describing the situation and what triggered the decision                            |
+| Considered Options            | At least two options (include "Do nothing" / status quo if relevant)                              |
+| Decision Outcome              | State the chosen option and the primary reason why                                                |
+
+**Optional but recommended:**
+
+- `decision-makers` — who made the decision
+- Decision Drivers — the forces/constraints that shaped the choice
+- Pros and Cons of the Options — only include when multiple options were seriously evaluated
+- Validation — how you'll know the decision worked
+
+### 4. Write the file
+
+Create the file at the computed path. Do not modify existing ADRs unless the user explicitly asks to update the status
+(e.g., to mark one as superseded).
+
+### 5. Update superseded ADRs (if applicable)
+
+If the new ADR supersedes an existing one, update the `status` field in the old ADR:
+
+```yaml
+status: "superseded by [ADR-NNNN](NNNN-new-title.md)"
+```
+
+## MADR Conventions
+
+- Write titles in sentence case, not Title Case.
+- Keep the context statement factual and brief — avoid advocacy.
+- List options as neutral titles; save judgment for Pros and Cons.
+- The "Chosen option" justification should reference a decision driver or k.o. criterion.
+- Link related ADRs using relative paths: `[ADR-0001](0001-title.md)`.
+
+## Example
+
+```markdown
+---
+status: accepted
+date: 2026-06-01
+decision-makers: Brad Jones
+---
+
+# Use Deno for automation scripts
+
+## Context and Problem Statement
+
+We need a scripting runtime for project automation. Bash scripts have become hard to maintain as logic grows more
+complex. What runtime should we standardise on?
+
+## Considered Options
+
+- Deno
+- Node.js
+- Bash
+
+## Decision Outcome
+
+Chosen option: "Deno", because it provides TypeScript out of the box, a secure permission model, and no `node_modules`
+overhead — meeting our maintainability and security decision drivers.
+
+### Consequences
+
+- Good, because scripts are type-checked and easier to refactor.
+- Good, because no separate install step for dependencies.
+- Bad, because team members may be less familiar with Deno than Node.js.
+```

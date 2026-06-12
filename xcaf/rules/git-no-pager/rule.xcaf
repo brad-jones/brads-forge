@@ -1,0 +1,19 @@
+---
+kind: rule
+version: "1.0"
+name: git-no-pager
+description: "Always use --no-pager with git commands to prevent shells from hanging."
+activation: always
+---
+## Git: Always Use --no-pager
+
+When running git commands, always pass `--no-pager` to prevent the shell from
+hanging on interactive pager output (e.g. `less`).
+
+```bash
+git --no-pager log
+git --no-pager diff
+git --no-pager show
+```
+
+The flag goes immediately after `git` and before the subcommand.

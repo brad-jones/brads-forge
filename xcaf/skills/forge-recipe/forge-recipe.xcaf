@@ -1,0 +1,304 @@
+---
+kind: skill
+version: "1.0"
+name: forge-recipe
+description: |
+  Write new forge recipe.ts files for repackaging upstream software (typically
+  from GitHub or GitLab releases) into rattler/conda packages. Use when the user
+  provides a URL to a package repository or asks to create a new forge recipe.
+  Supports: (1) Interrogating GitHub/GitLab releases to determine asset naming,
+  (2) Drafting a build plan as markdown, (3) Writing the recipe.ts after plan approval,
+  (4) Verifying via `task generate` and `task dryrun`.
+when-to-use: |
+  Invoke when user asks to add a new package to the forge, provides a GitHub/GitLab
+  repo URL and wants it packaged, or mentions creating a recipe.ts file.
+license: MIT
+allowed-tools:
+  - Read
+  - Write
+  - Grep
+  - Bash
+  - Fetch
+artifacts:
+  - references
+---
+
+# Forge Recipe Authoring Skill
+
+## Overview
+
+This skill guides you through creating a new `recipe.ts` file for the brads-forge
+project. A recipe describes how to fetch, build, and test a software package so that
+`rattler-build` can produce a conda package from upstream release assets.
+
+## Directory Layout
+
+Recipes live under `./forge/` following a domain-based path:
+
+```
+forge/<domain>/<owner>/<repo>/recipe.ts
+```
+
+For GitHub packages: `forge/github.com/<owner>/<repo>/recipe.ts`
+For GitLab packages: `forge/gitlab.com/<owner>/<repo>/recipe.ts`
+For other sources: `forge/<domain>/<package-name>/recipe.ts`
+
+## Workflow
+
+### Phase 1: Gather Information
+
+1. **Identify the upstream source.** The user provides a URL (e.g. `https://github.com/DarthSim/overmind`).
+
+2. **Interrogate the releases page.** For GitHub repos, examine the releases at
+   `https://github.com/<owner>/<repo>/releases` (or use the GitHub API). For GitLab,
+   use `https://gitlab.com/<owner>/<repo>/-/releases`. Determine:
+   - How releases are tagged (e.g. `v2.5.0`, `2.5.0`, `bun-v1.0.0`)
+   - What asset naming convention is used
+   - Which platforms/architectures are supported
+   - Whether checksum files are provided (`.sha256`, `checksums.txt`, etc.)
+   - The archive format (`.tar.gz`, `.zip`, `.gz` single file, etc.)
+   - Whether the binary name matches the repo name or differs
+   - Whether the tool has runtime dependencies (e.g. tmux, git)
+
+3. **Gather metadata:**
+   - Homepage URL
+   - One-line summary (what the tool does)
+   - License (SPDX identifier)
+   - README URL for the long description
+
+4. **Ask the user** for any information that cannot be determined from the releases:
+   - Custom version filtering logic (if tags include non-release tags)
+   - Custom OS/arch mappings if the naming is non-standard
+   - Any post-install steps (env vars, activation scripts, symlinks)
+   - Whether cross-platform builds are supported or only certain platforms
+   - How to verify the install (version command and expected output format)
+   - Runtime dependencies that should be installed alongside the package
+
+### Phase 2: Write the Plan
+
+Before writing any code, create a build plan markdown file at:
+
+```
+forge/<domain>/<owner>/<repo>/PLAN.md
+```
+
+The plan must be **self-contained** — it should not assume prior knowledge because
+a different LLM may execute it. The plan MUST include:
+
+1. **Package Summary** — name, upstream URL, what it does
+2. **Version Source** — how to determine the latest version (tag format, filtering)
+3. **Source Assets** — asset naming pattern, OS/arch mappings, checksum strategy
+4. **Build Steps** — what to do with the downloaded archive (extract, move binary, chmod)
+5. **Test Strategy** — how to verify the package works (typically `<binary> --version`)
+6. **Supported Platforms** — which `{os}-{arch}` combos are available
+7. **Verification Steps** — exact commands to run:
+   ```bash
+   task generate RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+   task dryrun RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+   ```
+
+The plan should link back to this skill (`xcaf/skills/forge-recipe/forge-recipe.xcaf`)
+for general reference on the recipe DSL and available library helpers.
+
+### Phase 3: Refine the Plan
+
+Present the plan to the user. Iterate on feedback until the user approves. Common
+refinements include:
+- Adjusting OS/arch mappings
+- Adding activation scripts or environment variables
+- Changing the binary name or glob pattern
+- Adding platform-specific logic
+
+### Phase 4: Execute the Plan
+
+Once approved, write the `recipe.ts` file. Then run verification:
+
+```bash
+task generate RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+```
+
+This generates the rattler build recipe YAML files without actually building.
+Check the generated output in `forge/<domain>/<owner>/<repo>/generated/` for correctness.
+
+If generation succeeds:
+
+```bash
+task dryrun RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+```
+
+This builds and tests the package locally but does not upload it.
+
+## Recipe DSL Reference
+
+See the reference files for:
+- [recipe-dsl-reference.md](references/recipe-dsl-reference.md) — Complete API of the `lib/mod.ts` DSL
+- [recipe-examples.md](references/recipe-examples.md) — Annotated examples of real recipes
+
+## Key Patterns
+
+### Standard GitHub Binary Release (most common)
+
+```typescript
+import * as r from "lib/mod.ts";
+
+const owner = "<owner>";
+const repo = "<repo>";
+
+export default new r.Recipe({
+  name: "<package-name>",
+  version: r.latestGithubTag({ owner, repo }),
+  sources: r.githubReleaseAssets({
+    owner,
+    repo,
+    osMap: { "osx": "<darwin|apple-darwin>", "win": "<windows|pc-windows-msvc>", "linux": "<linux>" },
+    archMap: { "64": "<amd64|x86_64>", "arm64": "<arm64|aarch64>" },
+    // Only needed if default file matching doesn't work:
+    // fileName: (version, os, arch) => `<name>_${os}_${arch}.tar.gz`,
+  }),
+  about: {
+    homepage: "<url>",
+    summary: "<one-line description>",
+    repository: `https://github.com/${owner}/${repo}`,
+    description: await r.http.get(`https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/<default-branch>/README.md`).text(),
+    license: "<SPDX-ID>",
+  },
+  build: {
+    number: 0,
+    dynamic_linking: { binary_relocation: false },
+    func: async ({ prefixDir, exe, unix }) => {
+      const dst = r.path.join(prefixDir, "bin", exe("<binary-name>"));
+      await r.moveGlob("./<glob-pattern>", dst);
+      if (unix) await Deno.chmod(dst, 0o755);
+    },
+  },
+  tests: {
+    func: async ({ pkgVersion }) => {
+      if (r.coerceSemVer(await r.$`<binary> --version`.text()) !== pkgVersion) {
+        throw new Error(`unexpected version returned from binary`);
+      }
+    },
+  },
+});
+```
+
+### Custom Version Source (non-GitHub)
+
+For packages not hosted on GitHub, implement a custom `version` function:
+
+```typescript
+version: async () => {
+  // Fetch version from some API or page
+  const data = await r.http.get("<url>").json();
+  return { raw: data.version, semver: r.coerceSemVer(data.version) };
+},
+```
+
+### Custom Sources (non-GitHub)
+
+For packages with non-standard download patterns:
+
+```typescript
+sources: async (tag) => {
+  return {
+    "linux-64": [{ url: `<url>/${tag}/linux-amd64.tar.gz`, sha256: "<hash-or-async-fn>" }],
+    "osx-arm64": [{ url: `<url>/${tag}/darwin-arm64.tar.gz`, sha256: "<hash-or-async-fn>" }],
+    // ...
+  };
+},
+```
+
+### Tag Filtering
+
+When a repo has non-release tags mixed in:
+
+```typescript
+version: r.latestGithubTag({ owner, repo, tagFilter: /^v\d+\.\d+\.\d+$/ }),
+```
+
+### Single Gzipped Binary (`.gz` — NOT `.tar.gz`)
+
+Some projects release a single binary compressed with gzip (e.g. `tool-v1.0-linux-amd64.gz`).
+rattler-build does NOT auto-extract plain `.gz` files — they are copied as-is to `$SRC_DIR`.
+Use `r.archive.gunzipFile()` in the build function to decompress:
+
+```typescript
+import * as r from "lib/mod.ts";
+
+const owner = "<owner>";
+const repo = "<repo>";
+
+export default new r.Recipe({
+  name: "<package-name>",
+  version: r.latestGithubTag({ owner, repo }),
+  sources: r.githubReleaseAssets({
+    owner,
+    repo,
+    osMap: { "osx": "macos" },
+    archMap: { "64": "amd64", "aarch64": "arm64" },
+    fileName: (v, os, arch) => `<name>-${v}-${os}-${arch}.gz`,
+    checksumFileExt: ".sha256sum",
+    checksumExtractor: (txt) => txt.trim(),  // When .sha256sum contains only the raw hash
+  }),
+  build: {
+    number: 0,
+    dynamic_linking: { binary_relocation: false },
+    func: async ({ prefixDir, exe, unix }) => {
+      const dst = r.path.join(prefixDir, "bin", exe("<binary-name>"));
+      // Use gunzipFile instead of moveGlob — the .gz is NOT auto-extracted
+      await r.archive.gunzipFile("./<name>*/*.gz", dst);
+      if (unix) await Deno.chmod(dst, 0o755);
+    },
+  },
+  // ...
+});
+```
+
+**Key differences from `.tar.gz`/`.zip` patterns:**
+- Source lands at `$SRC_DIR/<target_directory>/<filename>.gz` (still compressed)
+- Must use `r.archive.gunzipFile(globPattern, destination)` to decompress
+- Do NOT use `r.moveGlob()` — the file is still gzipped
+
+### Runtime Dependencies
+
+When the binary depends on another tool at runtime (e.g. overmind needs tmux),
+add it via the `requirements` field:
+
+```typescript
+requirements: {
+  run: ["tmux"],
+},
+```
+
+This ensures the dependency is installed from conda-forge when the package is installed.
+Check https://prefix.dev/channels/conda-forge/packages/<dep> to confirm availability.
+
+### Post-Install Environment Variables
+
+```typescript
+await r.activation.addEnvVars({
+  "MY_VAR": "$CONDA_PREFIX/some/path",
+});
+```
+
+### PATH Modifications
+
+```typescript
+await r.activation.prependToPATH("$CONDA_PREFIX/custom/bin");
+```
+
+## Important Notes
+
+- `build.number` starts at `0` for new recipes. Increment it when rebuilding the same
+  upstream version with recipe changes.
+- `dynamic_linking.binary_relocation: false` is standard for pre-built binaries.
+- Always use `r.moveGlob` with a pattern that accounts for varying archive structure.
+- The `exe()` helper automatically appends `.exe` on Windows targets.
+- The `unix` boolean is `true` for Linux and macOS, `false` for Windows.
+- `r.coerceSemVer()` normalizes version strings (strips `v` prefix, handles loose formats).
+- `sha256` in sources can be a string OR an async function that returns a string.
+- The `about.description` field typically fetches the upstream README for rich metadata.
+- When `.sha256sum` files contain only the raw hex hash (no filename), use
+  `checksumExtractor: (txt) => txt.trim()` to handle the trailing newline.
+- Plain `.gz` files (single gzipped binary) are NOT auto-extracted by rattler-build.
+  Use `r.archive.gunzipFile()` in the build function — not `r.moveGlob()`.
+- The `requirements.run` field specifies conda packages needed at runtime (e.g. `["tmux"]`).

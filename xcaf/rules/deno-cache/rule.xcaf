@@ -1,0 +1,16 @@
+---
+kind: rule
+version: "1.0"
+name: deno-cache
+description: "Directs agents to the correct Deno module cache location within the pixi environment."
+activation: always
+---
+## Deno Module Cache Location
+
+The Deno module cache is located inside the pixi environment, **not** in the user's home directory:
+
+```
+./.pixi/envs/default/var/cache/deno
+```
+
+When looking for cached Deno module source code, inspect this path rather than `~/.cache/deno`.

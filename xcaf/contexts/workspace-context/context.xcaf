@@ -1,0 +1,79 @@
+---
+kind: context
+version: "1.0"
+name: workspace-context
+description: "Workspace-level ambient instructions for the starter-template repo."
+---
+# AGENTS
+
+> For information on the nature & purpose of this repo, see the `README.md`.
+> This context describes the technical environment of the repo for AI agents.
+
+This repo is built on [pixi](https://pixi.prefix.dev/latest/). All tooling
+is managed via `pixi.toml`. AI agents can assume they are running inside a
+`pixi shell` and have access to all tools installed by pixi.
+
+## Task Runner
+
+We use [Taskfile](https://taskfile.dev/) (`Taskfile.yaml`) for orchestrating
+lint, fmt and other project tasks.
+
+Run tasks with:
+
+```bash
+task <task-name>
+```
+
+## Scripts & Automation
+
+The `scripts/` directory holds automation that does not easily fit into a
+Taskfile. **Rule of thumb:** if you are tempted to embed multi-line bash
+inside YAML, write a Deno script in `scripts/` instead.
+
+Scripts are authored in TypeScript and executed with Deno:
+
+```bash
+deno run -A scripts/<script-name>.ts
+```
+
+> Always add the she-bang line (`#!/usr/bin/env -S deno run -qA --ext=ts`) to the top of scripts.
+
+## Git Hooks
+
+We use [Lefthook](https://github.com/evilmartians/lefthook) for git hooks
+(`lefthook.yaml`). Hooks are installed automatically via pixi.
+
+Hook scripts live in `.lefthook/<hook-name>/`.
+
+## Conventional Commits & Releases
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+standard for all commit messages. Commits must use the format:
+
+```
+<type>[(optional scope)][!]: <description>
+```
+
+Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
+`revert`, `style`, `test`.
+
+We use [cocogitto](https://docs.cocogitto.io/) (`cog`) to:
+
+- **Enforce** conventional commit messages (via git hooks)
+
+Key commands:
+
+```bash
+cog check          # validate commit history
+```
+
+## Key Directories
+
+- `docs/` — documentation for this repo (design notes, architecture decisions, implementation plans, etc.)
+- `forge/` — directory containing forge recipes _(ala: Homebrew formulas)_
+- `lib/` — shared libraries used to build the forge recipes
+- `scripts/` — Deno-based automation scripts
+- `xcaf/` — xcaffold source for AI agent configuration (agents, skills, rules, contexts)
+- `.lefthook/` — Lefthook hook scripts
+- `Taskfile.yaml` — task definitions (build, test, lint, etc.)
+- `pixi.toml` — environment and dependency management via pixi

@@ -1,0 +1,9 @@
+---
+kind: agent
+version: "1.0"
+name: xaff
+model: claude-sonnet-4-6
+effort: "high"
+permission-mode: default
+---
+
