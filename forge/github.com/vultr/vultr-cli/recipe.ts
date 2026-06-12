@@ -32,7 +32,9 @@ export default new r.Recipe({
   },
   tests: {
     func: async ({ pkgVersion }) => {
-      if (r.coerceSemVer((await r.$`vultr version`.text()).split(" ")[1]) !== pkgVersion) {
+      const output = (await r.$`vultr version`.text()).trim();
+      const match = output.match(/Vultr-CLI v(.+)$/);
+      if (!match || r.coerceSemVer(match[1]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },
