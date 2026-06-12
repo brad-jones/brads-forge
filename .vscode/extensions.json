@@ -1,8 +1,29 @@
 {
   "recommendations": [
+    "42Crunch.vscode-openapi",
+    "bierner.markdown-checkbox",
+    "bierner.markdown-preview-github-styles",
     "denoland.vscode-deno",
-    "dprint.dprint",
+    "DotJoshJohnson.xml",
+    "dprint.dprint-vscode",
     "EditorConfig.EditorConfig",
-    "github.vscode-github-actions"
+    "heaths.vscode-guid",
+    "hilleer.yaml-plus-json",
+    "jjjermiah.pixi-vscode",
+    "mechatroner.rainbow-csv",
+    "MermaidChart.vscode-mermaid-chart",
+    "mikestead.dotenv",
+    "mkhl.direnv",
+    "rahules.hash-utils",
+    "redhat.vscode-yaml",
+    "ryu1kn.partial-diff",
+    "saero-ai.vscode-xcaffold",
+    "streetsidesoftware.code-spell-checker",
+    "TakumiI.markdowntable",
+    "tamasfe.even-better-toml",
+    "task.vscode-task",
+    "Tyriar.lorem-ipsum",
+    "Tyriar.sort-lines",
+    "wmaurer.change-case"
   ]
 }

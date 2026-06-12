@@ -1,25 +1,58 @@
 {
-  "deno.enable": true,
-  "deno.cacheOnSave": true,
-  "editor.formatOnPaste": true,
+  // Try and keep things less than 80 but we all have widescreens these days so 120 should be sweet
+  "editor.rulers": [80, 120],
+  "editor.renderWhitespace": "boundary",
+
+  // Setup dprint as the default formatter for all supported languages
+  // We need to explcitly define all language specfic settings
+  // see: https://github.com/microsoft/vscode/issues/107184
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.defaultFormatter": "dprint.dprint",
   "[json]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "dprint.dprint"
   },
   "[yaml]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "dprint.dprint"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "dprint.dprint"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "dprint.dprint"
   },
   "[markdown]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[dockerfile]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+
+  // Trust json schemas from anywhere, what harm could they do?
+  "json.schemaDownload.trustedDomains": {
+    "*": true
+  },
+
+  // Sort imports on save for TypeScript/JavaScript files.
+  // This is a built in code action that uses the same logic
+  // as the Organize Imports code action.
+  "editor.codeActionsOnSave": {
+    "source.sortImports": "explicit"
+  },
+
+  // Associate .gitmsgtpl files with the git-commit language for syntax highlighting
+  "files.associations": {
+    "*.gitmsgtpl": "git-commit"
+  },
+
+  // Enable deno support
+  "deno.enable": true,
+  "deno.cacheOnSave": true,
+
+  // Make CoPilot use bash instead of non POSIX compliant shells like fish
+  "terminal.integrated.automationProfile.linux": {
+    "path": "/bin/bash"
   }
 }
