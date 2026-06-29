@@ -22,7 +22,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 2,
+    number: 3,
     dynamic_linking: {
       binary_relocation: false,
     },
@@ -30,6 +30,13 @@ export default new r.Recipe({
       const dst = r.path.join(prefixDir, "bin", exe("dprint"));
       await r.moveGlob("./dprint*/dprint*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
+
+      // dprint falls back to dirs::cache_dir() (LOCALAPPDATA on Windows) which
+      // is not available in rattler-build's sandboxed test environment. Setting
+      // DPRINT_CACHE_DIR keeps the cache self-contained within the prefix.
+      await r.activation.addEnvVars({
+        "DPRINT_CACHE_DIR": "$CONDA_PREFIX/var/cache/dprint",
+      });
     },
   },
   tests: {
