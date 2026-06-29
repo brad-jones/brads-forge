@@ -128,6 +128,12 @@ task dryrun RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
 
 This builds and tests the package locally but does not upload it.
 
+> **Credentials note:** The project stores `GITHUB_TOKEN` and `PREFIX_TOKEN` in a
+> `.env` file at the repo root. Taskfile is configured with `dotenv: [".env"]` and
+> passes these variables automatically to every task — no manual `export` is needed.
+> If the GitHub API returns a 401, the token in `.env` has likely expired and needs
+> to be refreshed. Never export or echo the token values; just update `.env` directly.
+
 ## Recipe DSL Reference
 
 See the reference files for:
