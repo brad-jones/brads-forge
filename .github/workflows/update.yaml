@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Git Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🤖 Run Renovate
         uses: renovatebot/github-action@v46.1.17
@@ -23,7 +23,7 @@ jobs:
       pull-requests: write
     steps:
       - name: ⬇️ Git Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: ✨ Setup Pixi
         uses: prefix-dev/setup-pixi@v0.10.0
