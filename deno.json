@@ -2,7 +2,7 @@
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.2.1",
     "@cspotcode/outdent": "jsr:@cspotcode/outdent@^0.8.0",
-    "@david/dax": "jsr:@david/dax@^0.48.3",
+    "@david/dax": "jsr:@david/dax@^0.48.6",
     "@deno-library/progress": "jsr:@deno-library/progress@^1.5.1",
     "@octokit/plugin-paginate-rest": "npm:@octokit/plugin-paginate-rest@^14.0.0",
     "@octokit/rest": "npm:@octokit/rest@^22.0.1",
