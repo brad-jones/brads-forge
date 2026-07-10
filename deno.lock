@@ -7,7 +7,7 @@
     "jsr:@cliffy/table@1.2.1": "1.2.1",
     "jsr:@cspotcode/outdent@0.8": "0.8.0",
     "jsr:@david/console-static-text@~0.3.4": "0.3.4",
-    "jsr:@david/dax@~0.48.3": "0.48.6",
+    "jsr:@david/dax@~0.48.6": "0.48.6",
     "jsr:@david/path@0.3": "0.3.2",
     "jsr:@david/path@~0.3.2": "0.3.2",
     "jsr:@david/shell@~0.5.4": "0.5.4",
@@ -425,7 +425,7 @@
     "dependencies": [
       "jsr:@cliffy/command@^1.2.1",
       "jsr:@cspotcode/outdent@0.8",
-      "jsr:@david/dax@~0.48.3",
+      "jsr:@david/dax@~0.48.6",
       "jsr:@deno-library/progress@^1.5.1",
       "jsr:@std/assert@^1.0.19",
       "jsr:@std/crypto@^1.1.0",
