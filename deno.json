@@ -20,7 +20,7 @@
     "ajv": "npm:ajv@^8.20.0",
     "ky": "npm:ky@^2.0.2",
     "lib/": "./lib/",
-    "linkedom": "npm:linkedom@^0.18.12",
+    "linkedom": "npm:linkedom@^0.18.13",
     "semver": "npm:semver@^7.8.5",
     "ts-xor": "npm:ts-xor@^1.3.0",
     "zod": "npm:zod@^4.4.3"
