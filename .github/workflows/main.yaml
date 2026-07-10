@@ -7,7 +7,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  clean:
+    runs-on: ubuntu-latest
+    env:
+      PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.71.1
+          activate-environment: true
+
+      - name: 🧹 Cleanup old versions
+        run: task prefix-clean -- --older-than-days 365 --yes
+
   build:
+    needs: clean
     name: ${{ join(matrix.targets) }}
     runs-on: ${{ matrix.os }}
     permissions:

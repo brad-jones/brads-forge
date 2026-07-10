@@ -75,3 +75,8 @@ tasks:
     desc: Deletes packages from prefix.dev in case of a mis-publish (use with caution).
     cmds:
       - deno run -qA ./scripts/prefix-delete.ts {{.CLI_ARGS}}
+
+  prefix-clean:
+    desc: Removes older packages from prefix.dev to save space (use with caution).
+    cmds:
+      - deno run -qA ./scripts/prefix-clean.ts {{.CLI_ARGS}}

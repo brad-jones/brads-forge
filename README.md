@@ -46,6 +46,13 @@ pixi add lefthook
 
 Go to <https://prefix.dev/channels/brads-forge> for a list of available packages and their versions.
 
+## Package Retention
+
+[prefix.dev](https://prefix.dev) caps free channels at 100GB of storage, so this channel only retains **the last year's
+worth of package versions**. A scheduled CI job (`task prefix-clean`) prunes package versions older than 365 days,
+always keeping at least the latest version of each package regardless of age. If you need to pin to a version that has
+aged out, you'll need to build it yourself from the corresponding recipe under `forge/`.
+
 ## How It Works (High Level)
 
 Each package has a **recipe** — a TypeScript module under `forge/` that describes where to download binaries, how to
