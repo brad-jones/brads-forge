@@ -8,6 +8,38 @@ import { PrefixClient, type VariantDetails } from "lib/prefix_client/mod.ts";
 
 await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 
+/** Maximum number of attempts (including the first) made to delete a single variant. */
+const MAX_DELETE_ATTEMPTS = 3;
+
+/** Base delay used for exponential backoff between delete retries. */
+const RETRY_BASE_DELAY_MS = 500;
+
+/** A function that resolves once it is safe to issue the next rate-limited call. */
+type RateLimiter = () => Promise<void>;
+
+/**
+ * Creates a rate limiter that spaces out calls so that no more than
+ * `perSecond` are allowed to proceed within any given second. Shared across
+ * concurrent callers so the overall execution of the script is throttled,
+ * not just each individual task.
+ */
+function createRateLimiter(perSecond: number): RateLimiter {
+  const intervalMs = 1000 / perSecond;
+  let nextSlot = Date.now();
+  return async function acquire(): Promise<void> {
+    const now = Date.now();
+    // Reserve the next available slot synchronously (before any await) so
+    // concurrent callers don't race on `nextSlot`.
+    const scheduled = Math.max(now, nextSlot);
+    nextSlot = scheduled + intervalMs;
+    const wait = scheduled - now;
+    if (wait > 0) await delay(wait);
+  };
+}
+
+/** Limit all delete operations to 5 per second. */
+const rateLimiter = createRateLimiter(5);
+
 await new Command()
   .name("prefix-clean")
   .description(`
@@ -124,38 +156,6 @@ await new Command()
     }
   })
   .parse(Deno.args);
-
-/** Maximum number of attempts (including the first) made to delete a single variant. */
-const MAX_DELETE_ATTEMPTS = 3;
-
-/** Base delay used for exponential backoff between delete retries. */
-const RETRY_BASE_DELAY_MS = 500;
-
-/** A function that resolves once it is safe to issue the next rate-limited call. */
-type RateLimiter = () => Promise<void>;
-
-/**
- * Creates a rate limiter that spaces out calls so that no more than
- * `perSecond` are allowed to proceed within any given second. Shared across
- * concurrent callers so the overall execution of the script is throttled,
- * not just each individual task.
- */
-function createRateLimiter(perSecond: number): RateLimiter {
-  const intervalMs = 1000 / perSecond;
-  let nextSlot = Date.now();
-  return async function acquire(): Promise<void> {
-    const now = Date.now();
-    // Reserve the next available slot synchronously (before any await) so
-    // concurrent callers don't race on `nextSlot`.
-    const scheduled = Math.max(now, nextSlot);
-    nextSlot = scheduled + intervalMs;
-    const wait = scheduled - now;
-    if (wait > 0) await delay(wait);
-  };
-}
-
-/** Limit all delete operations to 5 per second. */
-const rateLimiter = createRateLimiter(5);
 
 /**
  * Deletes a single variant, retrying on failure up to `MAX_DELETE_ATTEMPTS`
