@@ -9,8 +9,8 @@ on:
 jobs:
   clean:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+    env:
+      PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
     steps:
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v7
@@ -32,6 +32,7 @@ jobs:
       id-token: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
