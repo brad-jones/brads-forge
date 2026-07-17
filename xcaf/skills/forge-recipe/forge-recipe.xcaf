@@ -2,14 +2,14 @@
 kind: skill
 version: "1.0"
 name: forge-recipe
-description: |
+description: >-
   Write new forge recipe.ts files for repackaging upstream software (typically
   from GitHub or GitLab releases) into rattler/conda packages. Use when the user
   provides a URL to a package repository or asks to create a new forge recipe.
-  Supports: (1) Interrogating GitHub/GitLab releases to determine asset naming,
+  Supports (1) Interrogating GitHub/GitLab releases to determine asset naming,
   (2) Drafting a build plan as markdown, (3) Writing the recipe.ts after plan approval,
   (4) Verifying via `task generate` and `task dryrun`.
-when-to-use: |
+when-to-use: >-
   Invoke when user asks to add a new package to the forge, provides a GitHub/GitLab
   repo URL and wants it packaged, or mentions creating a recipe.ts file.
 license: MIT

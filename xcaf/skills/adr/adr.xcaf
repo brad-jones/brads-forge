@@ -2,7 +2,7 @@
 kind: skill
 version: "1.0"
 name: adr
-description: |
+description: >-
   Write new Architecture Decision Records (ADRs) under ./docs/decisions
   following the MADR (Markdown Any Decision Records) format. Use when the
   user asks to create an ADR, record a decision, or document an architecture choice.

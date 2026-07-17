@@ -1,7 +1,6 @@
 ---
 kind: skill
 version: "1.0"
-
 name: deno-guidance
 description: "Use when starting any Deno project, choosing packages, configuring deno.json, or running CLI commands. Provides foundational knowledge for building modern Deno applications."
 license: MIT
