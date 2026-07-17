@@ -9,7 +9,7 @@ on:
 jobs:
   renovate:
     if: |
-      (github.event_name != 'issues' || github.event.issue.number == 33)
+      (github.event_name != 'issues' || github.event.issue.number == 51)
       && github.event.sender.login != 'brads-renovate-bot[bot]'
     runs-on: ubuntu-latest
     steps:
