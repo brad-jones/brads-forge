@@ -21,8 +21,11 @@ export default new r.Recipe({
       .text(),
     license: "Apache-2.0",
   },
+  requirements: {
+    run: ["mkcert"],
+  },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: { binary_relocation: false },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("podplane"));
