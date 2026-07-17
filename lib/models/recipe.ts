@@ -6,10 +6,11 @@ import ajvFormats, { FormatsPluginOptions } from "ajv-formats";
 import ky from "ky";
 import { z } from "zod";
 import { BuildContext } from "./build.ts";
-import { Platform } from "./platform.ts";
+import { Platform, PlatformArch, PlatformOs } from "./platform.ts";
 import { SimpleRecipe } from "./rattler/simple_recipe.ts";
 import { Source } from "./rattler/source.ts";
 import { RecipeProps } from "./recipe_props.ts";
+import { RequirementsContext } from "./requirements_context.ts";
 
 // see: https://github.com/ajv-validator/ajv-formats/issues/85
 const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
@@ -183,9 +184,9 @@ export class Recipe {
     const tests = this.#mapTests();
     if (tests) simpleRecipe.tests = tests;
 
-    if (this.props.requirements) {
+    const userReqs = await this.#resolveRequirements(targetPlatform);
+    if (userReqs) {
       if (!simpleRecipe.requirements) simpleRecipe.requirements = {};
-      const userReqs = this.props.requirements;
       if (userReqs.build) {
         if (!simpleRecipe.requirements.build) simpleRecipe.requirements.build = [];
         const items = Array.isArray(userReqs.build) ? userReqs.build : [userReqs.build];
@@ -321,6 +322,32 @@ export class Recipe {
     }
 
     return tests;
+  }
+
+  /**
+   * Resolves `this.props.requirements` into a plain `Requirements` object.
+   *
+   * If `requirements` was declared as a static object it is returned as-is.
+   * If it was declared as a function, it is invoked with a `RequirementsContext`
+   * derived from `targetPlatform` (see `lib/models/requirements_context.ts`).
+   */
+  async #resolveRequirements(targetPlatform?: Platform) {
+    const raw = this.props.requirements;
+    if (!raw) return undefined;
+    if (typeof raw !== "function") return raw;
+
+    const version = await this.getVersion();
+    const [targetOs, targetArch] = targetPlatform!.split("-") as [PlatformOs, PlatformArch];
+
+    return await raw(RequirementsContext.parse({
+      targetPlatform,
+      targetOs,
+      targetArch,
+      unix: targetOs !== "win",
+      exe: (name: string) => targetOs === "win" ? `${name}.exe` : name,
+      pkgVersion: version.semver,
+      pkgVersionRaw: version.raw,
+    }));
   }
 
   async #jsonSchema(): Promise<AnySchema> {

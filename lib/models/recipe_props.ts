@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { Build } from "./build.ts";
 import { Platform } from "./platform.ts";
 import { About } from "./rattler/about.ts";
-import { Build } from "./build.ts";
 import { Requirements } from "./rattler/requirements.ts";
 import { Source } from "./rattler/source.ts";
-import { FuncTest } from "./test.ts";
 import { Test } from "./rattler/test.ts";
+import { RequirementsContext } from "./requirements_context.ts";
+import { FuncTest } from "./test.ts";
 
 export const RecipeProps = z.object({
   /**
@@ -78,8 +79,20 @@ export const RecipeProps = z.object({
 
   /**
    * The package dependencies.
+   *
+   * Can either be a static `Requirements` object (applied as-is to every
+   * generated platform), or a function that receives a `RequirementsContext`
+   * and returns a `Requirements` object — useful for declaring dependencies
+   * that only apply on certain platforms (eg: unix-only).
    */
-  requirements: Requirements.optional(),
+  requirements: z.union([
+    Requirements,
+    z.custom<
+      (ctx: z.output<typeof RequirementsContext>) =>
+        | z.output<typeof Requirements>
+        | Promise<z.output<typeof Requirements>>
+    >(),
+  ]).optional(),
 
   /**
    * An set of arbitrary values that are included in the package manifest

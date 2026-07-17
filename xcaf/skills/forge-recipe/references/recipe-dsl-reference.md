@@ -14,17 +14,17 @@ export default new r.Recipe({ ...props });
 
 #### Constructor Props
 
-| Field          | Type                                              | Required | Description                                               |
-| -------------- | ------------------------------------------------- | -------- | --------------------------------------------------------- |
-| `name`         | `string`                                          | Yes      | Package name (lowercase, hyphens allowed)                 |
-| `version`      | `() => Promise<{ raw: string; semver?: string }>` | Yes      | Function returning latest version                         |
-| `sources`      | `(tag, semver?) => Sources`                       | Yes      | Function returning download sources                       |
-| `about`        | `About`                                           | No       | Package metadata                                          |
-| `build`        | `Build`                                           | Yes      | Build configuration                                       |
-| `tests`        | `FuncTest \| Test[]`                              | No       | Test configuration                                        |
-| `platforms`    | `Platform[]`                                      | No       | Explicit platform list (inferred from sources if omitted) |
-| `requirements` | `Requirements`                                    | No       | Package dependencies                                      |
-| `extra`        | `Record<string, string>`                          | No       | Arbitrary metadata                                        |
+| Field          | Type                                                                                  | Required | Description                                               |
+| -------------- | ------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------- |
+| `name`         | `string`                                                                              | Yes      | Package name (lowercase, hyphens allowed)                 |
+| `version`      | `() => Promise<{ raw: string; semver?: string }>`                                     | Yes      | Function returning latest version                         |
+| `sources`      | `(tag, semver?) => Sources`                                                           | Yes      | Function returning download sources                       |
+| `about`        | `About`                                                                               | No       | Package metadata                                          |
+| `build`        | `Build`                                                                               | Yes      | Build configuration                                       |
+| `tests`        | `FuncTest \| Test[]`                                                                  | No       | Test configuration                                        |
+| `platforms`    | `Platform[]`                                                                          | No       | Explicit platform list (inferred from sources if omitted) |
+| `requirements` | `Requirements \| (ctx: RequirementsContext) => Requirements \| Promise<Requirements>` | No       | Package dependencies (static, or resolved per-platform)   |
+| `extra`        | `Record<string, string>`                                                              | No       | Arbitrary metadata                                        |
 
 ---
 
@@ -263,6 +263,37 @@ Extracts a hash for a specific file from a checksums text file.
 | `buildPlatform`  | `Platform`         | Host platform running the build       |
 | `buildOs`        | `PlatformOs`       | Host OS                               |
 | `buildArch`      | `PlatformArch`     | Host arch                             |
+
+---
+
+## Requirements Context (available when `requirements` is a function)
+
+`requirements` may be declared as a static `Requirements` object (applied as-is), or as a function
+`(ctx: RequirementsContext) => Requirements | Promise<Requirements>` for dependencies that vary per target platform
+(e.g. a unix-only runtime dependency). Recipe generation (`task generate`) is always per-platform, so the function is
+called once per `targetPlatform` and resolves unconditionally — no `if`/`then` selectors needed.
+
+| Property         | Type                  | Description                           |
+| ---------------- | --------------------- | ------------------------------------- |
+| `targetPlatform` | `Platform`            | e.g. `linux-64`                       |
+| `targetOs`       | `PlatformOs`          | e.g. `linux`                          |
+| `targetArch`     | `PlatformArch`        | e.g. `64`                             |
+| `unix`           | `boolean`             | `true` for linux/osx, `false` for win |
+| `exe`            | `(name) => string`    | Appends `.exe` on Windows             |
+| `pkgVersion`     | `string \| undefined` | Semver version string, if parseable   |
+| `pkgVersionRaw`  | `string`              | Raw version as from upstream          |
+
+**Note:** unlike `BuildContext`, this does **not** include `prefixDir`, `srcDir`, `cpuCount`, `pkgHash`,
+`pkgBuildString`, `buildPlatform`/`buildOs`/`buildArch`, etc. — those only exist inside an actual rattler-build sandbox
+at build time and are not available/meaningful during `recipe.yaml` generation.
+
+Example — a runtime dependency only needed on unix:
+
+```typescript
+requirements: (ctx) => ({
+  run: ctx.unix ? ["nss"] : [],
+}),
+```
 
 ---
 
