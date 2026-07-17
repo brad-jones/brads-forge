@@ -1,6 +1,9 @@
 #!/usr/bin/env -S deno run -qA --ext=ts
 import { Command } from "@cliffy/command";
 import { $ } from "@david/dax";
+import { exists } from "@std/fs";
+
+const DIFF_FILE = "diff.md";
 
 await new Command()
   .name("sync-gha-pixi-version")
@@ -17,6 +20,7 @@ await new Command()
     const versionTag = `v${version}`;
 
     // Update all GHA workflows in `.github/workflows` to use that version of Pixi
+    let versionChanged = false;
     for await (const entry of $.path(".github/workflows").readDir()) {
       if (!entry.isFile) continue;
       const file = entry.path;
@@ -29,9 +33,21 @@ await new Command()
         `pixi-version: ${versionTag}`,
       );
       if (updated !== original) {
-        await file.writeText(updated);
+        await file.write(updated);
         console.log(`updated pixi version in ${file} to ${versionTag}`);
+        versionChanged = true;
       }
+    }
+
+    // When run as part of the `update` GitHub Actions workflow, a `diff.md` file
+    // is generated from `pixi update --json` to describe the lockfile changes in
+    // the resulting PR. If that file exists and the pinned Pixi version actually
+    // changed, append a note about the Pixi self-update so it's reflected in the PR body too.
+    if (versionChanged && await exists(DIFF_FILE)) {
+      const diff = await Deno.readTextFile(DIFF_FILE);
+      const note = `\n## Pixi\n\nUpdated Pixi to \`${versionTag}\`.\n`;
+      await Deno.writeTextFile(DIFF_FILE, diff + note);
+      console.log(`updated ${DIFF_FILE} with Pixi self-update note`);
     }
   })
   .parse();

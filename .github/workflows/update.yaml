@@ -2,33 +2,54 @@ on:
   workflow_dispatch:
   schedule:
     - cron: 0 0 * * *
+  issues:
+    types:
+      - edited
 
 jobs:
   renovate:
+    if: |
+      (github.event_name != 'issues' || github.event.issue.number == 33)
+      && github.event.sender.login != 'brads-renovate-bot[bot]'
     runs-on: ubuntu-latest
     steps:
+      - name: 🔑 Authenticate as Github App
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.RENOVATE_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: 🤖 Run Renovate
         uses: renovatebot/github-action@v46.1.19
         env:
-          RENOVATE_TOKEN: ${{ secrets.RENOVATE_PAT }}
+          RENOVATE_TOKEN: ${{ steps.app-token.outputs.token }}
           RENOVATE_REPOSITORIES: ${{ github.repository }}
 
   pixi:
+    if: github.event_name != 'issues'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
+      - name: 🔑 Authenticate as Github App
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.RENOVATE_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+
       - name: ⬇️ Git Checkout
         uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: ✨ Setup Pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          pixi-version: v0.71.1
           run-install: false
 
       - name: Update lockfiles
@@ -36,14 +57,22 @@ jobs:
           set -o pipefail
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
 
+      - name: Update Pixi it's self
+        shell: pixi run bash -e {0}
+        run: |
+          sync-gha-pixi-version.ts
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@v8
         with:
-          commit-message: "chore(pixi): update pixi lockfile"
-          title: "chore(pixi): update pixi lockfile"
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore(deps): update pixi"
+          title: "chore(deps): update pixi"
           body-path: diff.md
           branch: update-pixi
           base: master
           labels: pixi
           delete-branch: true
-          add-paths: pixi.lock
+          add-paths: |
+            pixi.lock
+            .github/workflows/*.yaml
