@@ -26,7 +26,8 @@ export default new r.Recipe({
     },
     func: async ({ prefixDir, exe, unix }) => {
       const goreman = r.path.join(prefixDir, "bin", exe("goreman"));
-      await r.moveGlob("./goreman_v*/goreman", goreman);
+      // NB: Use glob at the end to catch the windows exe suffix if present.
+      await r.moveGlob("./goreman_v*/goreman*", goreman);
       if (unix) await Deno.chmod(goreman, 0o755);
     },
   },
