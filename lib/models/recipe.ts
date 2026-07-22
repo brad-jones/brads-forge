@@ -18,6 +18,21 @@ const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
 // see: https://rattler.build/latest/reference/recipe_file/#spec-reference
 const JSON_SCHEMA_URL = "https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json";
 
+/**
+ * Context required to map a recipe that has a `build.func` and/or `tests.func` into a rattler-build
+ * script. Rather than bundling the recipe (and all of its `lib/` & jsr/npm dependencies) into a
+ * standalone JS file, we now execute the original `recipe.ts` file directly via `deno run`, so
+ * rattler-build's isolated build/test environment needs to know exactly where to find it.
+ */
+export interface RecipeExecCtx {
+  /** Absolute, forward-slash path to the original (non-generated) `recipe.ts` file. */
+  recipeTsPath: string;
+  /** Absolute, forward-slash path to the repo's `deno.json`, used to resolve import maps (`lib/`, `@cliffy/command`, etc). */
+  denoConfigPath: string;
+  /** Absolute, forward-slash path to a warm Deno module cache (`DENO_DIR`) to reuse, so the isolated build/test env does not need network access to re-resolve jsr:/npm: deps. */
+  denoDir: string;
+}
+
 export class Recipe {
   /**
    * Parsed & Validated Recipe Properties
@@ -162,7 +177,7 @@ export class Recipe {
     }
   }
 
-  async #mapRecipe(targetPlatform?: Platform) {
+  async #mapRecipe(targetPlatform?: Platform, execCtx?: RecipeExecCtx) {
     const v = await this.getVersion();
 
     const simpleRecipe: any = {
@@ -179,9 +194,9 @@ export class Recipe {
     const sources = await this.#mapSources(targetPlatform);
     if (sources.length > 0) simpleRecipe.source = sources;
 
-    simpleRecipe.build = await this.#mapBuild(simpleRecipe, targetPlatform);
+    simpleRecipe.build = await this.#mapBuild(simpleRecipe, targetPlatform, execCtx);
 
-    const tests = this.#mapTests();
+    const tests = this.#mapTests(targetPlatform, execCtx);
     if (tests) simpleRecipe.tests = tests;
 
     const userReqs = await this.#resolveRequirements(targetPlatform);
@@ -256,37 +271,32 @@ export class Recipe {
     return sources;
   }
 
-  async #mapBuild(simpleRecipe: any, targetPlatform?: Platform) {
+  /**
+   * Builds the `deno run` invocation used to execute the original (unbundled) `recipe.ts` for
+   * either the build or test phase. `DENO_DIR` is pinned to the cache that was warm at
+   * generate-time so the isolated rattler-build env doesn't need network access to re-resolve
+   * jsr:/npm: dependencies.
+   */
+  #execScript(mode: "build" | "test", execCtx: RecipeExecCtx, win: boolean): string {
+    const cmd = `deno run -A --config ${execCtx.denoConfigPath} ${execCtx.recipeTsPath} execute --${mode} ` +
+      "--build-platform ${{ build_platform }} " +
+      "--target-platform ${{ target_platform }} " +
+      "--pkg-version-raw ${{ rawVersion }}";
+    return win ? `set DENO_DIR=${execCtx.denoDir}&& ${cmd}` : `DENO_DIR=${execCtx.denoDir} ${cmd}`;
+  }
+
+  async #mapBuild(simpleRecipe: any, targetPlatform?: Platform, execCtx?: RecipeExecCtx) {
     const build = this.props.build as any;
 
     if (this.#props.build.func) {
+      if (!execCtx) throw new Error("execCtx is required to map a recipe with a build.func");
       if (targetPlatform) {
-        if (targetPlatform.startsWith("win")) {
-          build.script = [
-            "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build " +
-            "--build-platform ${{ build_platform }} " +
-            "--target-platform ${{ target_platform }} " +
-            "--pkg-version-raw ${{ rawVersion }}",
-          ];
-        } else {
-          build.script = [
-            "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build " +
-            "--build-platform ${{ build_platform }} " +
-            "--target-platform ${{ target_platform }} " +
-            "--pkg-version-raw ${{ rawVersion }}",
-          ];
-        }
+        build.script = [this.#execScript("build", execCtx, targetPlatform.startsWith("win"))];
       } else {
         build.script = [{
           if: "build_platform | split('-') | first == win",
-          then: "deno run -A %RECIPE_DIR%/bundled-recipe.ts execute --build " +
-            "--build-platform ${{ build_platform }} " +
-            "--target-platform ${{ target_platform }} " +
-            "--pkg-version-raw ${{ rawVersion }}",
-          else: "deno run -A $RECIPE_DIR/bundled-recipe.ts execute --build " +
-            "--build-platform ${{ build_platform }} " +
-            "--target-platform ${{ target_platform }} " +
-            "--pkg-version-raw ${{ rawVersion }}",
+          then: this.#execScript("build", execCtx, true),
+          else: this.#execScript("build", execCtx, false),
         }];
       }
       delete build.func;
@@ -304,15 +314,17 @@ export class Recipe {
     return build;
   }
 
-  #mapTests() {
+  #mapTests(targetPlatform?: Platform, execCtx?: RecipeExecCtx) {
     const tests = this.props.tests as any;
 
     if (tests && !Array.isArray(tests)) {
       if ("func" in tests) {
-        tests.script = "deno run -A ./info/recipe/bundled-recipe.ts execute --test " +
-          "--build-platform ${{ build_platform }} " +
-          "--target-platform ${{ target_platform }} " +
-          "--pkg-version-raw ${{ rawVersion }}";
+        if (!execCtx) throw new Error("execCtx is required to map a recipe with a tests.func");
+        tests.script = targetPlatform ? this.#execScript("test", execCtx, targetPlatform.startsWith("win")) : [{
+          if: "build_platform | split('-') | first == win",
+          then: this.#execScript("test", execCtx, true),
+          else: this.#execScript("test", execCtx, false),
+        }];
         if (!tests.requirements) tests.requirements = {};
         if (!tests.requirements.build) tests.requirements.build = [];
         tests.requirements.build.push(`deno=${Deno.version.deno}`);
@@ -372,8 +384,8 @@ export class Recipe {
     return ajv.compile(await this.#jsonSchema());
   }
 
-  async toObject(targetPlatform?: Platform): Promise<z.output<typeof SimpleRecipe>> {
-    const recipe = await this.#mapRecipe(targetPlatform);
+  async toObject(targetPlatform?: Platform, execCtx?: RecipeExecCtx): Promise<z.output<typeof SimpleRecipe>> {
+    const recipe = await this.#mapRecipe(targetPlatform, execCtx);
     const validate = await this.#ajvValidator();
     if (!validate(recipe)) {
       throw new Error(`JSON Schema Invalid: ${JSON.stringify(validate.errors)} - ${JSON.stringify(recipe)}`);

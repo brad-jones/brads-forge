@@ -46,7 +46,7 @@ tasks:
   build:
     desc: Main entry point for building the forge package.
     cmds:
-      - deno run --unstable-bundle -qA ./scripts/build.ts {{.CLI_ARGS}}
+      - deno run -qA ./scripts/build.ts {{.CLI_ARGS}}
 
   generate:
     desc: Generates rattler build recipe files for a given typescript recipe.
@@ -55,7 +55,7 @@ tasks:
         - RECIPE
     cmds:
       - >-
-        deno run --unstable-bundle -qA ./scripts/build.ts --no-build --no-upload -r {{.RECIPE}}
+        deno run -qA ./scripts/build.ts --no-build --no-upload -r {{.RECIPE}}
         --target-platforms linux-64 linux-aarch64 win-64 win-arm64 osx-64 osx-arm64
 
   dryrun:
@@ -64,7 +64,7 @@ tasks:
       vars:
         - RECIPE
     cmds:
-      - deno run --unstable-bundle -qA ./scripts/build.ts --no-upload -r {{.RECIPE}}
+      - deno run -qA ./scripts/build.ts --no-upload -r {{.RECIPE}}
 
   clean:
     desc: Deletes all generated files and folders to ensure a clean state.

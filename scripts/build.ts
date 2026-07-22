@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable-bundle -qA --ext=ts
+#!/usr/bin/env -S deno run -qA --ext=ts
 import { Command } from "@cliffy/command";
 import { outdent } from "@cspotcode/outdent";
 import { $ } from "@david/dax";
@@ -7,12 +7,16 @@ import * as yaml from "@std/yaml";
 import * as fs from "lib/fs.ts";
 import { path } from "lib/mod.ts";
 import { currentPlatform, Platform } from "lib/models/platform.ts";
-import { Recipe } from "lib/models/recipe.ts";
+import { Recipe, RecipeExecCtx } from "lib/models/recipe.ts";
 import { PrefixClient } from "lib/prefix_client/mod.ts";
 
 await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 
 const recipeModules: Record<string, Recipe> = {};
+
+// Absolute, forward-slash path to the repo's deno.json, used so `deno run` can resolve the `lib/`
+// import map & jsr/npm bare specifiers even when its CWD is rattler-build's isolated work dir.
+const denoConfigPath = fs.toPathString(import.meta.resolve("../deno.json")).replaceAll("\\", "/");
 
 interface BuildOptions {
   prefix: PrefixClient;
@@ -89,32 +93,36 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
   await fs.emptyDir(recipeDir);
   console.log(`Created ${recipeDir}`);
 
+  // Build the context needed to execute this recipe.ts directly (unbundled) from within
+  // rattler-build's isolated build/test environment.
+  let execCtx: RecipeExecCtx | undefined;
+  if (r.hasJsFuncs) {
+    const denoDir = Deno.env.get("DENO_DIR");
+    if (!denoDir) {
+      throw new Error(
+        "DENO_DIR is not set - required to pin the isolated rattler-build env's Deno module cache",
+      );
+    }
+    execCtx = {
+      recipeTsPath: recipePath.replaceAll("\\", "/"),
+      denoConfigPath,
+      denoDir: denoDir.replaceAll("\\", "/"),
+    };
+  }
+
   // Write the rattler-build yaml file
   const recipeYamlPath = path.join(recipeDir, "recipe.yaml");
   await Deno.writeTextFile(
     recipeYamlPath,
     outdent`
         # yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
-        ${yaml.stringify(await r.toObject(targetPlatform))}
+        ${yaml.stringify(await r.toObject(targetPlatform, execCtx))}
       `,
   );
   console.log(`Written ${recipeYamlPath}`);
 
-  // Write the Javascript
-  if (r.hasJsFuncs) {
-    const recipeJsFile = path.join(recipeDir, "bundled-recipe.ts");
-    await Deno.bundle({
-      entrypoints: [path.toFileUrl(recipePath).toString()],
-      outputPath: recipeJsFile,
-      format: "esm",
-      minify: true,
-      platform: "deno",
-    });
-    console.log(`Written ${recipeJsFile}`);
-  }
-
   if (build) {
-    await $`rattler-build build -r ${recipeYamlPath} --target-platform ${targetPlatform} --test native -c https://prefix.dev/${channel} -c conda-forge`;
+    await $`rattler-build build -r ${recipeYamlPath} --target-platform ${targetPlatform} --test native --no-include-recipe -c https://prefix.dev/${channel} -c conda-forge`;
   }
 
   if (upload) {
