@@ -51,6 +51,7 @@ export default new r.Recipe({
     // could change/rotate at any time. Passing `?tab=download` makes the "Download" tab active from the
     // initial render, so no click simulation is needed (obscura doesn't do real layout/rendering, so
     // visibility/hit-testing based interactions like clicks aren't reliable there anyway).
+    r.$.log("Fetching ngrok CDN base URL from https://ngrok.com/...");
     const downloadBaseUrl = await r.withObscuraBrowser(async (page) => {
       await page.goto("https://ngrok.com/download/linux?tab=download", { waitUntil: "domcontentloaded" });
       const href = await page.locator("#download-linux").getAttribute("href");
