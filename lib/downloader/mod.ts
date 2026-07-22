@@ -1,14 +1,20 @@
+import ProgressBar from "@deno-library/progress";
 import { ensureDir } from "@std/fs";
 import { dirname } from "@std/path";
-import ProgressBar from "@deno-library/progress";
 import ky from "ky";
 
+/**
+ * Downloads a file from the given URL to the specified output path.
+ *
+ * @param url The URL of the file to download.
+ * @param outputPath The local path where the file should be saved.
+ * @param headers Optional headers to include in the request.
+ */
 export async function downloadFile(
   url: string,
   outputPath: string,
   headers: Record<string, string> = {},
 ): Promise<void> {
-  console.log(`Downloading ${url}`);
   await ensureDir(dirname(outputPath));
   const response = await ky.get(url, { headers });
   if (!response.body) throw new Error("missing body");
@@ -23,7 +29,7 @@ export async function downloadFile(
       total,
       complete: "=",
       incomplete: "-",
-      display: ":percent :bar :time :completed/:total",
+      display: `Downloading ${url} :percent :bar :time :completed/:total`,
     });
 
     // Create a transform stream to track progress
