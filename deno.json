@@ -16,7 +16,7 @@
     "@std/semver": "jsr:@std/semver@^1.0.8",
     "@std/yaml": "jsr:@std/yaml@^1.1.2",
     "@types/semver": "npm:@types/semver@^7.7.1",
-    "@zip-js/zip-js": "jsr:@zip-js/zip-js@^2.8.33",
+    "@zip-js/zip-js": "jsr:@zip-js/zip-js@^2.8.34",
     "ajv-formats": "npm:ajv-formats@^3.0.1",
     "ajv": "npm:ajv@^8.20.0",
     "ky": "npm:ky@^2.0.2",
