@@ -19,7 +19,7 @@ jobs:
       - name: ✨ Setup Pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          pixi-version: v0.73.0
+          pixi-version: v0.76.2
           activate-environment: true
 
       - name: 🛠️ Additional Initialization
