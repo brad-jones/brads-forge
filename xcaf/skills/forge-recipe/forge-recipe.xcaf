@@ -287,6 +287,52 @@ export default new r.Recipe({
 - Must use `r.archive.gunzipFile(globPattern, destination)` to decompress
 - Do NOT use `r.moveGlob()` — the file is still gzipped
 
+### Compiling From Source (no pre-built assets)
+
+Some upstreams don't publish a binary for the command you want (e.g. `mvdan/sh` releases
+`shfmt` but not `gosh`). In that case compile from the source tarball. See
+`forge/github.com/mvdan/sh/gosh/recipe.ts` for a complete Go example.
+
+```typescript
+export default new r.Recipe({
+  name: "<package-name>",
+  version: r.latestGithubTag({ owner, repo }),
+  // A single, platform independent source — sha256 must be awaited here because the library
+  // only auto-resolves `sha256` functions for the `Record<Platform, Source[]>` shape.
+  sources: async (tag) => {
+    const url = `https://github.com/${owner}/${repo}/archive/refs/tags/${tag}.tar.gz`;
+    return { url, sha256: await r.digestFromUrl(url) };
+  },
+  // REQUIRED: platforms cannot be inferred from a non platform-keyed source, and
+  // `scripts/build.ts` skips every target when the inferred list is empty.
+  platforms: ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64", "win-arm64"],
+  requirements: { build: ["go >=1.25"] },
+  build: {
+    number: 0,
+    dynamic_linking: { binary_relocation: false },
+    func: async ({ prefixDir, srcDir, exe, unix, targetOs, targetArch }) => {
+      // ...map targetOs/targetArch to GOOS/GOARCH, then `go build -o <dst> ./cmd/<name>`
+    },
+  },
+});
+```
+
+**Toolchain packages — beware strict channel priority.** `scripts/build.ts` runs
+`rattler-build -c https://prefix.dev/brads-forge -c conda-forge`. Any package name that
+brads-forge already owns can *only* be solved from brads-forge. This forge publishes its
+own `go` (`forge/go.dev/go`), so conda-forge's `go-nocgo`/`go-cgo` are unusable — they pin
+`go ==<version> <build>` which brads-forge's `go` cannot satisfy. Depend on `go >=X` instead.
+
+**Other things to get right when compiling:**
+
+- Build requirements resolve against the **build** platform, so cross-compilation
+  (`linux-64` → `linux-aarch64`, `win-64` → `win-arm64` in the CI matrix) needs no extra deps.
+- Redirect all compiler caches into the work dir (`GOPATH`, `GOMODCACHE`, `GOCACHE` under
+  `srcDir`) so nothing leaks into the packaged `$PREFIX`.
+- Archives extract with their top-level directory intact, so locate the project root by
+  globbing for a marker file (e.g. `./go.mod`, then `./*/go.mod`).
+- The build has network access, which source builds generally need for dependency resolution.
+
 ### Runtime Dependencies
 
 When the binary depends on another tool at runtime (e.g. overmind needs tmux),
