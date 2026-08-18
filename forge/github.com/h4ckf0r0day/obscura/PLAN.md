@@ -29,19 +29,24 @@
 - **Archive format:** `.tar.gz` for linux/macos, `.zip` for windows (both auto-extracted by rattler-build)
 - **Checksum strategy:** GitHub API asset `digest` field (SHA-256) — no separate checksum file published, handled
   automatically by `r.githubReleaseAssets`
+- **Disambiguation:** since `v0.1.11` obscura also publishes `-stealth` asset variants, and since `v0.2.0` it publishes
+  `-no-render` & `-no-render-stealth` variants too (e.g. `obscura-x86_64-linux-no-render-stealth.tar.gz`), so a
+  `fileName` matcher is required to pin down the exact plain asset for each os/arch — otherwise multiple assets match
+  the same platform and `r.githubReleaseAssets` throws/produces ambiguous sources.
 
 ### OS Mapping
 
-| Pixi OS | Asset string                                          |
-| ------- | ----------------------------------------------------- |
-| `linux` | `linux` (default match, no map needed)                |
-| `osx`   | `macos` (needs osMap override)                        |
-| `win`   | `windows` (default `win` substring-matches `windows`) |
+| Pixi OS | Asset string                                                |
+| ------- | ------------------------------------------------------------ |
+| `linux` | `linux` (default match, no map needed)                       |
+| `osx`   | `macos` (needs osMap override)                               |
+| `win`   | `windows` (needs osMap override for exact `fileName` match)  |
 
 ### Arch Mapping
 
-- No `archMap` needed — asset names contain `aarch64` (matches default arch enum value directly) and `x86_64` (contains
-  substring `64`, matching default arch enum value `64`).
+- `archMap: { "64": "x86_64", "arm64": "aarch64" }` is required for the `fileName` matcher: asset names use `x86_64`
+  (conda arch key `64`) and `aarch64` (conda arch key `aarch64` on linux, but remapped internally to `arm64` for
+  `osx`/`win` before `fileName` is invoked, so `arm64` must map back to `aarch64` for macOS asset names).
 
 ### Supported Platforms
 
@@ -102,4 +107,5 @@ task dryrun RECIPE=forge/github.com/h4ckf0r0day/obscura/recipe.ts
 
 ## Open Questions
 
-- None — asset naming, checksums, and version output were all directly verified against the v0.1.10 release assets.
+- None — asset naming, checksums, and version output were all directly verified against the v0.1.10, v0.1.11 and
+  v0.2.0 release assets.
