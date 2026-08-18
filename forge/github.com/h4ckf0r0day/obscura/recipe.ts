@@ -9,7 +9,13 @@ export default new r.Recipe({
   sources: r.githubReleaseAssets({
     owner,
     repo,
-    osMap: { "osx": "macos" },
+    osMap: { "osx": "macos", "win": "windows" },
+    archMap: { "64": "x86_64", "arm64": "aarch64" },
+    // Since v0.1.11 obscura also publishes "-stealth" variants and since v0.2.0
+    // "-no-render" & "-no-render-stealth" variants too, so we must pin down the
+    // exact plain asset name for each os/arch, otherwise multiple assets match
+    // the same platform.
+    fileName: (_version, os, arch) => `obscura-${arch}-${os}.${os === "windows" ? "zip" : "tar.gz"}`,
   }),
   about: {
     homepage: "https://obscura.sh",
