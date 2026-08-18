@@ -380,7 +380,7 @@ export class Recipe {
   }
 
   async #ajvValidator(): Promise<ValidateFunction<unknown>> {
-    const ajv = addFormats(new Ajv({}), ["uri"]);
+    const ajv = addFormats(new Ajv({}), ["uri", "uri-reference"]);
     return ajv.compile(await this.#jsonSchema());
   }
 
