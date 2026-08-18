@@ -171,8 +171,14 @@ await new Command()
         await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
       }
     } else {
+      // Recipes may live at any depth under `forge/`, eg: `<domain>/<owner>/<repo>/recipe.ts` or
+      // `<domain>/<owner>/<repo>/<pkg>/recipe.ts` when one upstream repo produces several packages.
+      // `generated` is skipped because it only ever contains our own build artifacts.
       for await (
-        const item of fs.walk(forgeDir, { match: [Deno.build.os === "windows" ? /\\recipe.ts$/ : /\/recipe.ts$/] })
+        const item of fs.walk(forgeDir, {
+          match: [Deno.build.os === "windows" ? /\\recipe.ts$/ : /\/recipe.ts$/],
+          skip: [/[\\/]generated([\\/]|$)/],
+        })
       ) {
         const recipePath = item.path;
         for (const targetPlatform of platforms) {
@@ -180,7 +186,6 @@ await new Command()
             `::group::${
               path.dirname(recipePath).replaceAll("\\", "/")
                 .replace(`${forgeDir.replaceAll("\\", "/")}/`, "")
-                .replace("/generated/", "/")
             }-${targetPlatform}`,
           );
           try {

@@ -43,6 +43,27 @@ For GitHub packages: `forge/github.com/<owner>/<repo>/recipe.ts`
 For GitLab packages: `forge/gitlab.com/<owner>/<repo>/recipe.ts`
 For other sources: `forge/<domain>/<package-name>/recipe.ts`
 
+### Multiple packages from one upstream repo
+
+When the package name differs from the repo name, or one upstream repo ships several
+separately packaged commands, add a **package-name level** so each has an obvious home:
+
+```
+forge/<domain>/<owner>/<repo>/<package-name>/recipe.ts
+```
+
+For example `mvdan/sh` ships both `gosh` and `shfmt`:
+
+```
+forge/github.com/mvdan/sh/gosh/recipe.ts
+forge/github.com/mvdan/sh/shfmt/recipe.ts
+```
+
+This extra level is **optional** — use the shorter form when the repo produces a single
+package whose name matches the repo. Recipes are discovered by a recursive walk in
+`scripts/build.ts`, so any depth under `forge/` works; each recipe directory gets its own
+sibling `generated/` output directory.
+
 ## Workflow
 
 ### Phase 1: Gather Information
@@ -76,10 +97,12 @@ For other sources: `forge/<domain>/<package-name>/recipe.ts`
 
 ### Phase 2: Write the Plan
 
-Before writing any code, create a build plan markdown file at:
+Before writing any code, create a build plan markdown file alongside the recipe, in the
+directory chosen per [Directory Layout](#directory-layout) above:
 
 ```
 forge/<domain>/<owner>/<repo>/PLAN.md
+forge/<domain>/<owner>/<repo>/<package-name>/PLAN.md   # when the extra level is used
 ```
 
 The plan must be **self-contained** — it should not assume prior knowledge because
@@ -93,8 +116,8 @@ a different LLM may execute it. The plan MUST include:
 6. **Supported Platforms** — which `{os}-{arch}` combos are available
 7. **Verification Steps** — exact commands to run:
    ```bash
-   task generate RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
-   task dryrun RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+   task generate RECIPE=<recipe-dir>/recipe.ts
+   task dryrun RECIPE=<recipe-dir>/recipe.ts
    ```
 
 The plan should link back to this skill (`xcaf/skills/forge-recipe/forge-recipe.xcaf`)
@@ -114,16 +137,16 @@ refinements include:
 Once approved, write the `recipe.ts` file. Then run verification:
 
 ```bash
-task generate RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+task generate RECIPE=<recipe-dir>/recipe.ts
 ```
 
 This generates the rattler build recipe YAML files without actually building.
-Check the generated output in `forge/<domain>/<owner>/<repo>/generated/` for correctness.
+Check the generated output in `<recipe-dir>/generated/` for correctness.
 
 If generation succeeds:
 
 ```bash
-task dryrun RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+task dryrun RECIPE=<recipe-dir>/recipe.ts
 ```
 
 This builds and tests the package locally but does not upload it.

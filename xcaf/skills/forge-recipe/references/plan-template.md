@@ -86,17 +86,17 @@ and the linked skill reference.
 
 ## Verification Steps
 
-After writing the recipe to `forge/<path>/recipe.ts`, run:
+After writing the recipe to `<recipe-dir>/recipe.ts`, run:
 
 ```bash
 # Generate rattler build recipes for all platforms (no build, no upload)
-task generate RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+task generate RECIPE=<recipe-dir>/recipe.ts
 
 # Check generated output
-ls forge/<domain>/<owner>/<repo>/generated/
+ls <recipe-dir>/generated/
 
 # Build and test locally (current platform only, no upload)
-task dryrun RECIPE=forge/<domain>/<owner>/<repo>/recipe.ts
+task dryrun RECIPE=<recipe-dir>/recipe.ts
 ```
 
 ### Expected outcomes

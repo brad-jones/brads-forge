@@ -71,6 +71,9 @@ cog check          # validate commit history
 
 - `docs/` — documentation for this repo (design notes, architecture decisions, implementation plans, etc.)
 - `forge/` — directory containing forge recipes _(ala: Homebrew formulas)_
+  - Recipes live at `forge/<domain>/<owner>/<repo>/recipe.ts`, with an optional extra package-name level
+    (`forge/<domain>/<owner>/<repo>/<package-name>/recipe.ts`) when one upstream repo produces several packages.
+    `scripts/build.ts` discovers recipes by recursive walk, so any depth under `forge/` works.
 - `lib/` — shared libraries used to build the forge recipes
 - `scripts/` — Deno-based automation scripts
 - `xcaf/` — xcaffold source for AI agent configuration (agents, skills, rules, contexts)
