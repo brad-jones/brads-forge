@@ -29,7 +29,7 @@ export default new r.Recipe({
       // The release archives are PyInstaller "onedir" bundles: the executable sits
       // alongside a required `_internal/` directory (bundled CPython + deps) and
       // resolves it relative to its own location. Install the whole bundle intact
-      // under libexec, then link the executable onto PATH.
+      // under libexec, then expose it on PATH.
       const extractedDir = await r.expandGlobFirst("./apm-*", { breakOnDirOrFile: "dir" });
       if (!extractedDir) throw new Error(`extractedDir undefined`);
 
@@ -39,9 +39,17 @@ export default new r.Recipe({
       const bin = r.path.join(libexecDir, exe("apm"));
       if (unix) await Deno.chmod(bin, 0o755);
 
-      const binDir = r.path.join(prefixDir, "bin");
-      await r.ensureDir(binDir);
-      await r.activation.addLink(bin, r.path.join(binDir, exe("apm")));
+      if (unix) {
+        // A real symlink is transparently dereferenced by the bootloader (e.g. via /proc/self/exe),
+        // so it still finds `_internal` next to the real binary.
+        const binDir = r.path.join(prefixDir, "bin");
+        await r.activation.addLink(bin, r.path.join(binDir, exe("apm")));
+      } else {
+        // On Windows a hardlink is a distinct directory entry, so the bootloader would resolve
+        // `_internal` relative to the link's own location instead of `libexecDir`. Put `libexecDir`
+        // itself on PATH so the exe is launched from its real location.
+        await r.activation.prependToPATH(libexecDir);
+      }
     },
   },
   tests: {
