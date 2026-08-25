@@ -81,8 +81,8 @@ flatten-to-single-dir like the `pulumi` recipe does).
 
 **Chosen approach (per user preference):** install the whole bundle intact under `$PREFIX/libexec/apm/` (i.e.
 `$PREFIX/libexec/apm/apm` + `$PREFIX/libexec/apm/_internal/`), keeping `$PREFIX/bin/` clean, then expose the command on
-`PATH` via `r.activation.addLink()` — a real symlink on Unix, and a hardlink created via generated `.bat`/`.ps1`
-activation scripts on Windows (see `lib/activation/mod.ts`). This is the same helper already used by e.g.
+`PATH` via `r.activation.addLink()` — a real symlink on Unix, and a real hard link on Windows, both created directly at
+build time (see `lib/activation/mod.ts`). This is the same helper already used by e.g.
 `forge/github.com/ahmetb/kubectx/recipe.ts` to expose alias commands.
 
 ```typescript
@@ -109,9 +109,11 @@ Notes:
   a unit.
 - `dynamic_linking.binary_relocation: false` is set as usual for prebuilt binaries — important here since the bundle
   ships its own `libpython*.so`.
-- `r.activation.addLink` only takes effect once the environment is activated (it writes activation/deactivation scripts,
-  or a direct symlink on Unix at build time) — this matches the existing `kubectx`/`kubectl-ctx` pattern and is
-  exercised the same way by `rattler-build`'s test phase (which activates the environment first).
+- `r.activation.addLink` creates the link directly at build time on every platform (a symlink on Unix, a hard link on
+  Windows) — this matches the existing `kubectx`/`kubectl-ctx` pattern. A hard link is used on Windows because it does
+  not require elevated privileges (unlike a symlink); deferring link creation to an activation script (as previously
+  attempted) left `$PREFIX/bin/` empty at packaging time, and rattler-build drops empty directories from the built
+  package, so the link never actually got created after install.
 
 ## 5. Test Strategy
 

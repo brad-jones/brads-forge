@@ -143,8 +143,14 @@ export async function addDeactivateScript(ext: string, src: string) {
  * Creates a link from `linkPath` pointing to `existingPath`.
  *
  * On Unix a symlink is created directly.
- * On Windows, hard-link creation and removal are handled via `.bat` and `.ps1`
- * activate/deactivate scripts, since symlinks require elevated privileges.
+ * On Windows a hard link is created directly (hard links, unlike symlinks,
+ * don't require elevated privileges on NTFS).
+ *
+ * Both links are created immediately at build time, rather than being deferred
+ * to an activation script: deferring left the destination directory containing
+ * no real files at packaging time, which caused rattler-build to drop that
+ * (then-empty) directory from the built package entirely, so the link was
+ * never actually created when the package was installed elsewhere.
  *
  * @param existingPath - The target path the link should point to.
  * @param linkPath - The path at which the new link will be created.
@@ -154,26 +160,7 @@ export async function addLink(existingPath: string, linkPath: string) {
   if (!platform) throw new Error(`target_platform not set`);
 
   if (platform.startsWith("win")) {
-    await addActivateScript(
-      "bat",
-      `mklink /H "${transformEnvVars(linkPath)}" "${
-        transformEnvVars(existingPath)
-      }"`,
-    );
-
-    await addDeactivateScript("bat", `del "${transformEnvVars(linkPath)}"`);
-
-    await addActivateScript(
-      "ps1",
-      `New-Item -ItemType HardLink -Path "${
-        transformEnvVarsPS1(linkPath)
-      }" -Target "${transformEnvVarsPS1(existingPath)}"`,
-    );
-
-    await addDeactivateScript(
-      "ps1",
-      `Remove-Item "${transformEnvVarsPS1(linkPath)}"`,
-    );
+    await Deno.link(existingPath, linkPath);
   } else {
     await Deno.symlink(existingPath, linkPath);
   }
