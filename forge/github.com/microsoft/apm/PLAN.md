@@ -113,7 +113,10 @@ Notes:
   Windows) — this matches the existing `kubectx`/`kubectl-ctx` pattern. A hard link is used on Windows because it does
   not require elevated privileges (unlike a symlink); deferring link creation to an activation script (as previously
   attempted) left `$PREFIX/bin/` empty at packaging time, and rattler-build drops empty directories from the built
-  package, so the link never actually got created after install.
+  package, so the link never actually got created after install. rattler-build has no concept of hard links when
+  packaging (every file it walks is copied and hashed independently, hard-linked or not), so on Windows this results in
+  `apm.exe`'s bytes being embedded twice in the package — acceptable since it's only the small PyInstaller launcher
+  stub being duplicated, not the `_internal/` payload.
 
 ## 5. Test Strategy
 

@@ -142,9 +142,24 @@ export async function addDeactivateScript(ext: string, src: string) {
 /**
  * Creates a link from `linkPath` pointing to `existingPath`.
  *
- * On Unix a symlink is created directly.
- * On Windows a hard link is created directly (hard links, unlike symlinks,
- * don't require elevated privileges on NTFS).
+ * On Unix a symlink is created directly. rattler-build's packaging step
+ * (`write_to_dest` in its `file_mapper.rs`) detects absolute symlinks whose
+ * target lives inside the build prefix and automatically rewrites them to be
+ * relative, so it's safe to pass an absolute `existingPath` here — no
+ * relocatability issue.
+ *
+ * On Windows a hard link is created directly instead of a symlink, because
+ * symlink creation requires administrator privileges there — rattler-build's
+ * packaging step still attempts to recreate any symlink it finds, but warns
+ * and silently drops the entry if that fails, which it typically does without
+ * elevated privileges.
+ *
+ * Note that rattler-build has no notion of hard links when packaging: every
+ * plain file it walks (hard-linked or not — the two are indistinguishable via
+ * stat) is copied independently and hashed on its own. So on Windows, the
+ * linked file's bytes end up embedded twice in the built package (once per
+ * path) rather than sharing one inode — a reasonable trade-off for a small
+ * executable, but worth remembering if this is ever used to link a large file.
  *
  * Both links are created immediately at build time, rather than being deferred
  * to an activation script: deferring left the destination directory containing
