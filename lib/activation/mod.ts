@@ -153,21 +153,25 @@ export async function addLink(existingPath: string, linkPath: string) {
   const platform = Deno.env.get("target_platform");
   if (!platform) throw new Error(`target_platform not set`);
 
+  const linkDir = path.dirname(linkPath);
+
   if (platform.startsWith("win")) {
     await addActivateScript(
       "bat",
-      `mklink /H "${transformEnvVars(linkPath)}" "${
-        transformEnvVars(existingPath)
-      }"`,
+      `if not exist "${transformEnvVars(linkDir)}" mkdir "${transformEnvVars(linkDir)}"\r\nmklink /H "${
+        transformEnvVars(linkPath)
+      }" "${transformEnvVars(existingPath)}"`,
     );
 
     await addDeactivateScript("bat", `del "${transformEnvVars(linkPath)}"`);
 
     await addActivateScript(
       "ps1",
-      `New-Item -ItemType HardLink -Path "${
-        transformEnvVarsPS1(linkPath)
-      }" -Target "${transformEnvVarsPS1(existingPath)}"`,
+      `New-Item -ItemType Directory -Force -Path "${
+        transformEnvVarsPS1(linkDir)
+      }" | Out-Null\r\nNew-Item -ItemType HardLink -Path "${transformEnvVarsPS1(linkPath)}" -Target "${
+        transformEnvVarsPS1(existingPath)
+      }"`,
     );
 
     await addDeactivateScript(
@@ -175,6 +179,7 @@ export async function addLink(existingPath: string, linkPath: string) {
       `Remove-Item "${transformEnvVarsPS1(linkPath)}"`,
     );
   } else {
+    await ensureDir(linkDir);
     await Deno.symlink(existingPath, linkPath);
   }
 }
