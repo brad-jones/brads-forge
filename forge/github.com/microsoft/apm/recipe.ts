@@ -31,7 +31,7 @@ export default new r.Recipe({
       "wheel",
     ],
     run: [
-      "python >=3.10",
+      "python >=3.11",
       "click >=8",
       "colorama >=0.4.6",
       "pyyaml >=6",
@@ -63,6 +63,18 @@ export default new r.Recipe({
         "apm --version",
         'python -c "from apm_cli.cli import main; assert callable(main)"',
       ],
+      requirements: {
+        run: ["python 3.11.*"],
+      },
+    },
+    {
+      script: [
+        "apm --version",
+        'python -c "from apm_cli.cli import main; assert callable(main)"',
+      ],
+      requirements: {
+        run: ["python 3.14.*"],
+      },
     },
   ],
 });
