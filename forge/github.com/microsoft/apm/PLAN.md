@@ -45,9 +45,10 @@ layout and installs it appropriately for each target platform.
 
 ## Runtime Dependencies
 
-Mirror the direct dependencies from upstream's `pyproject.toml` using conda-forge package names. The package declares
-Python 3.11 or newer: although v0.29.0's upstream metadata says Python 3.10, the code imports `typing.Self`, which is
-only available in the standard library from Python 3.11.
+Mirror the direct dependencies from upstream's `pyproject.toml` using conda-forge package names and include the `git`
+executable required by APM's GitPython-backed package resolver. The package declares Python 3.11 or newer: although
+v0.29.0's upstream metadata says Python 3.10, the code imports `typing.Self`, which is only available in the standard
+library from Python 3.11.
 
 The noarch artifact intentionally contains only APM's Python source, distribution metadata, and console entry point.
 Platform-specific dependencies such as PyYAML, watchdog, and websockets are selected by the solver for the environment's
