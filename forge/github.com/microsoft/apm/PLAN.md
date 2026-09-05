@@ -9,154 +9,98 @@
 - **Upstream:** https://github.com/microsoft/apm
 - **Homepage:** https://microsoft.github.io/apm/
 - **What it does:** "Agent Package Manager" — a CLI from Microsoft for managing AI agent packages.
-- **License:** MIT (confirmed via GitHub API `license.spdx_id`)
+- **License:** MIT
 
 ## 2. Version Source
 
-Releases are tagged as plain semver with a `v` prefix (e.g. `v0.28.0`, `v0.27.0`, `v0.26.0` ...). No pre-release/RC tags
-observed in the last 15 tags. Use the standard helper with no custom filter:
+Releases use semver tags with a `v` prefix. Resolve the latest release with:
 
 ```typescript
 version: r.latestGithubTag({ owner: "microsoft", repo: "apm" });
 ```
 
-## 3. Source Assets
+## 3. Sources
 
-Latest release (`v0.28.0`) publishes exactly these assets (verified via GitHub API):
+Upstream publishes PyInstaller `onedir` bundles for Linux, macOS, and Windows. The macOS, Windows, and Linux ARM64
+packages continue to use those release assets.
 
-```
-apm-darwin-arm64.tar.gz        (+ .sha256 sidecar)
-apm-darwin-x86_64.tar.gz       (+ .sha256 sidecar)
-apm-linux-arm64.tar.gz         (+ .sha256 sidecar)
-apm-linux-x86_64.tar.gz        (+ .sha256 sidecar)
-apm-windows-x86_64.zip         (+ .sha256 sidecar)
-```
+The upstream Linux x86_64 bundle is built with GitHub's Ubuntu 24.04 Python. Its bundled `libpython3.12.so.1.0` imports
+symbols versioned `GLIBC_2.38`, so it cannot run on older hosts such as the glibc 2.28 GitHub Copilot VM.
 
-Naming pattern: `apm-<os>-<arch>.<ext>` where `<os>` is `darwin`/`linux`/`windows` and `<arch>` is `arm64`/`x86_64`.
-This matches the library's default asset-matching logic (substring search per pixi platform), so **no custom `fileName`
-function is needed** — just supply `osMap`/`archMap`:
+For `linux-64`, replace the release asset with the immutable source archive for the same tag. Its SHA-256 is resolved at
+recipe generation time:
 
 ```typescript
-sources: r.githubReleaseAssets({
-  owner: "microsoft",
-  repo: "apm",
-  osMap: { "osx": "darwin", "win": "windows" },
-  archMap: { "64": "x86_64", "aarch64": "arm64" },
-});
+const sourceArchiveUrl = `https://github.com/${owner}/${repo}/archive/refs/tags/${tag}.tar.gz`;
+sources["linux-64"] = [{
+  url: sourceArchiveUrl,
+  sha256: await r.digestFromUrl(sourceArchiveUrl),
+}];
 ```
 
-Notes on arch mapping: the raw pixi arch tokens are `64`, `arm64` (used for `osx-arm64`/`win-arm64`), and `aarch64`
-(used for `linux-aarch64`). Asset names always use literal `arm64` regardless of OS, so:
+## 4. Linux x86_64 Build
 
-- pixi `aarch64` (linux) → must map to `"arm64"` explicitly (asset name has no `aarch64` substring).
-- pixi `arm64` (osx/win) → matches the literal substring `"arm64"` in the asset name by default; no map entry strictly
-  required, but harmless/clearer to be consistent.
-- pixi `64` → must map to `"x86_64"` (not a bare `"64"`) to avoid accidentally matching the `arm64` asset, since
-  `"arm64"` also contains the substring `"64"`.
-
-**Checksums:** GitHub's API returns a `digest` field (`sha256:<hex>`) directly on every release asset already, so
-`r.githubReleaseAssets` resolves the sha256 straight from the API metadata — the `.sha256` sidecar files are not needed
-and no `checksumExtractor` is required.
-
-## 4. Build Steps
-
-**Important:** the archives are **PyInstaller "onedir" bundles**, not a single static binary. Each archive's top-level
-folder (`apm-<os>-<arch>/`) contains:
-
-```
-apm-linux-x86_64/
-  apm                 <- the executable
-  _internal/          <- bundled CPython runtime + all Python deps (required at runtime)
-    libpython3.12.so.1.0
-    apm_cli/...
-    ...
-```
-
-(Windows equivalent: `apm.exe` + `_internal/`.)
-
-The executable resolves `_internal` **relative to its own location**, so both must be moved together into the same
-destination directory, preserving the `_internal` subdirectory structure intact (do **not** flatten — `_internal`
-contains many same-named files across subpackages that would collide if flattened, e.g. via `r.walk` +
-flatten-to-single-dir like the `pulumi` recipe does).
-
-**Chosen approach (per user preference):** install the whole bundle intact under `$PREFIX/libexec/apm/` (i.e.
-`$PREFIX/libexec/apm/apm` + `$PREFIX/libexec/apm/_internal/`), keeping `$PREFIX/bin/` clean, then expose the command on
-`PATH` via `r.activation.addLink()` — a real symlink on Unix, and a hardlink created via generated `.bat`/`.ps1`
-activation scripts on Windows (see `lib/activation/mod.ts`). This is the same helper already used by e.g.
-`forge/github.com/ahmetb/kubectx/recipe.ts` to expose alias commands.
+Build the upstream PyInstaller bundle from source with conda-forge Python 3.12:
 
 ```typescript
-build: {
-  number: 0,
-  dynamic_linking: { binary_relocation: false },
-  func: async ({ prefixDir, exe, unix }) => {
-    const extractedDir = await r.expandGlobFirst("./apm-*", { breakOnDirOrFile: "dir" });
-    if (!extractedDir) throw new Error(`extractedDir undefined`);
-    const libexecDir = r.path.join(prefixDir, "libexec", "apm");
-    await r.move(extractedDir, libexecDir);
-    const bin = r.path.join(libexecDir, exe("apm"));
-    if (unix) await Deno.chmod(bin, 0o755);
-    await r.activation.addLink(bin, r.path.join(prefixDir, "bin", exe("apm")));
-  },
+requirements: {
+  build: ["binutils", "python 3.12.*", "uv"],
+  run: ["__glibc >=2.17,<3.0.a0"],
 }
 ```
 
-Notes:
+The build uses upstream's locked dependencies and unmodified PyInstaller specification:
 
-- `r.move(src, dest)` (wrapping `@std/fs.move`, via `lib/fs.ts`) renames the whole extracted directory into place in one
-  step — it handles directories recursively, unlike `r.moveGlob`, which only ever moves individual files matched by a
-  glob (directory entries are explicitly skipped in its implementation), so it cannot be used to relocate `_internal` as
-  a unit.
-- `dynamic_linking.binary_relocation: false` is set as usual for prebuilt binaries — important here since the bundle
-  ships its own `libpython*.so`.
-- `r.activation.addLink` only takes effect once the environment is activated (it writes activation/deactivation scripts,
-  or a direct symlink on Unix at build time) — this matches the existing `kubectx`/`kubectl-ctx` pattern and is
-  exercised the same way by `rattler-build`'s test phase (which activates the environment first).
-
-## 5. Test Strategy
-
-Running `apm --version` (or `apm.exe --version` on Windows, handled transparently by `r.$`) prints:
-
-```
-Agent Package Manager (APM) CLI version 0.28.0 (e041462)
+```bash
+uv sync --frozen --extra build --python python
+./scripts/build-binary.sh
 ```
 
-Extract the semver token and compare against `pkgVersion`:
+This remains a dynamically linked PyInstaller `onedir` bundle. A fully static Python executable is not appropriate here:
+Python extension modules and APM's native wheel dependencies still require a libc ABI, and statically linking glibc has
+runtime compatibility problems around DNS, NSS, locales, and subprocesses.
 
-```typescript
-tests: {
-  func: async ({ pkgVersion }) => {
-    const output = await r.$`apm --version`.text();
-    const version = output.match(/version ([\d.]+)/)?.[1];
-    if (!version || r.coerceSemVer(version) !== pkgVersion) {
-      throw new Error(`unexpected version returned from binary`);
-    }
-  },
-}
-```
+Using conda-forge Python changes the bundled CPython runtime's ABI baseline without changing APM's application code. A
+local v0.29.0 prototype produced a working bundle whose highest required glibc symbol was `GLIBC_2.17`, compared with
+`GLIBC_2.38` in the upstream bundle.
 
-## 6. Supported Platforms
+## 5. ABI Guard
 
-Inferred automatically from the source assets (no explicit `platforms` field needed):
+After PyInstaller completes, scan every ELF file in the bundle with `readelf --version-info`. Fail the package build if
+any file imports a symbol newer than `GLIBC_2.17`.
 
-- `linux-64`
-- `linux-aarch64`
-- `osx-64`
-- `osx-arm64`
-- `win-64`
+This guards against a future Python, PyInstaller, or wheel update silently raising the runtime floor while the package
+metadata continues to advertise glibc 2.17 compatibility.
 
-(No `win-arm64` asset is currently published upstream.)
+## 6. Other Platforms
 
-## 7. Runtime Dependencies
+The upstream archives are installed intact under `$PREFIX/libexec/apm/`. The executable must remain beside its
+`_internal/` directory, which contains the bundled CPython runtime and Python dependencies.
 
-None — the PyInstaller bundle is self-contained (includes its own CPython runtime). No `requirements` field needed.
+On Unix, expose APM through a symlink at `$PREFIX/bin/apm`. On Windows, prepend the real bundle directory to `PATH`
+because a hardlink would cause the PyInstaller bootloader to resolve `_internal` relative to the wrong directory.
 
-## 8. Verification Steps
+Linux ARM64 remains on the upstream release artifact and declares `__glibc >=2.38,<3.0.a0`. PyInstaller does not
+cross-compile, while this forge currently builds `linux-aarch64` packages on an x86_64 runner. Moving ARM64 to the same
+source-build strategy requires a native ARM64 Pixi build environment and is intentionally deferred.
+
+macOS and Windows retain the upstream artifacts and require no glibc constraint.
+
+## 7. Verification
+
+Generate all platform recipes and build the native package:
 
 ```bash
 task generate RECIPE=forge/github.com/microsoft/apm/recipe.ts
 task dryrun RECIPE=forge/github.com/microsoft/apm/recipe.ts
 ```
 
-Check the generated YAML under `forge/github.com/microsoft/apm/generated/` for correctness (per-platform sources,
-checksum, build script) before running the dry-run build/test.
+Verify that:
+
+- `linux-64` uses the tagged source archive and declares build dependencies plus `__glibc >=2.17,<3.0.a0`.
+- `linux-aarch64` uses the upstream bundle and declares `__glibc >=2.38,<3.0.a0`.
+- macOS and Windows use upstream release assets without glibc requirements.
+- the ABI guard passes for every ELF file in the source-built bundle.
+- the installed package returns the expected version from `apm --version`.
+
+The v0.29.0 Linux x86_64 dry-run built `apm-0.29.0-hb687159_1.conda` and passed its clean-environment package test.
