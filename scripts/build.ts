@@ -14,8 +14,8 @@ await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 
 const recipeModules: Record<string, Recipe> = {};
 
-// Absolute, forward-slash path to the repo's deno.json, used so `deno run` can resolve the `lib/`
-// import map & jsr/npm bare specifiers even when its CWD is rattler-build's isolated work dir.
+// Absolute, forward-slash path to the repo's deno.json, used so `deno run` can resolve import maps (`lib/`,
+// `@cliffy/command`, etc) even when its CWD is rattler-build's isolated work dir.
 const denoConfigPath = fs.toPathString(import.meta.resolve("../deno.json")).replaceAll("\\", "/");
 
 interface BuildOptions {
@@ -39,6 +39,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     recipeModules[recipePath] = v;
   }
   const r = recipeModules[recipePath];
+  const packagePlatform: Platform | "noarch" = r.props.build.noarch ? "noarch" : targetPlatform;
 
   // Select the latest version number
   const lastestVersion = async () => {
@@ -68,7 +69,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     name: r.props.name,
     version: await lastestVersion(),
     buildNo: r.props.build.number ?? 0,
-    platform: targetPlatform,
+    platform: packagePlatform,
     channel,
   };
   const variantString = `${variant.platform}/${variant.name}-${variant.version}-${variant.buildNo}`;
@@ -129,7 +130,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
     const artifact = await fs.expandGlobFirst(
       path.join(
         "output",
-        targetPlatform,
+        packagePlatform,
         `${variant.name}-${variant.version}-*_${variant.buildNo}.conda`,
       ),
     );
@@ -139,7 +140,7 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
       if (ghaSummary) {
         await Deno.writeTextFile(
           ghaSummary,
-          `- :rocket: \`${targetPlatform}/${path.basename(artifact)}\`: **published**\n`,
+          `- :rocket: \`${packagePlatform}/${path.basename(artifact)}\`: **published**\n`,
           { append: true },
         );
       }
@@ -183,8 +184,8 @@ await new Command()
         const recipePath = item.path;
         for (const targetPlatform of platforms) {
           console.log(
-            `::group::${
-              path.dirname(recipePath).replaceAll("\\", "/")
+            `::group::$
+              {path.dirname(recipePath).replaceAll("\\", "/")
                 .replace(`${forgeDir.replaceAll("\\", "/")}/`, "")
             }-${targetPlatform}`,
           );

@@ -7,7 +7,7 @@ const DEFAULT_CHANNEL = Deno.env.get("PREFIX_DEV_CHANNEL") ?? "brads-forge";
 export interface Variant {
   name: string;
   version: string;
-  platform: Platform;
+  platform: Platform | "noarch";
   buildNo?: number;
   buildString?: string;
   channel?: string;
@@ -15,7 +15,7 @@ export interface Variant {
 
 export interface Package {
   filename: string;
-  platform: Platform;
+  platform: Platform | "noarch";
   channel?: string;
 }
 
@@ -172,7 +172,9 @@ export class PrefixClient {
       const chan = schema.parse(response).data.channel;
       if (!chan) return names;
 
-      for (const p of chan.packages.page) names.push(p.name);
+      for (const p of chan.packages.page) {
+        names.push(p.name);
+      }
 
       if (chan.packages.current >= chan.packages.pages - 1) return names;
 
@@ -236,7 +238,7 @@ export class PrefixClient {
         },
       }).json();
 
-      const pkg = schema.parse(response).data.package;
+      const pkg = pkgExistsSchema.parse(response).data.package;
       if (!pkg) return variants;
 
       for (const v of pkg.variants.page) {
