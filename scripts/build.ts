@@ -21,6 +21,12 @@ const denoConfigPath = fs.toPathString(import.meta.resolve("../deno.json")).repl
 type PackageKind = "arch" | "noarch" | "all";
 const packageKindType = new EnumType<PackageKind>(["arch", "noarch", "all"]);
 
+/**
+ * Thrown when a recipe cannot be published by this run & no other run will publish it
+ * either, so carrying on would drop the package from the channel without saying so.
+ */
+class UnpublishableError extends Error {}
+
 interface BuildOptions {
   prefix: PrefixClient;
   recipePath: string;
@@ -85,6 +91,17 @@ async function buildRecipe(
   // Bail out if the recipe does not support the platform
   const recipePlatforms = await r.getPlatforms();
   if (!recipePlatforms.includes(targetPlatform)) {
+    // A noarch recipe is collapsed to a single build (see `resolveTargetPlatforms`), so when
+    // that one platform is unsupported there is no second run left to publish it. Skipping
+    // would drop the package from the channel silently, so fail the publish instead.
+    if (upload && packagePlatform === "noarch") {
+      throw new UnpublishableError(
+        `${r.props.name} is noarch but does not support ${targetPlatform}, which is where the ` +
+          `publish runs. A noarch package is only built once, so nothing else will publish it - ` +
+          `add ${targetPlatform} to its \`platforms\`, or publish from one of ` +
+          `${recipePlatforms.join(", ")}`,
+      );
+    }
     console.log(`Skipping, recipe does not support: ${targetPlatform}`);
     const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
     if (ghaSummary) {
@@ -229,6 +246,8 @@ await new Command()
         await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir, packageKind });
       }
     } else {
+      const unpublishable: string[] = [];
+
       // Recipes may live at any depth under `forge/`, eg: `<domain>/<owner>/<repo>/recipe.ts` or
       // `<domain>/<owner>/<repo>/<pkg>/recipe.ts` when one upstream repo produces several packages.
       // `generated` is skipped because it only ever contains our own build artifacts.
@@ -258,11 +277,24 @@ await new Command()
               packageKind,
             });
           } catch (e) {
-            console.log(`::error title=${recipePath}::recipe failed to cook`);
-            console.warn(e);
+            if (e instanceof UnpublishableError) {
+              // Keep walking so the rest of the recipes still publish, but remember it -
+              // a `::error` annotation alone leaves the job green.
+              unpublishable.push(`${recipePath}: ${e.message}`);
+              console.log(`::error title=${recipePath}::${e.message}`);
+            } else {
+              console.log(`::error title=${recipePath}::recipe failed to cook`);
+              console.warn(e);
+            }
           }
           console.log(`::endgroup::`);
         }
+      }
+
+      if (unpublishable.length > 0) {
+        throw new Error(
+          `${unpublishable.length} recipe(s) can never be published:\n${unpublishable.join("\n")}`,
+        );
       }
     }
   })
