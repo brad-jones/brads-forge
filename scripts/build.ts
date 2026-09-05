@@ -14,8 +14,8 @@ await load({ envPath: `${import.meta.dirname}/../.env`, export: true });
 
 const recipeModules: Record<string, Recipe> = {};
 
-// Absolute, forward-slash path to the repo's deno.json, used so `deno run` can resolve import maps (`lib/`,
-// `@cliffy/command`, etc) even when its CWD is rattler-build's isolated work dir.
+// Absolute, forward-slash path to the repo's deno.json, used so `deno run` can resolve the `lib/`
+// import map & jsr/npm bare specifiers even when its CWD is rattler-build's isolated work dir.
 const denoConfigPath = fs.toPathString(import.meta.resolve("../deno.json")).replaceAll("\\", "/");
 
 interface BuildOptions {
