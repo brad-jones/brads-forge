@@ -6,12 +6,11 @@ const repo = "apm";
 export default new r.Recipe({
   name: "apm",
   version: r.latestGithubTag({ owner, repo }),
-  sources: r.githubReleaseAssets({
-    owner,
-    repo,
-    osMap: { "osx": "darwin", "win": "windows" },
-    archMap: { "64": "x86_64", "aarch64": "arm64" },
-  }),
+  sources: async (tag) => {
+    const url = `https://github.com/${owner}/${repo}/archive/refs/tags/${tag}.tar.gz`;
+    return { url, sha256: await r.digestFromUrl(url) };
+  },
+  platforms: ["linux-64"],
   about: {
     homepage: "https://microsoft.github.io/apm/",
     repository: `https://github.com/${owner}/${repo}`,
@@ -20,36 +19,47 @@ export default new r.Recipe({
       .text(),
     license: "MIT",
   },
+  requirements: {
+    host: [
+      "python 3.12.*",
+      "pip",
+      "setuptools >=42",
+      "wheel",
+    ],
+    run: [
+      "python >=3.10",
+      "click >=8",
+      "colorama >=0.4.6",
+      "pyyaml >=6",
+      "requests >=2.31",
+      "truststore >=0.10",
+      "python-frontmatter >=1",
+      "llm >=0.28",
+      "llm-github-models >=0.18",
+      "tomli >=1.2",
+      "toml >=0.10.2",
+      "tomlkit >=0.13",
+      "rich >=13",
+      "rich-click >=1.7",
+      "watchdog >=3",
+      "gitpython >=3.1",
+      "ruamel.yaml >=0.18",
+      "filelock >=3.12",
+      "websockets >=12,<17",
+    ],
+  },
   build: {
-    number: 0,
-    dynamic_linking: {
-      binary_relocation: false,
+    number: 1,
+    noarch: "python",
+    python: {
+      entry_points: ["apm = apm_cli.cli:main"],
     },
-    func: async ({ prefixDir, exe, unix }) => {
-      // The release archives are PyInstaller "onedir" bundles: the executable sits
-      // alongside a required `_internal/` directory (bundled CPython + deps) and
-      // resolves it relative to its own location. Install the whole bundle intact
-      // under libexec, then expose it on PATH.
-      const extractedDir = await r.expandGlobFirst("./apm-*", { breakOnDirOrFile: "dir" });
-      if (!extractedDir) throw new Error(`extractedDir undefined`);
+    func: async ({ prefixDir, srcDir }) => {
+      const pyproject = await r.expandGlobFirst(r.path.join(srcDir, "pyproject.toml")) ??
+        await r.expandGlobFirst(r.path.join(srcDir, "*", "pyproject.toml"));
+      if (!pyproject) throw new Error(`failed to locate pyproject.toml under ${srcDir}`);
 
-      const libexecDir = r.path.join(prefixDir, "libexec", "apm");
-      await r.move(extractedDir, libexecDir);
-
-      const bin = r.path.join(libexecDir, exe("apm"));
-      if (unix) await Deno.chmod(bin, 0o755);
-
-      if (unix) {
-        // A real symlink is transparently dereferenced by the bootloader (e.g. via /proc/self/exe),
-        // so it still finds `_internal` next to the real binary.
-        const binDir = r.path.join(prefixDir, "bin");
-        await r.activation.addLink(bin, r.path.join(binDir, exe("apm")));
-      } else {
-        // On Windows a hardlink is a distinct directory entry, so the bootloader would resolve
-        // `_internal` relative to the link's own location instead of `libexecDir`. Put `libexecDir`
-        // itself on PATH so the exe is launched from its real location.
-        await r.activation.prependToPATH(libexecDir);
-      }
+      await r.$`python -m pip install ${r.path.dirname(pyproject)} --no-deps --no-build-isolation --prefix ${prefixDir}`;
     },
   },
   tests: {
@@ -57,8 +67,10 @@ export default new r.Recipe({
       const output = await r.$`apm --version`.text();
       const version = output.match(/version ([\d.]+)/)?.[1];
       if (!version || r.coerceSemVer(version) !== pkgVersion) {
-        throw new Error(`unexpected version returned from binary`);
+        throw new Error(`unexpected version returned from package`);
       }
+
+      await r.$`python -c ${"from apm_cli.cli import main; assert callable(main)"}`;
     },
   },
 });
