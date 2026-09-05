@@ -62,6 +62,7 @@ export default new r.Recipe({
       git: `https://github.com/${owner}/${repo}.git`,
       rev: tag,
       depth: 1,
+      lfs: false,
     }];
     return sources;
   },
