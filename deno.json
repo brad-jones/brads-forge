@@ -14,6 +14,7 @@
     "@std/fs": "jsr:@std/fs@^1.0.24",
     "@std/path": "jsr:@std/path@^1.1.6",
     "@std/semver": "jsr:@std/semver@^1.0.8",
+    "@std/toml": "jsr:@std/toml@^1.0.11",
     "@std/yaml": "jsr:@std/yaml@^1.2.0",
     "@types/semver": "npm:@types/semver@^7.8.0",
     "@zip-js/zip-js": "jsr:@zip-js/zip-js@^2.9.0",

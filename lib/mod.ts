@@ -23,5 +23,6 @@ export * as downloader from "./downloader/mod.ts";
 export * from "./fs.ts";
 export * from "./models/platform.ts";
 export { Recipe } from "./models/recipe.ts";
+export * from "./requirements/mod.ts";
 export * from "./sources/mod.ts";
 export * from "./versions/mod.ts";
