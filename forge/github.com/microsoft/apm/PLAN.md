@@ -110,6 +110,10 @@ Because a noarch package is published once but tested everywhere, it runs throug
 `scripts/build.ts --package-kind <arch|noarch|all>` selects which recipes a pipeline owns, so the two pipelines never
 publish the same package.
 
+Because a noarch recipe is collapsed to a single build, a recipe that does not support the platform `publish-noarch`
+runs on would never be published by anything at all. The build script fails the publish in that case rather than
+skipping quietly. The test pipeline does not upload, so it still skips an unsupported platform silently.
+
 ## Verification
 
 ```bash
