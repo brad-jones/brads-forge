@@ -47,6 +47,7 @@ export default new r.Recipe({
       "rich-click >=1.7",
       "watchdog >=3",
       "gitpython >=3.1",
+      "git",
       "ruamel.yaml >=0.18",
       "filelock >=3.12",
       "websockets >=12,<17",
