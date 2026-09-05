@@ -89,7 +89,8 @@ Because a noarch package is published once but tested everywhere, it runs throug
 
 - `test-noarch` builds and tests the recipe on linux-64, linux-aarch64, win-64, osx-64 and osx-arm64, with
   `--no-upload`.
-- `publish-noarch` runs once all of those pass, and builds and publishes the single artifact from Linux.
+- `publish-noarch` runs once all of those pass, and builds and publishes the single artifact. It names no target
+  platform, because a noarch package is the same artifact whichever platform builds it.
 
 `scripts/build.ts --package-kind <arch|noarch|all>` selects which recipes a pipeline owns, so the two pipelines never
 publish the same package.

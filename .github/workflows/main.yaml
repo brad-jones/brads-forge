@@ -105,4 +105,4 @@ jobs:
           activate-environment: true
 
       - name: 🧑‍🍳 Build & Publish Noarch Recipes
-        run: task build -- --package-kind noarch --target-platforms linux-64
+        run: task build -- --package-kind noarch
