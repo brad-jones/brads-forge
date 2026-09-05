@@ -184,8 +184,8 @@ await new Command()
         const recipePath = item.path;
         for (const targetPlatform of platforms) {
           console.log(
-            `::group::$
-              {path.dirname(recipePath).replaceAll("\\", "/")
+            `::group::${
+              path.dirname(recipePath).replaceAll("\\", "/")
                 .replace(`${forgeDir.replaceAll("\\", "/")}/`, "")
             }-${targetPlatform}`,
           );

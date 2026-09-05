@@ -238,7 +238,7 @@ export class PrefixClient {
         },
       }).json();
 
-      const pkg = pkgExistsSchema.parse(response).data.package;
+      const pkg = schema.parse(response).data.package;
       if (!pkg) return variants;
 
       for (const v of pkg.variants.page) {
