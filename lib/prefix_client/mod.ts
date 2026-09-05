@@ -172,9 +172,7 @@ export class PrefixClient {
       const chan = schema.parse(response).data.channel;
       if (!chan) return names;
 
-      for (const p of chan.packages.page) {
-        names.push(p.name);
-      }
+      for (const p of chan.packages.page) names.push(p.name);
 
       if (chan.packages.current >= chan.packages.pages - 1) return names;
 
