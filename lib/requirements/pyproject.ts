@@ -87,13 +87,15 @@ export interface PyProjectRequirementsOptions {
  *   would mangle.
  * - Requirement extras (`pkg[foo]>=1`) are stripped - conda has no notion of extras -
  *   so a dependency only reachable through an extra must be added via `extraRun`.
- * - Environment markers are evaluated against the resolved python spec and the
- *   `RequirementsContext`'s target platform.
+ * - Environment markers are resolved across every environment the package serves rather
+ *   than at a single point. A marker whose value is constant over that range is applied;
+ *   one that varies throws, because a conda package carries a single dependency list &
+ *   cannot express a conditional dependency. `exclude` such a dependency and put the right
+ *   spec in `extraRun`.
  *
- * NB: for a `noarch` recipe there is only one artifact for every platform, so a
- * platform-gated marker will be resolved against whichever platform happens to be
- * generating the recipe. Such a dependency needs a conda selector rather than a
- * marker - `exclude` it here and express it in the recipe.
+ * That range is the package's python spec, and - for a `noarch` recipe, where one artifact
+ * has to serve every platform - the platform too, so a platform gated marker throws there.
+ * An arch recipe simply resolves it for `targetPlatform`.
  */
 export function pyprojectRequirements(
   opts: PyProjectRequirementsOptions,
@@ -122,14 +124,17 @@ export function pyprojectRequirements(
         "pyprojectRequirements: no `project.requires-python` found upstream - set the `python` option explicitly",
       );
     }
-    const python = `python ${toCondaVersionSpec(pythonSpec, "requires-python")}`;
-    const env = markerEnv(ctx, pythonSpec);
+    const condaPython = toCondaVersionSpec(pythonSpec, "requires-python");
+    const python = `python ${condaPython}`;
+    const range = pythonRange(condaPython);
 
     const convert = (requirements: string[]) =>
       requirements
         .map((_) => parseRequirement(_))
-        .filter((_) => _.marker === undefined || evaluateMarker(_.marker, env))
+        // Excluded before the markers are resolved, so that `exclude` is also the way out
+        // of a marker this cannot resolve.
         .filter((_) => !exclude.has(_.name.toLowerCase()))
+        .filter((_) => _.marker === undefined || resolveMarker(_.marker, ctx, range, _.raw))
         .map((_) => {
           const name = nameMap[_.name.toLowerCase()] ?? _.name.toLowerCase();
           const spec = toCondaVersionSpec(_.specifiers, _.raw);
@@ -232,8 +237,9 @@ const SYS_PLATFORM: Record<string, string> = { linux: "linux", osx: "darwin", wi
 const PLATFORM_SYSTEM: Record<string, string> = { linux: "Linux", osx: "Darwin", win: "Windows" };
 const PLATFORM_MACHINE: Record<string, string> = { "64": "x86_64", "32": "i686" };
 
-export function markerEnv(ctx: z.output<typeof RequirementsContext>, pythonSpec: string): MarkerEnv {
-  const parts = pythonMarkerVersion(pythonSpec).split(".");
+/** Builds the marker environment for one concrete python version. */
+export function markerEnv(ctx: z.output<typeof RequirementsContext>, pythonVersion: string): MarkerEnv {
+  const parts = pythonVersion.split(".");
   return {
     python_version: parts.slice(0, 2).join("."),
     python_full_version: [...parts, "0", "0"].slice(0, 3).join("."),
@@ -248,15 +254,170 @@ export function markerEnv(ctx: z.output<typeof RequirementsContext>, pythonSpec:
   };
 }
 
-/** Pulls the lower bound out of a python spec, for use as `python_version` in markers. */
-function pythonMarkerVersion(spec: string): string {
+/** The range of python versions a package supports, as declared by its conda spec. */
+interface PythonRange {
+  /** The spec it was parsed from, for error messages. */
+  spec: string;
+  /** The lowest supported version; where marker sampling starts. */
+  floor: string;
+  /** Whether `version` falls inside the range. */
+  contains: (version: string) => boolean;
+}
+
+/**
+ * Parses a conda python spec into the range of versions the package supports.
+ *
+ * Takes the conda form rather than the raw PEP 440 one because `toCondaVersionSpec` has
+ * already expanded `~=` into the `>=`/`<` pair it stands for.
+ */
+function pythonRange(spec: string): PythonRange {
+  const clauses: { op: string; version: string }[] = [];
+
   for (const clause of spec.split(",")) {
-    const match = /^\s*(>=|==|~=|>)\s*(\d+(?:\.\d+)*)/.exec(clause);
-    if (match) return match[2];
+    const match = /^\s*(>=|<=|==|!=|>|<)\s*(\d+(?:\.\d+)*)(\.\*)?\s*$/.exec(clause);
+    if (!match) continue;
+    const [, op, version, wildcard] = match;
+    if (wildcard) {
+      // `==3.11.*` is the range [3.11, 3.12); `!=3.11.*` is not a bound we need.
+      if (op === "==") clauses.push({ op: ">=", version }, { op: "<", version: incrementRelease(version) });
+      continue;
+    }
+    clauses.push({ op, version });
   }
-  throw new Error(
-    `unable to derive a python version for marker evaluation from "${spec}" - set the \`python\` option explicitly`,
-  );
+
+  const floor = clauses.find((_) => [">=", ">", "=="].includes(_.op))?.version;
+  if (!floor) {
+    throw new Error(
+      `unable to derive a python version for marker evaluation from "${spec}" - set the \`python\` option explicitly`,
+    );
+  }
+
+  return {
+    spec,
+    floor,
+    contains: (version) =>
+      clauses.every(({ op, version: bound }) => {
+        const cmp = compareReleases(version, bound);
+        switch (op) {
+          case ">=":
+            return cmp >= 0;
+          case ">":
+            return cmp > 0;
+          case "<=":
+            return cmp <= 0;
+          case "<":
+            return cmp < 0;
+          case "==":
+            return cmp === 0;
+          case "!=":
+            return cmp !== 0;
+          default:
+            return true;
+        }
+      }),
+  };
+}
+
+/** `3.11` -> `3.12`, `3.11.4` -> `3.11.5`. */
+function incrementRelease(version: string): string {
+  const parts = version.split(".");
+  const last = Number(parts[parts.length - 1]);
+  if (Number.isInteger(last)) parts[parts.length - 1] = String(last + 1);
+  return parts.join(".");
+}
+
+/** Every version literal the marker compares a python version variable against. */
+function markerVersionLiterals(marker: string): string[] {
+  const tokens = tokenizeMarker(marker);
+  const literals: string[] = [];
+
+  for (let i = 1; i < tokens.length - 1; i++) {
+    if (tokens[i].kind !== "op") continue;
+    const lhs = tokens[i - 1];
+    const rhs = tokens[i + 1];
+    if (lhs.kind === "var" && VERSION_VARS.has(lhs.value) && rhs.kind === "str") literals.push(rhs.value);
+    if (rhs.kind === "var" && VERSION_VARS.has(rhs.value) && lhs.kind === "str") literals.push(lhs.value);
+  }
+
+  return literals;
+}
+
+/** Guards against a pathological spec turning invariance checking into a long loop. */
+const MAX_SAMPLES = 64;
+
+/**
+ * The versions a marker has to be evaluated at to know whether it is constant over `range`.
+ *
+ * A marker is a boolean expression over comparisons against version literals, so its value
+ * can only change at one of those literals. Sampling each literal, the point just past it &
+ * the range's floor therefore decides invariance exactly, without walking every version.
+ */
+function samplePythonVersions(literals: string[], range: PythonRange): string[] {
+  const points = new Set<string>([range.floor]);
+  let highest = range.floor;
+
+  for (const literal of literals) {
+    const boundary = literal.endsWith(".*") ? literal.slice(0, -2) : literal;
+    if (!/^\d+(\.\d+)*$/.test(boundary)) continue;
+    points.add(boundary);
+    points.add(incrementRelease(boundary));
+    if (compareReleases(boundary, highest) > 0) highest = boundary;
+  }
+
+  // Past the largest literal every comparison in the marker is settled, so a single point
+  // above it stands in for the whole open ended tail.
+  points.add(incrementRelease(highest));
+
+  const sampled = [...points].filter((_) => range.contains(_)).toSorted(compareReleases);
+
+  // Never end up with nothing to evaluate: the floor is the version the package is built
+  // against, even for a spec whose bounds exclude it.
+  return (sampled.length > 0 ? sampled : [range.floor]).slice(0, MAX_SAMPLES);
+}
+
+/** Marker variables whose value depends on which platform the package is installed on. */
+const PLATFORM_VARS = new Set(["sys_platform", "platform_system", "os_name", "platform_machine"]);
+
+/**
+ * Resolves a marker across every environment the package serves.
+ *
+ * Returns whether the dependency applies, or throws when the answer is not the same
+ * throughout - a conda package has a single dependency list, so a marker that varies
+ * cannot be honoured & silently picking one side would either drop a dependency the
+ * package needs or declare one that narrows where it can be installed.
+ */
+function resolveMarker(
+  marker: string,
+  ctx: z.output<typeof RequirementsContext>,
+  range: PythonRange,
+  context: string,
+): boolean {
+  if (ctx.noarch) {
+    const platformVar = tokenizeMarker(marker)
+      .find((_) => _.kind === "var" && PLATFORM_VARS.has(_.value))?.value;
+    if (platformVar) {
+      throw new Error(
+        `${context}: marker \`${marker}\` depends on \`${platformVar}\`, but a noarch package is a single ` +
+          `artifact for every platform & cannot carry a platform conditional dependency - \`exclude\` it and ` +
+          `put the right spec in \`extraRun\`, or express it in the recipe`,
+      );
+    }
+  }
+
+  const samples = samplePythonVersions(markerVersionLiterals(marker), range);
+  const resolved = evaluateMarker(marker, markerEnv(ctx, samples[0]));
+
+  for (const sample of samples.slice(1)) {
+    if (evaluateMarker(marker, markerEnv(ctx, sample)) === resolved) continue;
+    const [whenTrue, whenFalse] = resolved ? [samples[0], sample] : [sample, samples[0]];
+    throw new Error(
+      `${context}: marker \`${marker}\` is not constant across python ${range.spec} ` +
+        `(true at ${whenTrue}, false at ${whenFalse}). A conda package cannot express a python ` +
+        `conditional dependency - \`exclude\` it and put the right spec in \`extraRun\`, or narrow \`python\``,
+    );
+  }
+
+  return resolved;
 }
 
 interface Token {

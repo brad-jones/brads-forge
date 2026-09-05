@@ -359,6 +359,7 @@ export class Recipe {
       exe: (name: string) => targetOs === "win" ? `${name}.exe` : name,
       pkgVersion: version.semver,
       pkgVersionRaw: version.raw,
+      noarch: this.props.build.noarch,
     }));
   }
 

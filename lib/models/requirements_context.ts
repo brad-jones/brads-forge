@@ -42,4 +42,14 @@ export const RequirementsContext = z.object({
    * The version string un-altered from the original upstream source.
    */
   pkgVersionRaw: z.string(),
+
+  /**
+   * The recipe's `build.noarch`, if it declares one.
+   *
+   * A noarch recipe produces a single artifact that has to serve every platform it
+   * supports, so it cannot carry a dependency that only applies to some of them.
+   * `requirements` needs to know that to tell an unresolvable dependency apart from
+   * one it can simply resolve for `targetPlatform`.
+   */
+  noarch: z.enum(["generic", "python"]).optional(),
 });

@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { assertEquals, assertRejects, assertStringIncludes, assertThrows } from "@std/assert";
 import { RequirementsContext } from "../models/requirements_context.ts";
-import { evaluateMarker, markerEnv, parseRequirement, toCondaVersionSpec } from "./pyproject.ts";
+import { evaluateMarker, markerEnv, parseRequirement, pyprojectRequirements, toCondaVersionSpec } from "./pyproject.ts";
 
-const ctx = (targetPlatform: string) => {
+const ctx = (targetPlatform: string, noarch?: "generic" | "python") => {
   const [targetOs, targetArch] = targetPlatform.split("-");
   return RequirementsContext.parse({
     targetPlatform,
@@ -12,10 +12,39 @@ const ctx = (targetPlatform: string) => {
     exe: (name: string) => targetOs === "win" ? `${name}.exe` : name,
     pkgVersion: "1.0.0",
     pkgVersionRaw: "v1.0.0",
+    noarch,
   });
 };
 
-const env = (targetPlatform = "linux-64", python = ">=3.11") => markerEnv(ctx(targetPlatform), python);
+const env = (targetPlatform = "linux-64", pythonVersion = "3.11") => markerEnv(ctx(targetPlatform), pythonVersion);
+
+/**
+ * Runs the whole derivation against an inline `pyproject.toml`, which is the only way to
+ * exercise marker resolution - it needs the package's python range, not just one version.
+ */
+const derive = (
+  dependencies: string[],
+  opts: { python?: string; noarch?: "generic" | "python"; exclude?: string[]; extraRun?: string[] } = {},
+) => {
+  const pyproject = [
+    "[project]",
+    'requires-python = ">=3.11"',
+    `dependencies = [${dependencies.map((_) => JSON.stringify(_)).join(", ")}]`,
+  ].join("\n");
+
+  return pyprojectRequirements({
+    url: `data:application/toml,${encodeURIComponent(pyproject)}`,
+    python: opts.python,
+    exclude: opts.exclude,
+    extraRun: opts.extraRun,
+  })(ctx("linux-64", opts.noarch));
+};
+
+/** The derived `run` list without the leading `python` entry. */
+const runDeps = async (...args: Parameters<typeof derive>) => {
+  const run = (await derive(...args)).run as string[];
+  return run.slice(1);
+};
 
 Deno.test("parse a bare requirement", () => {
   const r = parseRequirement("colorama");
@@ -63,7 +92,7 @@ Deno.test("python_version markers compare numerically", () => {
   assertEquals(evaluateMarker("python_version < '3.11'", env()), false);
   assertEquals(evaluateMarker("python_version >= '3.9'", env()), true);
   assertEquals(evaluateMarker("python_version >= '3.11'", env()), true);
-  assertEquals(evaluateMarker("python_version < '3.11'", env("linux-64", ">=3.9")), true);
+  assertEquals(evaluateMarker("python_version < '3.11'", env("linux-64", "3.9")), true);
 });
 
 Deno.test("python_full_version is padded out", () => {
@@ -110,5 +139,80 @@ Deno.test("an unsupported marker variable throws rather than guessing", () => {
     () => evaluateMarker("platform_release > '5.0'", env()),
     Error,
     "unsupported marker variable",
+  );
+});
+
+Deno.test("an invariant-false marker is dropped", async () => {
+  // The apm case: upstream gates tomli behind a python this package never runs on.
+  assertEquals(
+    await runDeps(["click>=8", "tomli>=1.2.0; python_version<'3.11'"]),
+    ["click >=8"],
+  );
+});
+
+Deno.test("an invariant-true marker is kept", async () => {
+  assertEquals(
+    await runDeps(["click>=8; python_version>='3.9'"]),
+    ["click >=8"],
+  );
+});
+
+Deno.test("a marker with no python variable is unaffected by the range", async () => {
+  assertEquals(await runDeps(["click>=8; sys_platform=='linux'"]), ["click >=8"]);
+  assertEquals(await runDeps(["click>=8; sys_platform=='win32'"]), []);
+});
+
+Deno.test("a marker that varies across the python range throws", async () => {
+  for (const marker of ["python_version>='3.12'", "python_version<='3.11'", "python_version=='3.11'"]) {
+    await assertRejects(
+      () => runDeps([`click>=8; ${marker}`]),
+      Error,
+      "is not constant across python >=3.11",
+    );
+  }
+});
+
+Deno.test("the throw names both versions that disagree", async () => {
+  const err = await assertRejects(() => runDeps(["click>=8; python_version>='3.12'"]));
+  assertStringIncludes((err as Error).message, "true at 3.12, false at 3.11");
+  assertStringIncludes((err as Error).message, "extraRun");
+});
+
+Deno.test("a ceiling can make an otherwise varying marker invariant", async () => {
+  // Over [3.11, 3.14) `python_version < '3.14'` holds throughout, so it resolves cleanly.
+  assertEquals(
+    await runDeps(["click>=8; python_version<'3.14'"], { python: ">=3.11,<3.14" }),
+    ["click >=8"],
+  );
+});
+
+Deno.test("python_full_version boundaries are sampled at patch granularity", async () => {
+  assertEquals(await runDeps(["click>=8; python_full_version>='3.10.5'"]), ["click >=8"]);
+  await assertRejects(() => runDeps(["click>=8; python_full_version>='3.11.5'"]), Error, "not constant");
+});
+
+Deno.test("exclude wins over a marker that cannot be resolved", async () => {
+  assertEquals(
+    await runDeps(["click>=8; python_version>='3.12'"], { exclude: ["click"], extraRun: ["click >=8"] }),
+    ["click >=8"],
+  );
+});
+
+Deno.test("a platform marker resolves per platform for an arch recipe", async () => {
+  assertEquals(await runDeps(["colorama; sys_platform=='linux'"]), ["colorama"]);
+});
+
+Deno.test("a platform marker throws for a noarch recipe", async () => {
+  await assertRejects(
+    () => runDeps(["colorama; sys_platform=='win32'"], { noarch: "python" }),
+    Error,
+    "cannot carry a platform conditional dependency",
+  );
+});
+
+Deno.test("a python marker is still resolvable for a noarch recipe", async () => {
+  assertEquals(
+    await runDeps(["tomli>=1.2.0; python_version<'3.11'"], { noarch: "python" }),
+    [],
   );
 });
