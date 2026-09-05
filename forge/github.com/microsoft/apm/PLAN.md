@@ -58,12 +58,23 @@ of rotting between releases:
 - Environment markers are evaluated, so `tomli` — which upstream gates behind `python_version < '3.11'` — is correctly
   dropped.
 
-Two things the derivation cannot know are declared explicitly on the recipe:
+One thing the derivation cannot know is declared explicitly on the recipe: `python: ">=3.11"` overrides upstream's
+`requires-python`, because v0.29.0's metadata advertises Python 3.10 but the code imports `typing.Self`, which only
+lands in the stdlib at 3.11.
 
-- `python: ">=3.11"` overrides upstream's `requires-python`. v0.29.0's metadata advertises Python 3.10, but the code
-  imports `typing.Self`, which only lands in the stdlib at 3.11.
-- `extraRun: ["git"]` adds the Git executable. It is not a Python dependency, so it can never appear in
-  `pyproject.toml`, but APM initialises GitPython and performs Git-backed package resolution.
+The Git executable is deliberately **not** declared, even though APM shells out to it for package resolution. Upstream
+treats Git as a system prerequisite and so does this recipe:
+
+- Even the PyInstaller build resolves it with `shutil.which("git")`, and `utils/subprocess_env.py` strips the bundle's
+  own library paths so the child process gets the _system_ Git. Nothing about Git is bundled.
+- conda-forge's own `gitpython` package leaves the executable to the system, declaring only `gitdb` and
+  `typing_extensions`.
+- Declaring it would put conda-forge's Git on `PATH` ahead of the developer's own for anything running in the
+  environment. On Windows that is a different build to Git for Windows and may not find its credential helpers, which
+  would break the authenticated resolution paths APM uses.
+
+Without it, APM fails with a clear message naming Git and linking its download page — the same behaviour as upstream's
+own distribution. `apm --version` does not need Git, so the package tests are unaffected.
 
 The noarch artifact intentionally contains only APM's Python source, distribution metadata, and console entry point.
 Platform-specific dependencies such as PyYAML, watchdog, and websockets are selected by the solver for the environment's

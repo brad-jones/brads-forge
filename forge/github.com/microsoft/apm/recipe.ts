@@ -29,14 +29,21 @@ export default new r.Recipe({
   },
   // Derived from the tagged `pyproject.toml` so the dependency list tracks upstream
   // instead of drifting out of date between releases.
+  //
+  // NB: `git` is deliberately NOT declared, even though APM shells out to it. Upstream
+  // treats it as a system prerequisite & so should we: even the PyInstaller build looks it
+  // up with `shutil.which("git")` and strips the bundle's own library paths so the child
+  // process gets the system git. conda-forge's `gitpython` leaves the executable to the
+  // system for the same reason. Pulling conda-forge's git in would shadow the developer's
+  // own install for anything running in the environment - and on windows that is a
+  // different build to Git for Windows, which may not find its credential helpers. Without
+  // it APM fails with a clear message naming git & linking its download page, exactly as
+  // upstream's own distribution does.
   requirements: r.pyprojectRequirements({
     url: (tag) => `https://raw.githubusercontent.com/${owner}/${repo}/refs/tags/${tag}/pyproject.toml`,
     // v0.29.0's metadata advertises python 3.10, but the code imports `typing.Self`
     // which only lands in the stdlib at 3.11.
     python: ">=3.11",
-    // Not a python dependency, so it can never appear in `pyproject.toml`: APM
-    // initialises GitPython & resolves packages through git.
-    extraRun: ["git"],
   }),
   build: {
     number: 1,
