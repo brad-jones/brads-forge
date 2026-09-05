@@ -87,7 +87,12 @@ export class Recipe {
         const buildOs = buildParts[0];
         const buildArch = buildParts[1];
 
-        const targetParts = targetPlatform.split("-");
+        // rattler-build reports `target_platform` as `noarch` for a noarch package, which is not
+        // an `{os}-{arch}` pair & so cannot be split into one. The script still runs on a
+        // concrete machine though, and for a noarch package that machine is the only platform
+        // that means anything to it, so fall back to the platform doing the building.
+        const target = targetPlatform === "noarch" ? buildPlatform : targetPlatform;
+        const targetParts = target.split("-");
         const targetOs = targetParts[0];
         const targetArch = targetParts[1];
 
@@ -100,7 +105,7 @@ export class Recipe {
           buildPlatform,
           buildOs,
           buildArch,
-          targetPlatform,
+          targetPlatform: target,
           targetOs,
           targetArch,
           pkgVersionRaw,
