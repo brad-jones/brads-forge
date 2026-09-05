@@ -48,6 +48,14 @@ export default new r.Recipe({
   build: {
     number: 1,
     noarch: "python",
+    // `pip install` bakes the *build* environment's absolute interpreter path into the
+    // Windows console-script launcher it generates for `apm.exe`, which breaks the moment
+    // the build prefix is torn down. Declaring the entry point here instead tells
+    // rattler-build to generate its own launcher (relative to the install prefix), so it
+    // keeps working in the run/test environment.
+    python: {
+      entry_points: ["apm = apm_cli.cli:main"],
+    },
     func: async ({ prefixDir, srcDir }) => {
       // `--no-deps` because every runtime dependency is declared through conda above,
       // `--no-build-isolation` because setuptools & wheel come from the host requirements
