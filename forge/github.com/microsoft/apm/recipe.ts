@@ -20,8 +20,13 @@ export default new r.Recipe({
       .text(),
     license: "MIT",
   },
+  requirements: (ctx) => ({
+    // Upstream builds the Linux PyInstaller bundle on Ubuntu 24.04. Its bundled
+    // libpython imports symbols versioned GLIBC_2.38, so reject older hosts at solve time.
+    run: ctx.targetOs === "linux" ? ["__glibc >=2.38,<3.0.a0"] : [],
+  }),
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
     },

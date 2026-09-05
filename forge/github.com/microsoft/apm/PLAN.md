@@ -38,8 +38,8 @@ function is needed** — just supply `osMap`/`archMap`:
 
 ```typescript
 sources: r.githubReleaseAssets({
-  owner: "microsoft",
-  repo: "apm",
+  owner,
+  repo,
   osMap: { "osx": "darwin", "win": "windows" },
   archMap: { "64": "x86_64", "aarch64": "arm64" },
 });
@@ -87,7 +87,7 @@ activation scripts on Windows (see `lib/activation/mod.ts`). This is the same he
 
 ```typescript
 build: {
-  number: 0,
+  number: 1,
   dynamic_linking: { binary_relocation: false },
   func: async ({ prefixDir, exe, unix }) => {
     const extractedDir = await r.expandGlobFirst("./apm-*", { breakOnDirOrFile: "dir" });
@@ -149,7 +149,23 @@ Inferred automatically from the source assets (no explicit `platforms` field nee
 
 ## 7. Runtime Dependencies
 
-None — the PyInstaller bundle is self-contained (includes its own CPython runtime). No `requirements` field needed.
+The macOS and Windows bundles are self-contained. The upstream Linux PyInstaller bundles include CPython, but CPython
+still dynamically links against the host C library. APM's v0.29.0 bundle was built on Ubuntu 24.04 and its bundled
+`libpython3.12.so.1.0` imports `GLIBC_2.38` symbols (`fmod`, `__isoc23_strtol`, `__isoc23_strtoul`, and
+`__isoc23_wcstol`). Declare that floor as a Linux-only virtual package dependency:
+
+```typescript
+requirements: (ctx) => ({
+  run: ctx.targetOs === "linux" ? ["__glibc >=2.38,<3.0.a0"] : [],
+}),
+```
+
+Pixi/conda obtain `__glibc` from the host; this requirement does not install or replace glibc. In particular,
+`sysroot_linux-64` is a compiler sysroot rather than a supported runtime libc replacement. Hosts older than glibc 2.38
+must use a newer execution image or an upstream APM artifact built against an older baseline.
+
+When publishing this corrected build, remove or repodata-patch the previous build of the same APM version. Otherwise a
+solver on an older host can fall back to the unconstrained build and reproduce the runtime failure.
 
 ## 8. Verification Steps
 
@@ -158,5 +174,5 @@ task generate RECIPE=forge/github.com/microsoft/apm/recipe.ts
 task dryrun RECIPE=forge/github.com/microsoft/apm/recipe.ts
 ```
 
-Check the generated YAML under `forge/github.com/microsoft/apm/generated/` for correctness (per-platform sources,
-checksum, build script) before running the dry-run build/test.
+Check the generated Linux recipes contain `__glibc >=2.38,<3.0.a0`, while macOS and Windows recipes have no glibc
+requirement. The Linux dry-run must run on a host with glibc 2.38 or newer.
