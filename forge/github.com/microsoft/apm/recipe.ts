@@ -59,7 +59,9 @@ export default new r.Recipe({
         await r.expandGlobFirst(r.path.join(srcDir, "*", "pyproject.toml"));
       if (!pyproject) throw new Error(`failed to locate pyproject.toml under ${srcDir}`);
 
-      await r.$`python -m pip install ${r.path.dirname(pyproject)} --no-deps --no-build-isolation --prefix ${prefixDir}`;
+      await r.$`python -m pip install ${
+        r.path.dirname(pyproject)
+      } --no-deps --no-build-isolation --prefix ${prefixDir}`;
     },
   },
   tests: {
