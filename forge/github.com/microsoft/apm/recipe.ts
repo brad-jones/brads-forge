@@ -51,9 +51,6 @@ export default new r.Recipe({
   build: {
     number: 1,
     noarch: "python",
-    python: {
-      entry_points: ["apm = apm_cli.cli:main"],
-    },
     func: async ({ prefixDir, srcDir }) => {
       const pyproject = await r.expandGlobFirst(r.path.join(srcDir, "pyproject.toml")) ??
         await r.expandGlobFirst(r.path.join(srcDir, "*", "pyproject.toml"));
