@@ -32,19 +32,48 @@ interface BuildOptions {
   packageKind: PackageKind;
 }
 
+/** Imports & caches a recipe module, so repeated builds of it do not re-import. */
+async function loadRecipe(recipePath: string): Promise<Recipe> {
+  if (!recipeModules[recipePath]) {
+    const v = (await import(path.toFileUrl(recipePath).toString()))["default"];
+    if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export: ${recipePath}`);
+    recipeModules[recipePath] = v;
+  }
+  return recipeModules[recipePath];
+}
+
+/**
+ * Narrows the requested target platforms down to those a recipe actually needs building for.
+ *
+ * A noarch package is a single artifact for every platform it supports, so building it more
+ * than once only ever produces the same file again. Which platform does the building is
+ * likewise irrelevant, so callers that just want the artifact - `publish-noarch` - do not
+ * have to name one. The build still has to happen somewhere though, so prefer the platform
+ * we are running on & fall back to the first requested one the recipe supports.
+ */
+async function resolveTargetPlatforms(recipePath: string, requested: Platform[]): Promise<Platform[]> {
+  try {
+    const r = await loadRecipe(recipePath);
+    if (!r.props.build.noarch) return requested;
+    const supported = await r.getPlatforms();
+    const buildable = requested.filter((_) => supported.includes(_));
+    // Nothing buildable, hand back a single platform so `buildRecipe` reports the lack of
+    // platform support once instead of once per requested platform.
+    if (buildable.length === 0) return requested.slice(0, 1);
+    return [buildable.includes(currentPlatform) ? currentPlatform : buildable[0]];
+  } catch (_) {
+    // Leave it to `buildRecipe` to surface & report the failure, as it always has.
+    return requested;
+  }
+}
+
 async function buildRecipe(
   { prefix, recipePath, targetPlatform, channel, build, upload, packageKind }: BuildOptions,
 ) {
   // Can not upload if we are not building
   upload = build ? upload : false;
 
-  // Import the recipe module
-  if (!recipeModules[recipePath]) {
-    const v = (await import(path.toFileUrl(recipePath).toString()))["default"];
-    if (!(v instanceof Recipe)) throw new Error(`unexpected recipe export: ${recipePath}`);
-    recipeModules[recipePath] = v;
-  }
-  const r = recipeModules[recipePath];
+  const r = await loadRecipe(recipePath);
   const packagePlatform: Platform | "noarch" = r.props.build.noarch ? "noarch" : targetPlatform;
 
   // Select the latest version number
@@ -196,7 +225,7 @@ await new Command()
     const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
     if (recipePath) {
       recipePath = await Deno.realPath(recipePath);
-      for (const targetPlatform of platforms) {
+      for (const targetPlatform of await resolveTargetPlatforms(recipePath, platforms)) {
         await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir, packageKind });
       }
     } else {
@@ -210,7 +239,7 @@ await new Command()
         })
       ) {
         const recipePath = item.path;
-        for (const targetPlatform of platforms) {
+        for (const targetPlatform of await resolveTargetPlatforms(recipePath, platforms)) {
           console.log(
             `::group::${
               path.dirname(recipePath).replaceAll("\\", "/")
