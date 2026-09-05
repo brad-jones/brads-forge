@@ -52,4 +52,57 @@ jobs:
           activate-environment: true
 
       - name: 🧑‍🍳 Build & Publish Recipes
-        run: task build -- --target-platforms ${{ join(matrix.targets, ' ') }}
+        run: task build -- --package-kind arch --target-platforms ${{ join(matrix.targets, ' ') }}
+
+  # A noarch package only needs publishing once, but that shortcut would leave it never
+  # built or tested anywhere but the publishing machine. So it gets its own pipeline: build
+  # & test on every platform it claims to support, then publish a single artifact.
+  test-noarch:
+    needs: clean
+    name: noarch-${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: linux-64, os: ubuntu-latest }
+          - { target: linux-aarch64, os: ubuntu-24.04-arm }
+          - { target: win-64, os: windows-latest }
+          - { target: osx-64, os: macos-15-intel }
+          - { target: osx-arm64, os: macos-latest }
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: v0.79.0
+          activate-environment: true
+
+      - name: 🧪 Build & Test Noarch Recipes
+        run: task build -- --package-kind noarch --no-upload --target-platforms ${{ matrix.target }}
+
+  publish-noarch:
+    needs: test-noarch
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PREFIX_TOKEN: ${{ secrets.PREFIX_TOKEN }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: v0.79.0
+          activate-environment: true
+
+      - name: 🧑‍🍳 Build & Publish Noarch Recipes
+        run: task build -- --package-kind noarch --target-platforms linux-64
