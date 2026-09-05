@@ -14,7 +14,11 @@ export default new r.Recipe({
       target_directory: "source",
     };
   },
-  platforms: ["linux-64"],
+  // A single noarch artifact serves every one of these, but we still build & test
+  // the recipe on each so a platform specific packaging bug can't slip through.
+  // `getPlatforms()` can only infer platforms from platform mapped sources, and
+  // this recipe has just the one source archive, so they're listed explicitly.
+  platforms: ["linux-64", "linux-aarch64", "win-64", "osx-64", "osx-arm64"],
   about: {
     homepage: "https://microsoft.github.io/apm/",
     repository: `https://github.com/${owner}/${repo}`,
@@ -23,40 +27,25 @@ export default new r.Recipe({
       .text(),
     license: "MIT",
   },
-  requirements: {
-    host: [
-      "python 3.12.*",
-      "pip",
-      "setuptools >=42",
-      "wheel",
-    ],
-    run: [
-      "python >=3.11",
-      "click >=8",
-      "colorama >=0.4.6",
-      "pyyaml >=6",
-      "requests >=2.31",
-      "truststore >=0.10",
-      "python-frontmatter >=1",
-      "llm >=0.28",
-      "llm-github-models >=0.18",
-      "tomli >=1.2",
-      "toml >=0.10.2",
-      "tomlkit >=0.13",
-      "rich >=13",
-      "rich-click >=1.7",
-      "watchdog >=3",
-      "gitpython >=3.1",
-      "git",
-      "ruamel.yaml >=0.18",
-      "filelock >=3.12",
-      "websockets >=12,<17",
-    ],
-  },
+  // Derived from the tagged `pyproject.toml` so the dependency list tracks upstream
+  // instead of drifting out of date between releases.
+  requirements: r.pyprojectRequirements({
+    url: (tag) => `https://raw.githubusercontent.com/${owner}/${repo}/refs/tags/${tag}/pyproject.toml`,
+    // v0.29.0's metadata advertises python 3.10, but the code imports `typing.Self`
+    // which only lands in the stdlib at 3.11.
+    python: ">=3.11",
+    // Not a python dependency, so it can never appear in `pyproject.toml`: APM
+    // initialises GitPython & resolves packages through git.
+    extraRun: ["git"],
+  }),
   build: {
     number: 1,
     noarch: "python",
-    script: "python -m pip install ./source --no-deps --no-build-isolation --prefix $PREFIX",
+    // No `--prefix`: `python` here comes from the host requirements and already
+    // points at $PREFIX, so pip installs to the right place. Spelling out the
+    // prefix would need `$PREFIX` on unix & `%PREFIX%` on windows, and this recipe
+    // is built on both.
+    script: "python -m pip install ./source --no-deps --no-build-isolation",
   },
   tests: [
     {
