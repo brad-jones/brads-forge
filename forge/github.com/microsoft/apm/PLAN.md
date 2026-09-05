@@ -3,160 +3,68 @@
 > Reference: `xcaf/skills/forge-recipe/forge-recipe.xcaf` for general guidance on the recipe DSL and available library
 > helpers (`lib/mod.ts`).
 
-## 1. Package Summary
+## Package Summary
 
 - **Name:** `apm`
 - **Upstream:** https://github.com/microsoft/apm
 - **Homepage:** https://microsoft.github.io/apm/
-- **What it does:** "Agent Package Manager" — a CLI from Microsoft for managing AI agent packages.
-- **License:** MIT (confirmed via GitHub API `license.spdx_id`)
+- **License:** MIT
+- **Package type:** noarch Python package
 
-## 2. Version Source
+## Rationale
 
-Releases are tagged as plain semver with a `v` prefix (e.g. `v0.28.0`, `v0.27.0`, `v0.26.0` ...). No pre-release/RC tags
-observed in the last 15 tags. Use the standard helper with no custom filter:
+Upstream's Linux PyInstaller bundle embeds a CPython runtime built on Ubuntu 24.04. Its `libpython3.12.so.1.0` requires
+glibc 2.38, so the package fails before startup on older supported hosts such as the glibc 2.28 GitHub Copilot runner.
 
-```typescript
-version: r.latestGithubTag({ owner: "microsoft", repo: "apm" });
-```
+Package the standard Python distribution instead. This delegates native compatibility to conda-forge's Python and
+dependency packages, whose virtual-package requirements are visible to the solver. The APM package itself contains no
+ELF files and therefore needs no glibc constraint.
 
-## 3. Source Assets
+## Source
 
-Latest release (`v0.28.0`) publishes exactly these assets (verified via GitHub API):
-
-```
-apm-darwin-arm64.tar.gz        (+ .sha256 sidecar)
-apm-darwin-x86_64.tar.gz       (+ .sha256 sidecar)
-apm-linux-arm64.tar.gz         (+ .sha256 sidecar)
-apm-linux-x86_64.tar.gz        (+ .sha256 sidecar)
-apm-windows-x86_64.zip         (+ .sha256 sidecar)
-```
-
-Naming pattern: `apm-<os>-<arch>.<ext>` where `<os>` is `darwin`/`linux`/`windows` and `<arch>` is `arm64`/`x86_64`.
-This matches the library's default asset-matching logic (substring search per pixi platform), so **no custom `fileName`
-function is needed** — just supply `osMap`/`archMap`:
+Use the immutable source archive for the selected release tag and calculate its SHA-256 during recipe generation:
 
 ```typescript
-sources: r.githubReleaseAssets({
-  owner: "microsoft",
-  repo: "apm",
-  osMap: { "osx": "darwin", "win": "windows" },
-  archMap: { "64": "x86_64", "aarch64": "arm64" },
-});
+const url = `https://github.com/${owner}/${repo}/archive/refs/tags/${tag}.tar.gz`;
+return { url, sha256: await r.digestFromUrl(url), target_directory: "source" };
 ```
 
-Notes on arch mapping: the raw pixi arch tokens are `64`, `arm64` (used for `osx-arm64`/`win-arm64`), and `aarch64`
-(used for `linux-aarch64`). Asset names always use literal `arm64` regardless of OS, so:
+## Build
 
-- pixi `aarch64` (linux) → must map to `"arm64"` explicitly (asset name has no `aarch64` substring).
-- pixi `arm64` (osx/win) → matches the literal substring `"arm64"` in the asset name by default; no map entry strictly
-  required, but harmless/clearer to be consistent.
-- pixi `64` → must map to `"x86_64"` (not a bare `"64"`) to avoid accidentally matching the `arm64` asset, since
-  `"arm64"` also contains the substring `"64"`.
+Build once on Linux with Python 3.12, pip, setuptools, and wheel. Install upstream's package without resolving PyPI
+dependencies because all runtime dependencies are declared through conda:
 
-**Checksums:** GitHub's API returns a `digest` field (`sha256:<hex>`) directly on every release asset already, so
-`r.githubReleaseAssets` resolves the sha256 straight from the API metadata — the `.sha256` sidecar files are not needed
-and no `checksumExtractor` is required.
-
-## 4. Build Steps
-
-**Important:** the archives are **PyInstaller "onedir" bundles**, not a single static binary. Each archive's top-level
-folder (`apm-<os>-<arch>/`) contains:
-
-```
-apm-linux-x86_64/
-  apm                 <- the executable
-  _internal/          <- bundled CPython runtime + all Python deps (required at runtime)
-    libpython3.12.so.1.0
-    apm_cli/...
-    ...
+```yaml
+build:
+  noarch: python
+  script: python -m pip install ./source --no-deps --no-build-isolation --prefix $PREFIX
 ```
 
-(Windows equivalent: `apm.exe` + `_internal/`.)
+Pip creates the `apm = apm_cli.cli:main` console entry point. Rattler relocates it into the noarch `python-scripts`
+layout and installs it appropriately for each target platform.
 
-The executable resolves `_internal` **relative to its own location**, so both must be moved together into the same
-destination directory, preserving the `_internal` subdirectory structure intact (do **not** flatten — `_internal`
-contains many same-named files across subpackages that would collide if flattened, e.g. via `r.walk` +
-flatten-to-single-dir like the `pulumi` recipe does).
+## Runtime Dependencies
 
-**Chosen approach (per user preference):** install the whole bundle intact under `$PREFIX/libexec/apm/` (i.e.
-`$PREFIX/libexec/apm/apm` + `$PREFIX/libexec/apm/_internal/`), keeping `$PREFIX/bin/` clean, then expose the command on
-`PATH` via `r.activation.addLink()` — a real symlink on Unix, and a hardlink created via generated `.bat`/`.ps1`
-activation scripts on Windows (see `lib/activation/mod.ts`). This is the same helper already used by e.g.
-`forge/github.com/ahmetb/kubectx/recipe.ts` to expose alias commands.
+Mirror the direct dependencies from upstream's `pyproject.toml` using conda-forge package names. The package declares
+Python 3.11 or newer: although v0.29.0's upstream metadata says Python 3.10, the code imports `typing.Self`, which is
+only available in the standard library from Python 3.11.
 
-```typescript
-build: {
-  number: 0,
-  dynamic_linking: { binary_relocation: false },
-  func: async ({ prefixDir, exe, unix }) => {
-    const extractedDir = await r.expandGlobFirst("./apm-*", { breakOnDirOrFile: "dir" });
-    if (!extractedDir) throw new Error(`extractedDir undefined`);
-    const libexecDir = r.path.join(prefixDir, "libexec", "apm");
-    await r.move(extractedDir, libexecDir);
-    const bin = r.path.join(libexecDir, exe("apm"));
-    if (unix) await Deno.chmod(bin, 0o755);
-    await r.activation.addLink(bin, r.path.join(prefixDir, "bin", exe("apm")));
-  },
-}
-```
+The noarch artifact intentionally contains only APM's Python source, distribution metadata, and console entry point.
+Platform-specific dependencies such as PyYAML, watchdog, and websockets are selected by the solver for the environment's
+platform and Python version.
 
-Notes:
+## Forge Support
 
-- `r.move(src, dest)` (wrapping `@std/fs.move`, via `lib/fs.ts`) renames the whole extracted directory into place in one
-  step — it handles directories recursively, unlike `r.moveGlob`, which only ever moves individual files matched by a
-  glob (directory entries are explicitly skipped in its implementation), so it cannot be used to relocate `_internal` as
-  a unit.
-- `dynamic_linking.binary_relocation: false` is set as usual for prebuilt binaries — important here since the bundle
-  ships its own `libpython*.so`.
-- `r.activation.addLink` only takes effect once the environment is activated (it writes activation/deactivation scripts,
-  or a direct symlink on Unix at build time) — this matches the existing `kubectx`/`kubectl-ctx` pattern and is
-  exercised the same way by `rattler-build`'s test phase (which activates the environment first).
+Noarch artifacts are written to `output/noarch`, regardless of the concrete build runner. The forge's publication path
+and Prefix variant lookup therefore use the recipe's package platform (`noarch`) rather than its build platform
+(`linux-64`). The recipe declares only `linux-64` as a builder so the matrix publishes the package once.
 
-## 5. Test Strategy
-
-Running `apm --version` (or `apm.exe --version` on Windows, handled transparently by `r.$`) prints:
-
-```
-Agent Package Manager (APM) CLI version 0.28.0 (e041462)
-```
-
-Extract the semver token and compare against `pkgVersion`:
-
-```typescript
-tests: {
-  func: async ({ pkgVersion }) => {
-    const output = await r.$`apm --version`.text();
-    const version = output.match(/version ([\d.]+)/)?.[1];
-    if (!version || r.coerceSemVer(version) !== pkgVersion) {
-      throw new Error(`unexpected version returned from binary`);
-    }
-  },
-}
-```
-
-## 6. Supported Platforms
-
-Inferred automatically from the source assets (no explicit `platforms` field needed):
-
-- `linux-64`
-- `linux-aarch64`
-- `osx-64`
-- `osx-arm64`
-- `win-64`
-
-(No `win-arm64` asset is currently published upstream.)
-
-## 7. Runtime Dependencies
-
-None — the PyInstaller bundle is self-contained (includes its own CPython runtime). No `requirements` field needed.
-
-## 8. Verification Steps
+## Verification
 
 ```bash
-task generate RECIPE=forge/github.com/microsoft/apm/recipe.ts
 task dryrun RECIPE=forge/github.com/microsoft/apm/recipe.ts
 ```
 
-Check the generated YAML under `forge/github.com/microsoft/apm/generated/` for correctness (per-platform sources,
-checksum, build script) before running the dry-run build/test.
+The package tests run `apm --version` and import the console entry point in separate Python 3.11 and Python 3.14
+environments. The v0.29.0 dry-run produced `output/noarch/apm-0.29.0-pyh4616a5c_1.conda`, passed both test environments,
+and contained zero ELF files.
