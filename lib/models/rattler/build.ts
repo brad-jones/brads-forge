@@ -91,8 +91,11 @@ export const Build = z.object({
     site_packages_path: z.string().optional(),
 
     entry_points: z.union([z.string(), z.array(z.string())]).optional(),
-    preserve_egg_dir: z.boolean().default(false),
-    disable_pip: z.boolean().default(false),
+
+    /**
+     * Option to specify whether a package is version independent (aka ABI3).
+     */
+    version_independent: z.boolean().optional(),
   }).optional(),
 
   /**
