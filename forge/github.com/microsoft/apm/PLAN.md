@@ -32,20 +32,24 @@ return { url, sha256: await r.digestFromUrl(url), target_directory: "source" };
 ## Build
 
 Install upstream's package without resolving PyPI dependencies, because all runtime dependencies are declared through
-conda:
+conda. Like every other recipe in this forge the build is a `build.func` rather than a shell script, so there is one
+implementation for all five platforms instead of a string that has to be valid in both `bash` and `cmd.exe`:
 
-```yaml
-build:
-  noarch: python
-  script: python -m pip install ./source --no-deps --no-build-isolation
+```typescript
+func: async ({ prefixDir, srcDir }) => {
+  await r.$`python -m pip install ${r.path.join(srcDir, "source")} --no-deps --no-build-isolation --prefix ${prefixDir}`;
+},
 ```
 
-No `--prefix` is passed. `python` here comes from the host requirements and already points at `$PREFIX`, so pip installs
-to the right place; spelling the prefix out would need `$PREFIX` on unix and `%PREFIX%` on Windows, and this recipe is
-built on both.
+`--no-deps` because every runtime dependency is declared through conda, and `--no-build-isolation` because setuptools
+and wheel come from the host requirements rather than being fetched from PyPI.
 
 Pip creates the `apm = apm_cli.cli:main` console entry point. Rattler relocates it into the noarch `python-scripts`
 layout and installs it appropriately for each target platform.
+
+Using a func means the recipe is executed inside rattler-build's isolated environment, so `deno` is added to
+`requirements.build` automatically. It is available for all five platforms from this forge's own `deno` recipe. A build
+requirement does not reach the package, so the artifact stays platform independent.
 
 ## Requirements
 
@@ -113,6 +117,15 @@ task generate RECIPE=forge/github.com/microsoft/apm/recipe.ts
 task dryrun RECIPE=forge/github.com/microsoft/apm/recipe.ts
 ```
 
-The package tests run `apm --version` and import the console entry point in separate Python 3.11 and Python 3.14
-environments. The v0.29.0 dry-run produced `output/noarch/apm-0.29.0-pyh4616a5c_1.conda`, passed both test environments,
-and contained zero ELF files.
+The package test is a `tests.func`, matching the build. It asserts `apm --version` reports the version being packaged
+and that the `apm_cli.cli:main` console entry point imports and is callable — the entry point being the whole reason
+this package exists.
+
+It runs in a single environment pinned to `python 3.11.*`, the floor the package declares. `tests` is either one
+`FuncTest` or an array of script tests, never several funcs, so moving to a func collapsed the earlier Python 3.11 and
+Python 3.14 environments into one. The floor is the more useful of the two to keep: `run: python >=3.11` already stops
+the solver installing this on anything older, and 3.11 is where a `typing.Self`-class regression would surface. To test
+several Python versions again, `lib/models/test.ts` would need to accept an array of `FuncTest`s, with a `--test-index`
+threaded through `Recipe.#executeCmd` and `#mapTests`.
+
+The v0.29.0 dry-run produced `output/noarch/apm-0.29.0-pyh4616a5c_1.conda` and contained zero ELF files.
