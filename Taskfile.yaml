@@ -43,6 +43,11 @@ tasks:
     cmds:
       - dprint fmt
 
+  test:
+    desc: Runs the unit tests for our supporting deno libraries.
+    cmds:
+      - deno test -A
+
   build:
     desc: Main entry point for building the forge package.
     cmds:
