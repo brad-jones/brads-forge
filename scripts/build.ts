@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run -qA --ext=ts
-import { Command } from "@cliffy/command";
+import { Command, EnumType } from "@cliffy/command";
 import { outdent } from "@cspotcode/outdent";
 import { $ } from "@david/dax";
 import { load } from "@std/dotenv";
@@ -18,6 +18,9 @@ const recipeModules: Record<string, Recipe> = {};
 // import map & jsr/npm bare specifiers even when its CWD is rattler-build's isolated work dir.
 const denoConfigPath = fs.toPathString(import.meta.resolve("../deno.json")).replaceAll("\\", "/");
 
+type PackageKind = "arch" | "noarch" | "all";
+const packageKindType = new EnumType<PackageKind>(["arch", "noarch", "all"]);
+
 interface BuildOptions {
   prefix: PrefixClient;
   recipePath: string;
@@ -26,9 +29,12 @@ interface BuildOptions {
   upload: boolean;
   build: boolean;
   forgeDir: string;
+  packageKind: PackageKind;
 }
 
-async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build, upload }: BuildOptions) {
+async function buildRecipe(
+  { prefix, recipePath, targetPlatform, channel, build, upload, packageKind }: BuildOptions,
+) {
   // Can not upload if we are not building
   upload = build ? upload : false;
 
@@ -56,6 +62,24 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
       await Deno.writeTextFile(
         ghaSummary,
         `- :no_entry: \`${targetPlatform}/${r.props.name}\`: **skipped** _(no platform support)_\n`,
+        { append: true },
+      );
+    }
+    return;
+  }
+
+  // Bail out if the recipe belongs to the other pipeline. A noarch package only needs
+  // publishing once, but is still built & tested on every platform it supports, so it runs
+  // through its own CI pipeline. Selecting a kind keeps the two pipelines from both
+  // publishing the same package.
+  const recipeKind: PackageKind = packagePlatform === "noarch" ? "noarch" : "arch";
+  if (packageKind !== "all" && packageKind !== recipeKind) {
+    console.log(`Skipping, only building ${packageKind} recipes`);
+    const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
+    if (ghaSummary) {
+      await Deno.writeTextFile(
+        ghaSummary,
+        `- :no_entry: \`${targetPlatform}/${r.props.name}\`: **skipped** _(${packageKind} recipes only)_\n`,
         { append: true },
       );
     }
@@ -151,7 +175,11 @@ async function buildRecipe({ prefix, recipePath, targetPlatform, channel, build,
 await new Command()
   .name("build")
   .description("Builds all recipes")
+  .type("packageKind", packageKindType)
   .option("-r, --recipe-path <recipePath:string>", "Specfic recipe to build")
+  .option("--package-kind <packageKind:packageKind>", "Kind of recipes to build.", {
+    default: "all" as PackageKind,
+  })
   .option("--channel <channel:string>", "Channel name", {
     default: "brads-forge",
   })
@@ -163,13 +191,13 @@ await new Command()
   })
   .option("--no-build", "Skip the rattler-build, just generate the YAML recipe.")
   .option("--no-upload", "Skip upload to prefix.dev, just do the build locally.")
-  .action(async ({ recipePath, forgeDir, targetPlatforms, channel, upload, build }) => {
+  .action(async ({ recipePath, forgeDir, targetPlatforms, channel, upload, build, packageKind }) => {
     const prefix = new PrefixClient();
     const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
     if (recipePath) {
       recipePath = await Deno.realPath(recipePath);
       for (const targetPlatform of platforms) {
-        await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+        await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir, packageKind });
       }
     } else {
       // Recipes may live at any depth under `forge/`, eg: `<domain>/<owner>/<repo>/recipe.ts` or
@@ -190,7 +218,16 @@ await new Command()
             }-${targetPlatform}`,
           );
           try {
-            await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+            await buildRecipe({
+              prefix,
+              channel,
+              build,
+              upload,
+              recipePath,
+              targetPlatform,
+              forgeDir,
+              packageKind,
+            });
           } catch (e) {
             console.log(`::error title=${recipePath}::recipe failed to cook`);
             console.warn(e);
