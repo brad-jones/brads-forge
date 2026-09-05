@@ -39,7 +39,9 @@ async function assertPortableGlibc(bundleDir: string): Promise<void> {
 
   if (compareVersion(highestVersion, maxPortableGlibc) > 0) {
     throw new Error(
-      `${highestVersionFile} requires GLIBC_${highestVersion.join(".")}; expected at most GLIBC_${maxPortableGlibc.join(".")}`,
+      `${highestVersionFile} requires GLIBC_${highestVersion.join(".")}; expected at most GLIBC_${
+        maxPortableGlibc.join(".")
+      }`,
     );
   }
 }
