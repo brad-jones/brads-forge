@@ -48,30 +48,31 @@ export default new r.Recipe({
   build: {
     number: 1,
     noarch: "python",
-    // No `--prefix`: `python` here comes from the host requirements and already
-    // points at $PREFIX, so pip installs to the right place. Spelling out the
-    // prefix would need `$PREFIX` on unix & `%PREFIX%` on windows, and this recipe
-    // is built on both.
-    script: "python -m pip install ./source --no-deps --no-build-isolation",
+    func: async ({ prefixDir, srcDir }) => {
+      // `--no-deps` because every runtime dependency is declared through conda above,
+      // `--no-build-isolation` because setuptools & wheel come from the host requirements
+      // rather than being fetched from PyPI.
+      await r.$`python -m pip install ${
+        r.path.join(srcDir, "source")
+      } --no-deps --no-build-isolation --prefix ${prefixDir}`;
+    },
   },
-  tests: [
-    {
-      script: [
-        "apm --version",
-        'python -c "from apm_cli.cli import main; assert callable(main)"',
-      ],
-      requirements: {
-        run: ["python 3.11.*"],
-      },
+  tests: {
+    func: async ({ pkgVersion }) => {
+      // Substring rather than `coerceSemVer`, because rich prints the version inside a
+      // sentence & may wrap it in ANSI codes, whose numbers coerce would happily parse.
+      const version = await r.$`apm --version`.text();
+      if (!version.includes(pkgVersion)) {
+        throw new Error(`unexpected version returned from binary: ${version}`);
+      }
+      // The console entry point is the whole reason this package exists, so check that
+      // pip wrote it & that it imports, not just that the module is on disk.
+      await r.$`python -c ${"from apm_cli.cli import main; assert callable(main)"}`;
     },
-    {
-      script: [
-        "apm --version",
-        'python -c "from apm_cli.cli import main; assert callable(main)"',
-      ],
-      requirements: {
-        run: ["python 3.14.*"],
-      },
+    // Pinned to the floor the package declares: `run` already stops the solver installing
+    // this on anything older, so 3.11 is the version most likely to break.
+    requirements: {
+      run: ["python 3.11.*"],
     },
-  ],
+  },
 });
