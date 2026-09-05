@@ -8,7 +8,11 @@ export default new r.Recipe({
   version: r.latestGithubTag({ owner, repo }),
   sources: async (tag) => {
     const url = `https://github.com/${owner}/${repo}/archive/refs/tags/${tag}.tar.gz`;
-    return { url, sha256: await r.digestFromUrl(url) };
+    return {
+      url,
+      sha256: await r.digestFromUrl(url),
+      target_directory: "source",
+    };
   },
   platforms: ["linux-64"],
   about: {
@@ -51,25 +55,14 @@ export default new r.Recipe({
   build: {
     number: 1,
     noarch: "python",
-    func: async ({ prefixDir, srcDir }) => {
-      const pyproject = await r.expandGlobFirst(r.path.join(srcDir, "pyproject.toml")) ??
-        await r.expandGlobFirst(r.path.join(srcDir, "*", "pyproject.toml"));
-      if (!pyproject) throw new Error(`failed to locate pyproject.toml under ${srcDir}`);
-
-      await r.$`python -m pip install ${
-        r.path.dirname(pyproject)
-      } --no-deps --no-build-isolation --prefix ${prefixDir}`;
-    },
+    script: "python -m pip install ./source --no-deps --no-build-isolation --prefix $PREFIX",
   },
-  tests: {
-    func: async ({ pkgVersion }) => {
-      const output = await r.$`apm --version`.text();
-      const version = output.match(/version ([\d.]+)/)?.[1];
-      if (!version || r.coerceSemVer(version) !== pkgVersion) {
-        throw new Error(`unexpected version returned from package`);
-      }
-
-      await r.$`python -c ${"from apm_cli.cli import main; assert callable(main)"}`;
+  tests: [
+    {
+      script: [
+        "apm --version",
+        'python -c "from apm_cli.cli import main; assert callable(main)"',
+      ],
     },
-  },
+  ],
 });
