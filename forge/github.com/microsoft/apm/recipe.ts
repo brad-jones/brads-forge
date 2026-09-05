@@ -90,12 +90,14 @@ export default new r.Recipe({
     dynamic_linking: {
       binary_relocation: false,
     },
-    func: async ({ prefixDir, exe, targetPlatform, unix }) => {
+    func: async ({ prefixDir, srcDir, exe, targetPlatform, unix }) => {
       let extractedDir: string | undefined;
       if (targetPlatform === "linux-64") {
-        await r.$`uv sync --frozen --extra build --python python`;
-        await r.$`./scripts/build-binary.sh`;
-        extractedDir = await r.expandGlobFirst("./dist/apm-linux-*", { breakOnDirOrFile: "dir" });
+        await r.$`uv sync --frozen --extra build --python python`.cwd(srcDir);
+        await r.$`./scripts/build-binary.sh`.cwd(srcDir);
+        extractedDir = await r.expandGlobFirst(r.path.join(srcDir, "dist", "apm-linux-*"), {
+          breakOnDirOrFile: "dir",
+        });
         if (extractedDir) await assertPortableGlibc(extractedDir);
       } else {
         extractedDir = await r.expandGlobFirst("./apm-*", { breakOnDirOrFile: "dir" });
