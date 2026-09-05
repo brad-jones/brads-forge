@@ -46,7 +46,7 @@ export default new r.Recipe({
     python: ">=3.11",
   }),
   build: {
-    number: 1,
+    number: 2,
     noarch: "python",
     // `pip install` bakes the *build* environment's absolute interpreter path into the
     // Windows console-script launcher it generates for `apm.exe`, which breaks the moment
