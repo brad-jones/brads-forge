@@ -58,11 +58,10 @@ export default new r.Recipe({
   version: r.latestGithubTag({ owner, repo }),
   sources: async (tag) => {
     const sources = await releaseAssets(tag);
+    const sourceArchiveUrl = `https://github.com/${owner}/${repo}/archive/refs/tags/${tag}.tar.gz`;
     sources["linux-64"] = [{
-      git: `https://github.com/${owner}/${repo}.git`,
-      rev: tag,
-      depth: 1,
-      lfs: false,
+      url: sourceArchiveUrl,
+      sha256: await r.digestFromUrl(sourceArchiveUrl),
     }];
     return sources;
   },
@@ -77,7 +76,7 @@ export default new r.Recipe({
   requirements: (ctx) => {
     if (ctx.targetPlatform === "linux-64") {
       return {
-        build: ["binutils", "git", "python 3.12.*", "uv"],
+        build: ["binutils", "python 3.12.*", "uv"],
         run: ["__glibc >=2.17,<3.0.a0"],
       };
     }
@@ -93,9 +92,14 @@ export default new r.Recipe({
     func: async ({ prefixDir, srcDir, exe, targetPlatform, unix }) => {
       let extractedDir: string | undefined;
       if (targetPlatform === "linux-64") {
-        await r.$`uv sync --frozen --extra build --python python`.cwd(srcDir);
-        await r.$`./scripts/build-binary.sh`.cwd(srcDir);
-        extractedDir = await r.expandGlobFirst(r.path.join(srcDir, "dist", "apm-linux-*"), {
+        const pyproject = await r.expandGlobFirst(r.path.join(srcDir, "pyproject.toml")) ??
+          await r.expandGlobFirst(r.path.join(srcDir, "*", "pyproject.toml"));
+        if (!pyproject) throw new Error(`failed to locate pyproject.toml under ${srcDir}`);
+        const sourceDir = r.path.dirname(pyproject);
+
+        await r.$`uv sync --frozen --extra build --python python`.cwd(sourceDir);
+        await r.$`./scripts/build-binary.sh`.cwd(sourceDir);
+        extractedDir = await r.expandGlobFirst(r.path.join(sourceDir, "dist", "apm-linux-*"), {
           breakOnDirOrFile: "dir",
         });
         if (extractedDir) await assertPortableGlibc(extractedDir);
