@@ -35,7 +35,6 @@ interface BuildOptions {
   upload: boolean;
   build: boolean;
   forgeDir: string;
-  packageKind: PackageKind;
 }
 
 /** Imports & caches a recipe module, so repeated builds of it do not re-import. */
@@ -73,8 +72,33 @@ async function resolveTargetPlatforms(recipePath: string, requested: Platform[])
   }
 }
 
+/**
+ * Whether this run owns the recipe, ie: whether it belongs to the pipeline that asked for
+ * `packageKind`. A noarch package only needs publishing once but is still built & tested on
+ * every platform it supports, so it runs through its own CI pipeline, and each pipeline
+ * needs to leave the other's recipes alone.
+ *
+ * Deliberately reads nothing but `build.noarch`, which is free once the module is imported.
+ * The platform checks in `buildRecipe` need `getPlatforms()`, and for a recipe whose
+ * platforms are inferred from its sources that downloads & hashes every release asset -
+ * doing that for a recipe this run is going to skip anyway is pure waste.
+ */
+async function ownsRecipe(recipePath: string, packageKind: PackageKind): Promise<boolean> {
+  if (packageKind === "all") return true;
+  try {
+    const r = await loadRecipe(recipePath);
+    const recipeKind: PackageKind = r.props.build.noarch ? "noarch" : "arch";
+    if (recipeKind === packageKind) return true;
+    console.log(`Skipping ${r.props.name}, only building ${packageKind} recipes`);
+    return false;
+  } catch (_) {
+    // Leave it to `buildRecipe` to surface & report the failure, as it always has.
+    return true;
+  }
+}
+
 async function buildRecipe(
-  { prefix, recipePath, targetPlatform, channel, build, upload, packageKind }: BuildOptions,
+  { prefix, recipePath, targetPlatform, channel, build, upload }: BuildOptions,
 ) {
   // Can not upload if we are not building
   upload = build ? upload : false;
@@ -108,24 +132,6 @@ async function buildRecipe(
       await Deno.writeTextFile(
         ghaSummary,
         `- :no_entry: \`${targetPlatform}/${r.props.name}\`: **skipped** _(no platform support)_\n`,
-        { append: true },
-      );
-    }
-    return;
-  }
-
-  // Bail out if the recipe belongs to the other pipeline. A noarch package only needs
-  // publishing once, but is still built & tested on every platform it supports, so it runs
-  // through its own CI pipeline. Selecting a kind keeps the two pipelines from both
-  // publishing the same package.
-  const recipeKind: PackageKind = packagePlatform === "noarch" ? "noarch" : "arch";
-  if (packageKind !== "all" && packageKind !== recipeKind) {
-    console.log(`Skipping, only building ${packageKind} recipes`);
-    const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
-    if (ghaSummary) {
-      await Deno.writeTextFile(
-        ghaSummary,
-        `- :no_entry: \`${targetPlatform}/${r.props.name}\`: **skipped** _(${packageKind} recipes only)_\n`,
         { append: true },
       );
     }
@@ -242,8 +248,10 @@ await new Command()
     const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
     if (recipePath) {
       recipePath = await Deno.realPath(recipePath);
-      for (const targetPlatform of await resolveTargetPlatforms(recipePath, platforms)) {
-        await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir, packageKind });
+      if (await ownsRecipe(recipePath, packageKind)) {
+        for (const targetPlatform of await resolveTargetPlatforms(recipePath, platforms)) {
+          await buildRecipe({ prefix, channel, build, upload, recipePath, targetPlatform, forgeDir });
+        }
       }
     } else {
       const unpublishable: string[] = [];
@@ -258,6 +266,7 @@ await new Command()
         })
       ) {
         const recipePath = item.path;
+        if (!await ownsRecipe(recipePath, packageKind)) continue;
         for (const targetPlatform of await resolveTargetPlatforms(recipePath, platforms)) {
           console.log(
             `::group::${
@@ -274,7 +283,6 @@ await new Command()
               recipePath,
               targetPlatform,
               forgeDir,
-              packageKind,
             });
           } catch (e) {
             if (e instanceof UnpublishableError) {
