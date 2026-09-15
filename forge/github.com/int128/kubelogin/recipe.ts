@@ -1,5 +1,4 @@
 import * as r from "lib/mod.ts";
-import { Octokit } from "@octokit/rest";
 
 const owner = "int128";
 const repo = "kubelogin";
@@ -15,8 +14,7 @@ export default new r.Recipe({
   }),
   about: {
     homepage: "https://github.com/int128/kubelogin",
-    summary:
-      "About kubectl plugin for Kubernetes OpenID Connect authentication (kubectl oidc-login)",
+    summary: "About kubectl plugin for Kubernetes OpenID Connect authentication (kubectl oidc-login)",
     description: await r.http.get(
       "https://raw.githubusercontent.com/int128/kubelogin/refs/heads/master/README.md",
     )
@@ -39,26 +37,16 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersionRaw: tag, unix }) => {
+    func: async ({ pkgVersion, unix }) => {
       if (unix) {
-        const octokit = new Octokit({
-          auth: Deno.env.get("GH_TOKEN") ??
-            Deno.env.get("GITHUB_TOKEN") ??
-            Deno.env.get("GITHUB_API_TOKEN"),
-        });
-        const release = await octokit.repos.getReleaseByTag({
-          owner,
-          repo,
-          tag,
-        });
-        const gitSha = release.data.target_commitish;
-        const expectedVersion = `kubelogin version ${gitSha}`;
-
-        if (await r.$`kubelogin --version`.text() !== expectedVersion) {
+        // NB: Prior to v1.36.4 the release stamped the git sha into the
+        // binary instead of the tag, hence the version had to be looked up
+        // via the github api. These days the tag is stamped in as expected.
+        if (r.coerceSemVer(await r.$`kubelogin --version`.text()) !== pkgVersion) {
           throw new Error(`unexpected version returned from kubelogin`);
         }
         if (
-          await r.$`kubectl-oidc_login --version`.text() !== expectedVersion
+          r.coerceSemVer(await r.$`kubectl-oidc_login --version`.text()) !== pkgVersion
         ) {
           throw new Error(
             `unexpected version returned from kubectl-oidc_login`,
@@ -67,6 +55,7 @@ export default new r.Recipe({
       } else {
         // NB: The Windows binary throws: error: unknown flag: --version
         // And running kubelogin.exe version only returns: kubelogin version  (go1.26.1 windows_amd64)
+        // ie: the windows release does not stamp any version into the binary.
         if (
           !/^kubelogin version\s+\(go[\d.]+ windows_amd64\)$/.test(
             (await r.$`kubelogin version`.text("combined")).trim(),
