@@ -41,7 +41,7 @@
     "jsr:@std/text@^1.0.19": "1.0.19",
     "jsr:@std/toml@^1.0.11": "1.0.11",
     "jsr:@std/yaml@^1.3.0": "1.3.0",
-    "jsr:@zip-js/zip-js@^2.22.0": "2.22.0",
+    "jsr:@zip-js/zip-js@^2.23.0": "2.23.0",
     "npm:@octokit/plugin-paginate-rest@16": "16.0.0_@octokit+core@7.0.8",
     "npm:@octokit/rest@^22.0.1": "22.0.1_@octokit+core@7.0.6",
     "npm:@types/semver@^7.8.0": "7.8.0",
@@ -234,8 +234,8 @@
     "@std/yaml@1.3.0": {
       "integrity": "b250103854378b8b36cbff0fe95aec017d3d9ce86b489c67605180c602fb4922"
     },
-    "@zip-js/zip-js@2.22.0": {
-      "integrity": "907ff5c65d6ec41af05aa525e4d46c00c5736539f710b0439c0dd443f4e1ddb6"
+    "@zip-js/zip-js@2.23.0": {
+      "integrity": "d69cba3ef26191df72b752fa82db944520ac00330446db9ac80c795b8e6682d7"
     }
   },
   "npm": {
@@ -523,7 +523,7 @@
       "jsr:@std/semver@^1.0.8",
       "jsr:@std/toml@^1.0.11",
       "jsr:@std/yaml@^1.3.0",
-      "jsr:@zip-js/zip-js@^2.22.0",
+      "jsr:@zip-js/zip-js@^2.23.0",
       "npm:@octokit/plugin-paginate-rest@16",
       "npm:@octokit/rest@^22.0.1",
       "npm:@types/semver@^7.8.0",
