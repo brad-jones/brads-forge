@@ -44,7 +44,7 @@ environments:
       - conda: https://repo.prefix.dev/brads-forge/linux-64/cocogitto-7.0.0-h81b34b9_2.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-64/deno-2.9.7-h81b34b9_4.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-64/dprint-0.55.2-h81b34b9_3.conda
-      - conda: https://repo.prefix.dev/brads-forge/linux-64/lefthook-2.1.16-h81b34b9_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/linux-64/lefthook-2.1.17-h81b34b9_2.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-64/obscura-0.1.10-h81b34b9_0.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-64/task-3.54.0-h81b34b9_2.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-64/xcaffold-0.15.0-h81b34b9_0.conda
@@ -60,7 +60,7 @@ environments:
       - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/cocogitto-7.0.0-he672143_2.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/deno-2.9.7-he672143_4.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/dprint-0.55.2-he672143_3.conda
-      - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/lefthook-2.1.16-he672143_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/lefthook-2.1.17-he672143_2.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/obscura-0.1.10-he672143_0.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/task-3.54.0-he672143_2.conda
       - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/xcaffold-0.15.0-he672143_0.conda
@@ -70,7 +70,7 @@ environments:
       - conda: https://repo.prefix.dev/brads-forge/osx-64/cocogitto-7.0.0-he0f4bc8_2.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-64/deno-2.9.7-he0f4bc8_4.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-64/dprint-0.55.2-he0f4bc8_3.conda
-      - conda: https://repo.prefix.dev/brads-forge/osx-64/lefthook-2.1.16-he0f4bc8_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/osx-64/lefthook-2.1.17-he0f4bc8_2.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-64/obscura-0.1.10-he0f4bc8_0.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-64/task-3.54.0-he0f4bc8_2.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-64/xcaffold-0.15.0-he0f4bc8_0.conda
@@ -80,7 +80,7 @@ environments:
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/cocogitto-7.0.0-he8ea13f_2.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/deno-2.9.7-he8ea13f_4.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/dprint-0.55.2-he8ea13f_3.conda
-      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/lefthook-2.1.16-he8ea13f_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/osx-arm64/lefthook-2.1.17-he8ea13f_2.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/obscura-0.1.10-he8ea13f_0.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/task-3.54.0-he8ea13f_2.conda
       - conda: https://repo.prefix.dev/brads-forge/osx-arm64/xcaffold-0.15.0-he8ea13f_0.conda
@@ -93,7 +93,7 @@ environments:
       - conda: https://repo.prefix.dev/brads-forge/win-64/cocogitto-7.0.0-h3c70cbc_2.conda
       - conda: https://repo.prefix.dev/brads-forge/win-64/deno-2.9.7-h3c70cbc_4.conda
       - conda: https://repo.prefix.dev/brads-forge/win-64/dprint-0.55.2-h3c70cbc_3.conda
-      - conda: https://repo.prefix.dev/brads-forge/win-64/lefthook-2.1.16-h3c70cbc_2.conda
+      - conda: https://repo.prefix.dev/brads-forge/win-64/lefthook-2.1.17-h3c70cbc_2.conda
       - conda: https://repo.prefix.dev/brads-forge/win-64/obscura-0.1.10-h3c70cbc_0.conda
       - conda: https://repo.prefix.dev/brads-forge/win-64/task-3.54.0-h3c70cbc_2.conda
       - conda: https://repo.prefix.dev/brads-forge/win-64/xcaffold-0.15.0-h3c70cbc_0.conda
@@ -421,13 +421,13 @@ packages:
   run_exports: {}
   size: 7761343
   timestamp: 1784089830555
-- conda: https://repo.prefix.dev/brads-forge/linux-64/lefthook-2.1.16-h81b34b9_2.conda
-  sha256: 8c591cdcd28f936b9dee59b2e2a7edb71df8ae4d78b7f300c481db268f941c38
-  md5: 3236e9a6cd3e60ff3065d2dee9afdcbc
+- conda: https://repo.prefix.dev/brads-forge/linux-64/lefthook-2.1.17-h81b34b9_2.conda
+  sha256: db682fa18f848c82b4b36faf46ef02955a49019ad6fb2f196c3a173c77ac4694
+  md5: 2dda46fd030663fa8d0579294f3d136e
   license: MIT
   run_exports: {}
-  size: 5189341
-  timestamp: 1790894061688
+  size: 5201895
+  timestamp: 1791197274367
 - conda: https://repo.prefix.dev/brads-forge/linux-64/obscura-0.1.10-h81b34b9_0.conda
   sha256: 3343cc328802b24490cc56ab764c643bd737c827f69f107c823ea99e47a91a06
   md5: 06101f79e34f2d09de1fd6e75439639b
@@ -470,13 +470,13 @@ packages:
   run_exports: {}
   size: 7039264
   timestamp: 1784089841040
-- conda: https://repo.prefix.dev/brads-forge/linux-aarch64/lefthook-2.1.16-he672143_2.conda
-  sha256: 18215597e691f24605a28e865f98a25c82cb387a31c0d2878137d27fd0166ad8
-  md5: e0d2d5738d6fb5ca006a9b7f20fafeeb
+- conda: https://repo.prefix.dev/brads-forge/linux-aarch64/lefthook-2.1.17-he672143_2.conda
+  sha256: c8879750c79190219977f96ec99c88a7b954e2deea2a7154ad6704bcf62ef37c
+  md5: e62c1f33a65e6c3bbc228515768821da
   license: MIT
   run_exports: {}
-  size: 4611078
-  timestamp: 1790894070975
+  size: 4623202
+  timestamp: 1791197282865
 - conda: https://repo.prefix.dev/brads-forge/linux-aarch64/obscura-0.1.10-he672143_0.conda
   sha256: 782b3d547047ee3bc555cd899ad6d20aef17744c4081b00a2ee9eda342b0a48a
   md5: 6380ba04119a3737ed63f67eea82081d
@@ -519,13 +519,13 @@ packages:
   run_exports: {}
   size: 8464486
   timestamp: 1784089833263
-- conda: https://repo.prefix.dev/brads-forge/osx-64/lefthook-2.1.16-he0f4bc8_2.conda
-  sha256: d242dceca977bd1bbeb62d9055f8c4e73486b3dbf1cc39bec4f72a57c1f7f061
-  md5: cf973e0319d0e6ddb8bf0e982ea17064
+- conda: https://repo.prefix.dev/brads-forge/osx-64/lefthook-2.1.17-he0f4bc8_2.conda
+  sha256: b15696020ce26d631ee45f1c004b386482002fabd3cd7ddc41aec6fe17ba955b
+  md5: 2419e98a0fea5d02c5b8d35eaceccd94
   license: MIT
   run_exports: {}
-  size: 5329054
-  timestamp: 1790893915858
+  size: 5350561
+  timestamp: 1791197307135
 - conda: https://repo.prefix.dev/brads-forge/osx-64/obscura-0.1.10-he0f4bc8_0.conda
   sha256: 7be4475a4e5346c6af316dd6f475f7472478aed24db94ff96caa855dabaceb23
   md5: 488c94a897e49780d0399da72a2ac431
@@ -568,13 +568,13 @@ packages:
   run_exports: {}
   size: 7858884
   timestamp: 1784089828440
-- conda: https://repo.prefix.dev/brads-forge/osx-arm64/lefthook-2.1.16-he8ea13f_2.conda
-  sha256: 00cb280b96806355f42749a9ee2a8444774fa34d1355168384ea7f0fc2e76eb9
-  md5: ce4d9d4484a88c340c6c3c3291567597
+- conda: https://repo.prefix.dev/brads-forge/osx-arm64/lefthook-2.1.17-he8ea13f_2.conda
+  sha256: 45fe16cd527960447a82605306ab6015509b78cc501ec477f38bc8291f046447
+  md5: fcc71e3eaf3902683500703b8ffc1717
   license: MIT
   run_exports: {}
-  size: 4861207
-  timestamp: 1790893882474
+  size: 4873683
+  timestamp: 1791197262136
 - conda: https://repo.prefix.dev/brads-forge/osx-arm64/obscura-0.1.10-he8ea13f_0.conda
   sha256: 2391240cea8e4ac669dd98d34c537b3ac8221feec50b17a7c2d984414c969651
   md5: 1533429ffca652c0fe1efaba323fcf18
@@ -617,13 +617,13 @@ packages:
   run_exports: {}
   size: 8087221
   timestamp: 1784089834641
-- conda: https://repo.prefix.dev/brads-forge/win-64/lefthook-2.1.16-h3c70cbc_2.conda
-  sha256: fcd9b233fc0640be190ac855ac857bf51469361274dd892234f4b708555eacf3
-  md5: a3432afa2a9e73e46cf2cfa4b43f39bd
+- conda: https://repo.prefix.dev/brads-forge/win-64/lefthook-2.1.17-h3c70cbc_2.conda
+  sha256: f57f958e8b31b073ca8933639a5606bf81df0dd429d217e36a41e4a3bfd806cb
+  md5: 490f024c5458e8a5abb7e839a1b4f5b1
   license: MIT
   run_exports: {}
-  size: 5355061
-  timestamp: 1790893899790
+  size: 5364701
+  timestamp: 1791197218805
 - conda: https://repo.prefix.dev/brads-forge/win-64/obscura-0.1.10-h3c70cbc_0.conda
   sha256: a518b887381ebd84e2427434acc4afcb041c320155a6b04f31d59a0a9aa7097a
   md5: eae969ec8d4e870fc6ce902e68776735
