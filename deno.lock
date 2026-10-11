@@ -46,7 +46,7 @@
     "npm:@types/semver@^7.8.0": "7.8.0",
     "npm:ajv-formats@^3.0.1": "3.0.1_ajv@8.20.0",
     "npm:ajv@^8.20.0": "8.20.0",
-    "npm:ky@^2.1.0": "2.1.0",
+    "npm:ky@^2.2.0": "2.2.0",
     "npm:linkedom@~0.18.13": "0.18.13",
     "npm:playwright-core@^1.64.0": "1.64.0",
     "npm:semver@^7.8.5": "7.8.5",
@@ -463,8 +463,8 @@
     "json-with-bigint@3.5.12": {
       "integrity": "sha512-uwbF/wSSuOgC7qqlq27Xp5B6a2MHVug3t0idZdTqu0JnlFvgJuH7ju+KAk/J06C7GfhoYy2gnb9wz2INqcne7w=="
     },
-    "ky@2.1.0": {
-      "integrity": "sha512-nIKwelw+7qVqKOlX4Eht6GXfEXlDHcdIjyLWV3s119kYt5s+70ayTnYS+0fRNmtgGRRAfqdeWQbh8YizqkS0ng=="
+    "ky@2.2.0": {
+      "integrity": "sha512-4+B63kyZt+Y8snQiUGydK1vgY9xYQJZEh9K/nIAIEts+gYJzy1EiAw3BbK8xpWRuWUpN70SNCMjqRGTm75xxIA=="
     },
     "linkedom@0.18.13": {
       "integrity": "sha512-ES/o9qotMpzpN2MHs+Iq/JcVoOj8Fa5wiQYrTdFpvAnwXL0g66XHHUc9WUMk6nAlBtGsFQ24ne+SYnvnaQ2FSw==",
@@ -528,7 +528,7 @@
       "npm:@types/semver@^7.8.0",
       "npm:ajv-formats@^3.0.1",
       "npm:ajv@^8.20.0",
-      "npm:ky@^2.1.0",
+      "npm:ky@^2.2.0",
       "npm:linkedom@~0.18.13",
       "npm:playwright-core@^1.64.0",
       "npm:semver@^7.8.5",
