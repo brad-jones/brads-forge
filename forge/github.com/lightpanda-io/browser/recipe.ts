@@ -23,10 +23,10 @@ export default new r.Recipe({
   },
   build: {
     number: 0,
-    dynamic_linking: { binary_relocation: false },
+    dynamic_linking: { binary_relocation: false, overlinking_behavior: "ignore" },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("lightpanda"));
-      await r.moveGlob("./lightpanda-*/lightpanda-*", dst);
+      await r.moveGlob("./lightpanda-*/lightpanda-!(*.debug)", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },
