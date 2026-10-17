@@ -4,8 +4,12 @@ Use this template when writing a `PLAN.md` for a new forge recipe. Copy and fill
 self-contained — assume the reader (which may be a different LLM) has no prior context beyond what's in this document
 and the linked skill reference.
 
-**IMPORTANT:** Ensure the skill reference links actually work and point to the correct files base on where you save the
-PLAN.md file.
+**IMPORTANT:** Ensure the skill reference links actually work and point to the correct files based on where you save the
+PLAN.md file. Always link to the source of truth under `.apm/skills/forge-recipe/`, never to `.agents/` (or any other
+generated harness directory such as `.claude/`), because those are git ignored build output and the links would be
+broken for anyone viewing the plan on GitHub. Links are relative to the PLAN.md, so use `../` segments to climb to the
+repo root (eg: `forge/github.com/<owner>/<repo>/PLAN.md` needs `../../../../.apm/...`, one more `../` when the extra
+package-name level is used).
 
 ---
 
