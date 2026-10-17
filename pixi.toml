@@ -3,8 +3,12 @@ channels = ["https://repo.prefix.dev/brads-forge", "conda-forge"]
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64", "linux-aarch64"]
 
 [target.unix.activation.env]
-PATH = "$PWD/scripts:$PATH"
+PATH = "$PIXI_PROJECT_ROOT/scripts:$PATH"
 USER_MEMORY_FILE_PATH = "$HOME/.config/mcp-memory/memory.jsonl"
+
+[target.win.activation.env]
+PATH = "%PIXI_PROJECT_ROOT%\\scripts;%PATH%"
+USER_MEMORY_FILE_PATH = "%USERPROFILE%\\.config\\mcp-memory\\memory.jsonl"
 
 [dependencies]
 apm = ">=0.33.0,<0.34"

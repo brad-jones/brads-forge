@@ -1654,7 +1654,25 @@ deployments:
   content_hash: null
 - kind: uri
   target: mcp
+  value: workspace-memory
+  runtime: claude
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: uri
+  target: mcp
   value: user-memory
+  runtime: copilot
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: uri
+  target: mcp
+  value: workspace-memory
   runtime: copilot
   scope: project
   owners:
@@ -1688,8 +1706,10 @@ mcp_configs:
 mcp_target_servers:
   claude:
   - user-memory
+  - workspace-memory
   copilot:
   - user-memory
+  - workspace-memory
 lsp_servers:
 - deno
 lsp_configs:
