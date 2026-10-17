@@ -1,0 +1,16 @@
+{
+  "SessionStart": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "bash": "pixi run -- deno run -qA ${PIXI_PROJECT_ROOT}/scripts/memory-session-start.ts",
+          "command": "pixi run -- deno run -qA ${PIXI_PROJECT_ROOT}/scripts/memory-session-start.ts",
+          "timeout": 30
+        }
+      ],
+      "_apm_source": "_local/brads-forge"
+    }
+  ]
+}

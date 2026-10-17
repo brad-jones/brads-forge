@@ -6,8 +6,7 @@ const repo = "rustup";
 export default new r.Recipe({
   name: "rustup",
   about: {
-    summary:
-      "rustup is an installer for the systems programming language Rust.",
+    summary: "rustup is an installer for the systems programming language Rust.",
     homepage: "https://rustup.rs/",
     documentation: "https://rust-lang.github.io/rustup/",
     repository: `https://github.com/${owner}/${repo}`,

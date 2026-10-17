@@ -34,14 +34,10 @@ export function latestGithubTag(
       })
       .map((_) => ({ raw: _.name, semver: coerceSemVer(_.name) }))
       .filter((_) => _.semver !== undefined)
-      .toSorted((a, b) =>
-        semver.compare(semver.parse(b.semver!), semver.parse(a.semver!))
-      );
+      .toSorted((a, b) => semver.compare(semver.parse(b.semver!), semver.parse(a.semver!)));
 
     console.log(
-      `Found github/${options.owner}/${options.repo} tag: ${
-        tags[0].raw
-      } semver: ${tags[0].semver}`,
+      `Found github/${options.owner}/${options.repo} tag: ${tags[0].raw} semver: ${tags[0].semver}`,
     );
     return tags[0];
   };

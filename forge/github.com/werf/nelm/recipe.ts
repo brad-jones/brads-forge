@@ -84,17 +84,15 @@ export default new r.Recipe({
         "SHA-512",
         targets.signed
           .targets[
-            `releases/${pkgVersion}/${mapOs(targetOs)}-${
-              mapArch(targetArch)
-            }/bin/${exe("nelm")}`
+            `releases/${pkgVersion}/${mapOs(targetOs)}-${mapArch(targetArch)}/bin/${exe("nelm")}`
           ]
           .hashes.sha512,
       ]);
 
       await r.downloader.downloadFile(
-        `https://tuf.nelm.sh/targets/releases/${pkgVersion}/${
-          mapOs(targetOs)
-        }-${mapArch(targetArch)}/bin/${exe("nelm")}`,
+        `https://tuf.nelm.sh/targets/releases/${pkgVersion}/${mapOs(targetOs)}-${mapArch(targetArch)}/bin/${
+          exe("nelm")
+        }`,
         exe("./nelm"),
       );
 

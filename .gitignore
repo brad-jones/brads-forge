@@ -240,12 +240,31 @@ $RECYCLE.BIN/
 .pixi/*
 !.pixi/config.toml
 
-# xcaffold
-.xcaffold/
-xcaf/project.vars.local
-.claude/
-CLAUDE.md
-
 # generated files
 output/
 generated/
+
+# go-task
+.task/
+
+# APM dependencies
+# NB: Despite the guidance from the APM documentation, we are going to ignore
+# the generated output from APM, instead we have setup hooks to automatically
+# install and compile the APM dependencies when needed.
+apm_modules/
+.agents/
+.claude/*
+!.claude/settings.json
+!.claude/apm-hooks.json
+!.claude/hooks/
+!.claude/hooks/session-start.sh
+.github/*
+!.github/workflows/
+!.github/pull_request_template.md
+.vscode/lsp.json
+.vscode/mcp.json
+.lsp.json
+.mcp.json
+CLAUDE.md
+AGENTS.md
+/memory.jsonl

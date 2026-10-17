@@ -9,16 +9,43 @@ shopt: [globstar]
 tasks:
   init:
     desc: Setup dev env (anything that pixi can't install and setup for us).
-    status:
-      - test "$DIRENV_INIT" = "1"
     cmds:
-      - xcaffold apply --yes
-      - "{{if not .CI}}lefthook install -f{{end}}"
+      - task: init:git
+      - task: init:deno
+      - task: init:apm
+
+  init:git:
+    cmds:
       - git config pull.rebase true
       - '{{if not .CI}}git config core.editor "code --wait"{{end}}'
       - '{{if not .CI}}git config commit.template "$PWD/.gitmsgtpl"{{end}}'
       - "{{if .CI}}git config --global user.name github-actions[bot]{{end}}"
       - "{{if .CI}}git config --global user.email github-actions[bot]@users.noreply.github.com{{end}}"
+      - task: init:lefthook
+
+  init:lefthook:
+    if: '[ -n "$APM_TARGET" ] || [ -z "$CI" ]'
+    sources:
+      - lefthook.yaml
+    cmds:
+      - lefthook install -f
+
+  init:deno:
+    sources:
+      - deno.lock
+    cmds:
+      - deno install {{if .CI}}--frozen{{end}}
+
+  init:apm:
+    if: '[ -n "$APM_TARGET" ] || [ -z "$CI" ]'
+    sources:
+      - ./.apm/**/*
+      - apm.lock.yaml
+    cmds:
+      # Claude Code Remote provides MCP servers through claude.ai connectors and
+      # can't use the generated LSP config, so only install the APM packages there.
+      - apm install {{if .APM_TARGET}}--target {{.APM_TARGET}}{{end}} {{if eq .CLAUDE_CODE_REMOTE "true"}}--only apm{{end}}
+      - apm compile --clean {{if .APM_TARGET}}--target {{.APM_TARGET}}{{end}}
 
   update:
     desc: Interactively updates our dependencies to their latest versions.
@@ -32,6 +59,7 @@ tasks:
       - pixi upgrade
       - dprint config upgrade
       - deno update --latest --recursive
+      - apm update --yes
 
   lint:
     desc: Lints our code to ensure it remains of a high quality.

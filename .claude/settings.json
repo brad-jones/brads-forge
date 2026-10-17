@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "bash": "pixi run -- deno run -qA ${PIXI_PROJECT_ROOT}/scripts/memory-session-start.ts",
+            "command": "pixi run -- deno run -qA ${PIXI_PROJECT_ROOT}/scripts/memory-session-start.ts",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

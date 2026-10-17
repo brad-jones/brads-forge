@@ -1,0 +1,49 @@
+$schema: https://microsoft.github.io/apm/specs/schemas/manifest-v0.1.schema.json
+name: brads-forge
+version: 0.0.0
+targets:
+  - claude
+  - copilot
+dependencies:
+  apm:
+    - anthropics/skills/skills/skill-creator#main
+    - denoland/skills/skills/deno#main
+    - github/awesome-copilot/skills/git-commit#main
+    - tttpob/bioinfo-skills/pixi#main
+  mcp:
+    - name: workspace-memory
+      registry: false
+      transport: stdio
+      command: dx
+      args:
+        - -y
+        - "@modelcontextprotocol/server-memory"
+      env:
+        MEMORY_FILE_PATH: "${PIXI_PROJECT_ROOT}/memory.jsonl"
+    - name: user-memory
+      registry: false
+      transport: stdio
+      command: dx
+      args:
+        - -y
+        - "@modelcontextprotocol/server-memory"
+      env:
+        MEMORY_FILE_PATH: "${USER_MEMORY_FILE_PATH}"
+  lsp:
+    - name: deno
+      command: deno
+      args: ["lsp"]
+      extensionToLanguage:
+        ".ts": typescript
+        ".tsx": typescriptreact
+        ".js": javascript
+        ".jsx": javascriptreact
+        ".mts": typescript
+        ".cts": typescript
+        ".mjs": javascript
+        ".cjs": javascript
+includes: auto
+scripts: {}
+compilation:
+  exclude:
+    - ".pixi/**"

@@ -82,8 +82,7 @@ when no digest and no checksum file are found, it falls back to downloading the 
 ## 5. Test Strategy
 
 Run `mkcert -version` (single-dash Go flag, though Go's flag package also accepts `--version`). The binary was built
-with `-ldflags
-"-X main.Version=$TAG"` by upstream's GitHub Actions release workflow, so it prints the tag (e.g.
+with `-ldflags "-X main.Version=$TAG"` by upstream's GitHub Actions release workflow, so it prints the tag (e.g.
 `v1.4.4`) — use `r.coerceSemVer()` to normalize and compare against `pkgVersion`.
 
 ```typescript

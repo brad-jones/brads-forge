@@ -49,8 +49,8 @@
 
 The build happens on the CI runner's native platform and cross-compiles via `GOOS`/`GOARCH` (`CGO_ENABLED=0`, so
 cross-compiling is free). CI matrix (`.github/workflows/main.yaml`): `ubuntu-latest` → linux targets, `windows-latest` →
-win targets, `macos-15-intel`/`macos-latest` → osx targets. So the only true cross-compiles are
-`linux-64 → linux-aarch64` and `win-64 → win-arm64`.
+win targets, `macos-15-intel`/`macos-latest` → osx targets. So the only true cross-compiles are `linux-64 →
+linux-aarch64` and `win-64 → win-arm64`.
 
 | Pixi OS | `GOOS`    |
 | ------- | --------- |
@@ -85,8 +85,8 @@ for them on conda-forge either).
 
 > **Do not use conda-forge's `go-nocgo` / `go-cgo`.** `rattler-build` is invoked with strict channel priority and
 > `brads-forge` ahead of `conda-forge` (see `scripts/build.ts`). Because `brads-forge` already owns the package name
-> `go`, conda-forge's `go-nocgo` can never satisfy its exact `go ==<version> <build>` pin and the solve fails with
-> `"go X.Y.Z is excluded because due to strict channel priority"`.
+> `go`, conda-forge's `go-nocgo` can never satisfy its exact `go ==<version> <build>` pin and the solve fails with `"go
+> X.Y.Z is excluded because due to strict channel priority"`.
 
 `gosh` and all of its dependencies (`golang.org/x/term`, `golang.org/x/sys`) are pure Go, so `CGO_ENABLED=0` is used and
 no C toolchain is required.

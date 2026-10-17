@@ -37,10 +37,10 @@
 ### OS Mapping
 
 | Pixi OS | Asset string                                                |
-| ------- | ------------------------------------------------------------ |
-| `linux` | `linux` (default match, no map needed)                       |
-| `osx`   | `macos` (needs osMap override)                               |
-| `win`   | `windows` (needs osMap override for exact `fileName` match)  |
+| ------- | ----------------------------------------------------------- |
+| `linux` | `linux` (default match, no map needed)                      |
+| `osx`   | `macos` (needs osMap override)                              |
+| `win`   | `windows` (needs osMap override for exact `fileName` match) |
 
 ### Arch Mapping
 
@@ -63,11 +63,11 @@
 2. Extract archive — binaries are at `./obscura-*/*` (target directory name equals the asset filename, e.g.
    `obscura-x86_64-linux.tar.gz/`).
 3. Move both binaries into `$PREFIX/bin/` using two explicit `r.moveGlob()` calls, one per binary (e.g.
-   `r.moveGlob("./obscura-*/obscura", <dst>)`). **Note:** a single glob-to-directory move
-   (`r.moveGlob("./obscura-*/*", "<dir>/")`) does NOT work here — `moveGlob`'s multi-file destination logic computes the
-   relative path via a naive common-prefix comparison against the _glob pattern string itself_ (which still contains the
-   literal `*`), so files end up nested under an extra `<asset-name>/` subdirectory instead of directly in the
-   destination dir. Moving each named file individually avoids this.
+   `r.moveGlob("./obscura-*/obscura", <dst>)`). **Note:** a single glob-to-directory move (`r.moveGlob("./obscura-*/*",
+   "<dir>/")`) does NOT work here — `moveGlob`'s multi-file destination logic computes the relative path via a naive
+   common-prefix comparison against the _glob pattern string itself_ (which still contains the literal `*`), so files
+   end up nested under an extra `<asset-name>/` subdirectory instead of directly in the destination dir. Moving each
+   named file individually avoids this.
 4. chmod 755 on both binaries for Unix targets.
 5. No additional env vars, PATH changes, or symlinks needed.
 
@@ -107,5 +107,5 @@ task dryrun RECIPE=forge/github.com/h4ckf0r0day/obscura/recipe.ts
 
 ## Open Questions
 
-- None — asset naming, checksums, and version output were all directly verified against the v0.1.10, v0.1.11 and
-  v0.2.0 release assets.
+- None — asset naming, checksums, and version output were all directly verified against the v0.1.10, v0.1.11 and v0.2.0
+  release assets.

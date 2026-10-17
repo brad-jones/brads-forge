@@ -2,7 +2,7 @@ import { z } from "zod";
 import ky from "ky";
 import { Octokit } from "@octokit/rest";
 import { Source } from "../models/rattler/source.ts";
-import { Platform, PlatformOs, PlatformArch, allOperatingSystems, allArchitectures } from "../models/platform.ts";
+import { allArchitectures, allOperatingSystems, Platform, PlatformArch, PlatformOs } from "../models/platform.ts";
 import { Digest, digestFromChecksumTXT } from "../digest/mod.ts";
 
 export interface Options {

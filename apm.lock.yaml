@@ -1,0 +1,1824 @@
+lockfile_version: '1'
+apm_version: 0.33.0
+dependencies:
+- repo_url: anthropics/skills
+  name: skill-creator
+  host: github.com
+  resolved_commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+  resolved_ref: main
+  version: unknown
+  virtual_path: skills/skill-creator
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/skill-creator
+  - .agents/skills/skill-creator/LICENSE.txt
+  - .agents/skills/skill-creator/SKILL.md
+  - .agents/skills/skill-creator/agents/analyzer.md
+  - .agents/skills/skill-creator/agents/comparator.md
+  - .agents/skills/skill-creator/agents/grader.md
+  - .agents/skills/skill-creator/assets/eval_review.html
+  - .agents/skills/skill-creator/eval-viewer/generate_review.py
+  - .agents/skills/skill-creator/eval-viewer/viewer.html
+  - .agents/skills/skill-creator/references/schemas.md
+  - .agents/skills/skill-creator/scripts/__init__.py
+  - .agents/skills/skill-creator/scripts/aggregate_benchmark.py
+  - .agents/skills/skill-creator/scripts/generate_report.py
+  - .agents/skills/skill-creator/scripts/improve_description.py
+  - .agents/skills/skill-creator/scripts/package_skill.py
+  - .agents/skills/skill-creator/scripts/quick_validate.py
+  - .agents/skills/skill-creator/scripts/run_eval.py
+  - .agents/skills/skill-creator/scripts/run_loop.py
+  - .agents/skills/skill-creator/scripts/utils.py
+  - .claude/skills/skill-creator
+  - .claude/skills/skill-creator/LICENSE.txt
+  - .claude/skills/skill-creator/SKILL.md
+  - .claude/skills/skill-creator/agents/analyzer.md
+  - .claude/skills/skill-creator/agents/comparator.md
+  - .claude/skills/skill-creator/agents/grader.md
+  - .claude/skills/skill-creator/assets/eval_review.html
+  - .claude/skills/skill-creator/eval-viewer/generate_review.py
+  - .claude/skills/skill-creator/eval-viewer/viewer.html
+  - .claude/skills/skill-creator/references/schemas.md
+  - .claude/skills/skill-creator/scripts/__init__.py
+  - .claude/skills/skill-creator/scripts/aggregate_benchmark.py
+  - .claude/skills/skill-creator/scripts/generate_report.py
+  - .claude/skills/skill-creator/scripts/improve_description.py
+  - .claude/skills/skill-creator/scripts/package_skill.py
+  - .claude/skills/skill-creator/scripts/quick_validate.py
+  - .claude/skills/skill-creator/scripts/run_eval.py
+  - .claude/skills/skill-creator/scripts/run_loop.py
+  - .claude/skills/skill-creator/scripts/utils.py
+  deployed_file_hashes:
+    .agents/skills/skill-creator/LICENSE.txt: sha256:bc6b3af2f331cbc7fb0da1344efb2cbe5877a31498b4d70dbc7000f3405a1362
+    .agents/skills/skill-creator/SKILL.md: sha256:dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf
+    .agents/skills/skill-creator/agents/analyzer.md: sha256:bf68f4cac5a56c673a928c2e6d619586c5b93ea364026ab37547772cb45a663a
+    .agents/skills/skill-creator/agents/comparator.md: sha256:fe1fc9787c495d864c5d6eada47396478572325fde1b33a96d78bf4b849b7a3e
+    .agents/skills/skill-creator/agents/grader.md: sha256:57134da0c1a4eea33fbd74a1c9c44aa814f07d6bc64de303edb586f941e5d21a
+    .agents/skills/skill-creator/assets/eval_review.html: sha256:ce477dcc74dc1c0d1d3352646a79167b5a63634e936b1019160025065974e452
+    .agents/skills/skill-creator/eval-viewer/generate_review.py: sha256:fc9d1b9243fe5ab6012ebd579bd76d0035de1b79fd3b969de114defab26478fb
+    .agents/skills/skill-creator/eval-viewer/viewer.html: sha256:a53213426ee1100441d701a3a0d49cda7a842f992d2c36463f4d3cc0258575fa
+    .agents/skills/skill-creator/references/schemas.md: sha256:8e8876180a8989b406a4d3edddf875b04cdfd5805cc8616686d552b11ce4455f
+    .agents/skills/skill-creator/scripts/__init__.py: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    .agents/skills/skill-creator/scripts/aggregate_benchmark.py: sha256:123ef128ea5ccc01a4b1ac212ef5567f21e9c13d3d240609780beeb3200c49aa
+    .agents/skills/skill-creator/scripts/generate_report.py: sha256:13df7118a3c50c83c4c3250a606d5f2b20b25a3d44cbc392b3d669ec75281453
+    .agents/skills/skill-creator/scripts/improve_description.py: sha256:87d864570220b699fac52da309d2d6efdb060647bfebc74f768128e646accf80
+    .agents/skills/skill-creator/scripts/package_skill.py: sha256:1a33059b0db1ef73375d46d513e5ea81369d2e8838c970597b0d52ddef8d1c0f
+    .agents/skills/skill-creator/scripts/quick_validate.py: sha256:67cf5703402013936c8fb75ad6a1afecd8841d45cc5e606b634eb05825fde365
+    .agents/skills/skill-creator/scripts/run_eval.py: sha256:43e3b8f80dbf69c343967ba77e268fae991d9fa3ed68b32a0ff02532cd48657f
+    .agents/skills/skill-creator/scripts/run_loop.py: sha256:7bd6f674203168520517eec94c55f493c0d154339b061b4d7c0f0dad187d0f21
+    .agents/skills/skill-creator/scripts/utils.py: sha256:3af8ae62c40c73ab712207436a0d9a981e845f25c5a7040229eb189cc8e45bb1
+    .claude/skills/skill-creator/LICENSE.txt: sha256:bc6b3af2f331cbc7fb0da1344efb2cbe5877a31498b4d70dbc7000f3405a1362
+    .claude/skills/skill-creator/SKILL.md: sha256:dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf
+    .claude/skills/skill-creator/agents/analyzer.md: sha256:bf68f4cac5a56c673a928c2e6d619586c5b93ea364026ab37547772cb45a663a
+    .claude/skills/skill-creator/agents/comparator.md: sha256:fe1fc9787c495d864c5d6eada47396478572325fde1b33a96d78bf4b849b7a3e
+    .claude/skills/skill-creator/agents/grader.md: sha256:57134da0c1a4eea33fbd74a1c9c44aa814f07d6bc64de303edb586f941e5d21a
+    .claude/skills/skill-creator/assets/eval_review.html: sha256:ce477dcc74dc1c0d1d3352646a79167b5a63634e936b1019160025065974e452
+    .claude/skills/skill-creator/eval-viewer/generate_review.py: sha256:fc9d1b9243fe5ab6012ebd579bd76d0035de1b79fd3b969de114defab26478fb
+    .claude/skills/skill-creator/eval-viewer/viewer.html: sha256:a53213426ee1100441d701a3a0d49cda7a842f992d2c36463f4d3cc0258575fa
+    .claude/skills/skill-creator/references/schemas.md: sha256:8e8876180a8989b406a4d3edddf875b04cdfd5805cc8616686d552b11ce4455f
+    .claude/skills/skill-creator/scripts/__init__.py: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    .claude/skills/skill-creator/scripts/aggregate_benchmark.py: sha256:123ef128ea5ccc01a4b1ac212ef5567f21e9c13d3d240609780beeb3200c49aa
+    .claude/skills/skill-creator/scripts/generate_report.py: sha256:13df7118a3c50c83c4c3250a606d5f2b20b25a3d44cbc392b3d669ec75281453
+    .claude/skills/skill-creator/scripts/improve_description.py: sha256:87d864570220b699fac52da309d2d6efdb060647bfebc74f768128e646accf80
+    .claude/skills/skill-creator/scripts/package_skill.py: sha256:1a33059b0db1ef73375d46d513e5ea81369d2e8838c970597b0d52ddef8d1c0f
+    .claude/skills/skill-creator/scripts/quick_validate.py: sha256:67cf5703402013936c8fb75ad6a1afecd8841d45cc5e606b634eb05825fde365
+    .claude/skills/skill-creator/scripts/run_eval.py: sha256:43e3b8f80dbf69c343967ba77e268fae991d9fa3ed68b32a0ff02532cd48657f
+    .claude/skills/skill-creator/scripts/run_loop.py: sha256:7bd6f674203168520517eec94c55f493c0d154339b061b4d7c0f0dad187d0f21
+    .claude/skills/skill-creator/scripts/utils.py: sha256:3af8ae62c40c73ab712207436a0d9a981e845f25c5a7040229eb189cc8e45bb1
+  content_hash: sha256:b2bfe91d69ca99994c0566baede889e7d2b9bb8791c6b6106c5d387392f717f6
+- repo_url: denoland/skills
+  name: deno
+  host: github.com
+  resolved_commit: d5f6ace6b113aee71ba5286612fa1bde34c7d102
+  resolved_ref: main
+  version: unknown
+  virtual_path: skills/deno
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/deno
+  - .agents/skills/deno/SKILL.md
+  - .agents/skills/deno/references/CLI.md
+  - .claude/skills/deno
+  - .claude/skills/deno/SKILL.md
+  - .claude/skills/deno/references/CLI.md
+  deployed_file_hashes:
+    .agents/skills/deno/SKILL.md: sha256:96bcaefb9ec0b388fcf0fbffbc7aa5d566860076f706ab3972f7f5fc59494527
+    .agents/skills/deno/references/CLI.md: sha256:d95e2b119f2de24c9962092a38abdb1565b93c0a2d78e42d883d097cec62b276
+    .claude/skills/deno/SKILL.md: sha256:96bcaefb9ec0b388fcf0fbffbc7aa5d566860076f706ab3972f7f5fc59494527
+    .claude/skills/deno/references/CLI.md: sha256:d95e2b119f2de24c9962092a38abdb1565b93c0a2d78e42d883d097cec62b276
+  content_hash: sha256:521160aba6a974f19a0f768f76337b7d524085288a6b07e939bb391b01667238
+- repo_url: github/awesome-copilot
+  name: git-commit
+  host: github.com
+  resolved_commit: cb64ad12e32737ae764becd6885462e9b4c7cb00
+  resolved_ref: main
+  version: unknown
+  virtual_path: skills/git-commit
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/git-commit
+  - .agents/skills/git-commit/SKILL.md
+  - .claude/skills/git-commit
+  - .claude/skills/git-commit/SKILL.md
+  deployed_file_hashes:
+    .agents/skills/git-commit/SKILL.md: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
+    .claude/skills/git-commit/SKILL.md: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
+  content_hash: sha256:2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21
+- repo_url: tttpob/bioinfo-skills
+  name: pixi
+  host: github.com
+  resolved_commit: 3eac669e5f7abb0d65e64963cd49ac2ad8938fda
+  resolved_ref: main
+  version: unknown
+  virtual_path: pixi
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/pixi
+  - .agents/skills/pixi/README.md
+  - .agents/skills/pixi/SKILL.md
+  - .agents/skills/pixi/references/official-docs.md
+  - .agents/skills/pixi/references/official/LICENSE
+  - .agents/skills/pixi/references/official/conda-pypi.md
+  - .agents/skills/pixi/references/official/configuration.md
+  - .agents/skills/pixi/references/official/environment.md
+  - .agents/skills/pixi/references/official/first-workspace.md
+  - .agents/skills/pixi/references/official/global-tools.md
+  - .agents/skills/pixi/references/official/llms.txt
+  - .agents/skills/pixi/references/official/lock-file.md
+  - .agents/skills/pixi/references/official/manifest.md
+  - .agents/skills/pixi/references/official/multi-environment.md
+  - .agents/skills/pixi/references/official/pyproject.md
+  - .agents/skills/pixi/references/official/sources.json
+  - .agents/skills/pixi/references/official/tasks.md
+  - .agents/skills/pixi/workflows/dependencies.md
+  - .agents/skills/pixi/workflows/environments.md
+  - .agents/skills/pixi/workflows/global.md
+  - .agents/skills/pixi/workflows/initialize.md
+  - .agents/skills/pixi/workflows/inspect.md
+  - .agents/skills/pixi/workflows/run.md
+  - .claude/skills/pixi
+  - .claude/skills/pixi/README.md
+  - .claude/skills/pixi/SKILL.md
+  - .claude/skills/pixi/references/official-docs.md
+  - .claude/skills/pixi/references/official/LICENSE
+  - .claude/skills/pixi/references/official/conda-pypi.md
+  - .claude/skills/pixi/references/official/configuration.md
+  - .claude/skills/pixi/references/official/environment.md
+  - .claude/skills/pixi/references/official/first-workspace.md
+  - .claude/skills/pixi/references/official/global-tools.md
+  - .claude/skills/pixi/references/official/llms.txt
+  - .claude/skills/pixi/references/official/lock-file.md
+  - .claude/skills/pixi/references/official/manifest.md
+  - .claude/skills/pixi/references/official/multi-environment.md
+  - .claude/skills/pixi/references/official/pyproject.md
+  - .claude/skills/pixi/references/official/sources.json
+  - .claude/skills/pixi/references/official/tasks.md
+  - .claude/skills/pixi/workflows/dependencies.md
+  - .claude/skills/pixi/workflows/environments.md
+  - .claude/skills/pixi/workflows/global.md
+  - .claude/skills/pixi/workflows/initialize.md
+  - .claude/skills/pixi/workflows/inspect.md
+  - .claude/skills/pixi/workflows/run.md
+  deployed_file_hashes:
+    .agents/skills/pixi/README.md: sha256:206b8488b0c67409e8a93070898c22bb0023d60273bc6a0809acf83f88087045
+    .agents/skills/pixi/SKILL.md: sha256:50a5b73ac6d95873eafd582a2ccaabaaa61ee743668b277bdc95d8dcaf426de0
+    .agents/skills/pixi/references/official-docs.md: sha256:adedc9dbfe89a5aa632e961aee85562e795a59c3515c15fc1d48ca84fbe704e4
+    .agents/skills/pixi/references/official/LICENSE: sha256:679d42a76b82a6dc20ffd9048ab45fb2e5557a526113aaedc7419e12f3cfab38
+    .agents/skills/pixi/references/official/conda-pypi.md: sha256:a30189bb4061e98e8434c10fd68af67c653fc3d6726ec07264043e87c71e7de1
+    .agents/skills/pixi/references/official/configuration.md: sha256:d233e46c54597d1ab90e5143020cbd30c3596257042cf24b4ef7c800b6b26329
+    .agents/skills/pixi/references/official/environment.md: sha256:0cd310606001ec7f89268bbaaf0325cd2e91f4645593749b100bbfe745089ffa
+    .agents/skills/pixi/references/official/first-workspace.md: sha256:9f6d61e007c2bf46952e864ac3308072176e58ac2f852a827e1d539891b6c0a3
+    .agents/skills/pixi/references/official/global-tools.md: sha256:ad466962993fb0585e221d4e5067aa96be04958153303a95362044ebaa57af80
+    .agents/skills/pixi/references/official/llms.txt: sha256:b2247b656304fba491c8007d534fed8793110de9ec94f8c62e97642e472bbba0
+    .agents/skills/pixi/references/official/lock-file.md: sha256:e56e645d73309aa52b2551b2ed722857d8dfbfc2a7175eefd98247d4a7bde8f6
+    .agents/skills/pixi/references/official/manifest.md: sha256:542fa28a913eca4b0ebfcd693bd60733d5beae8978672ee3a30149c95bb81210
+    .agents/skills/pixi/references/official/multi-environment.md: sha256:05fab07c2911bb4e5bdb9287ee864e83d97c08a46f88304cfc45e6b3ddf13033
+    .agents/skills/pixi/references/official/pyproject.md: sha256:364ac61a2d50f16810973db873061bb9ee9baf69abc8d0cb956f47f511e61d9b
+    .agents/skills/pixi/references/official/sources.json: sha256:d36d25c00584f410ee2551bff272d837533781948764cc53afb2e1f719a64ebf
+    .agents/skills/pixi/references/official/tasks.md: sha256:13c30a43bded864724d4cba729d5e5fd75cfd3d2e262a339753506cafb30cc8e
+    .agents/skills/pixi/workflows/dependencies.md: sha256:a75fb1bd363b6b5902023b8b7a0207186175b97c398f23a1b9688f1352f4f45c
+    .agents/skills/pixi/workflows/environments.md: sha256:12fa6a690da3513ce667f5370f1d0f0a250ce350f382aa629a00ad130b78646a
+    .agents/skills/pixi/workflows/global.md: sha256:2bd419f7bf4dd5b3c40ddba7a343087723e7032d79f58530ac337cebad5a1713
+    .agents/skills/pixi/workflows/initialize.md: sha256:2d1b1895ccd227af6382366c346edaa8f64d3a85417476ace9ae4613b0e1a83d
+    .agents/skills/pixi/workflows/inspect.md: sha256:7a72d64ac6b6d5bdfef14b05893605ff83343bfd5750d23c21c7a763792fbc28
+    .agents/skills/pixi/workflows/run.md: sha256:d1a7b8e169b8aa84f211db4b1f49b3b8e7e04439351cdbfc38e5ba6aaac468bd
+    .claude/skills/pixi/README.md: sha256:206b8488b0c67409e8a93070898c22bb0023d60273bc6a0809acf83f88087045
+    .claude/skills/pixi/SKILL.md: sha256:50a5b73ac6d95873eafd582a2ccaabaaa61ee743668b277bdc95d8dcaf426de0
+    .claude/skills/pixi/references/official-docs.md: sha256:adedc9dbfe89a5aa632e961aee85562e795a59c3515c15fc1d48ca84fbe704e4
+    .claude/skills/pixi/references/official/LICENSE: sha256:679d42a76b82a6dc20ffd9048ab45fb2e5557a526113aaedc7419e12f3cfab38
+    .claude/skills/pixi/references/official/conda-pypi.md: sha256:a30189bb4061e98e8434c10fd68af67c653fc3d6726ec07264043e87c71e7de1
+    .claude/skills/pixi/references/official/configuration.md: sha256:d233e46c54597d1ab90e5143020cbd30c3596257042cf24b4ef7c800b6b26329
+    .claude/skills/pixi/references/official/environment.md: sha256:0cd310606001ec7f89268bbaaf0325cd2e91f4645593749b100bbfe745089ffa
+    .claude/skills/pixi/references/official/first-workspace.md: sha256:9f6d61e007c2bf46952e864ac3308072176e58ac2f852a827e1d539891b6c0a3
+    .claude/skills/pixi/references/official/global-tools.md: sha256:ad466962993fb0585e221d4e5067aa96be04958153303a95362044ebaa57af80
+    .claude/skills/pixi/references/official/llms.txt: sha256:b2247b656304fba491c8007d534fed8793110de9ec94f8c62e97642e472bbba0
+    .claude/skills/pixi/references/official/lock-file.md: sha256:e56e645d73309aa52b2551b2ed722857d8dfbfc2a7175eefd98247d4a7bde8f6
+    .claude/skills/pixi/references/official/manifest.md: sha256:542fa28a913eca4b0ebfcd693bd60733d5beae8978672ee3a30149c95bb81210
+    .claude/skills/pixi/references/official/multi-environment.md: sha256:05fab07c2911bb4e5bdb9287ee864e83d97c08a46f88304cfc45e6b3ddf13033
+    .claude/skills/pixi/references/official/pyproject.md: sha256:364ac61a2d50f16810973db873061bb9ee9baf69abc8d0cb956f47f511e61d9b
+    .claude/skills/pixi/references/official/sources.json: sha256:d36d25c00584f410ee2551bff272d837533781948764cc53afb2e1f719a64ebf
+    .claude/skills/pixi/references/official/tasks.md: sha256:13c30a43bded864724d4cba729d5e5fd75cfd3d2e262a339753506cafb30cc8e
+    .claude/skills/pixi/workflows/dependencies.md: sha256:a75fb1bd363b6b5902023b8b7a0207186175b97c398f23a1b9688f1352f4f45c
+    .claude/skills/pixi/workflows/environments.md: sha256:12fa6a690da3513ce667f5370f1d0f0a250ce350f382aa629a00ad130b78646a
+    .claude/skills/pixi/workflows/global.md: sha256:2bd419f7bf4dd5b3c40ddba7a343087723e7032d79f58530ac337cebad5a1713
+    .claude/skills/pixi/workflows/initialize.md: sha256:2d1b1895ccd227af6382366c346edaa8f64d3a85417476ace9ae4613b0e1a83d
+    .claude/skills/pixi/workflows/inspect.md: sha256:7a72d64ac6b6d5bdfef14b05893605ff83343bfd5750d23c21c7a763792fbc28
+    .claude/skills/pixi/workflows/run.md: sha256:d1a7b8e169b8aa84f211db4b1f49b3b8e7e04439351cdbfc38e5ba6aaac468bd
+  content_hash: sha256:a9d0f94da09461d28893db4cdb8110fd474f212eacae32fdaec5911ff57a9a58
+deployments:
+- kind: project-relative
+  target: claude
+  value: .claude/rules/apm.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:f08a103f2fbca6997396775cc0186cd0cb67217850bf52a5acd07d7eb789e653
+- kind: project-relative
+  target: claude
+  value: .claude/rules/code-comments.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:f5816810f475ef357a24ad25b5f81e0bce025c614629233dd452f626c9770de5
+- kind: project-relative
+  target: claude
+  value: .claude/rules/git.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:4ca5dbed6b8606f013ff6c423f53aeb3173da12a8c463f9b86ecf4f3aba31a3f
+- kind: project-relative
+  target: claude
+  value: .claude/rules/pixi.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:ca0304e39d8e92ace7c5006850c1a464398c8c21c7a8cfc21af58ccc4a721ecf
+- kind: project-relative
+  target: claude
+  value: .claude/rules/task.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:f9f545a15d53f86954ea1a141dd4170f4e8afb6504590d6c78fb9b9a57c8ac57
+- kind: project-relative
+  target: claude
+  value: .claude/skills/adr
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/adr/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:25a705c22de910ae0626328dc6efb241313cb77ccb116e8e0675740206cfea27
+- kind: project-relative
+  target: claude
+  value: .claude/skills/adr/references/adr-template-minimal.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:fdacd20ca99df002451fa8724e7b0b204c252604b586fafbfb60bbbf28a47a9f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/adr/references/adr-template.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:1dd2cbf38d24ceb5f7248b2e91358c8186ea6c318f036aa29b7e039c09f0cafb
+- kind: project-relative
+  target: claude
+  value: .claude/skills/apm
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/apm/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:2a467a2b87a4cc4d44859790f77f824165e77b61077017d25f9db95d124130c1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/cocogitto
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/cocogitto/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/cocogitto/references/changelog-templates.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/cocogitto/references/config-reference.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
+- kind: project-relative
+  target: claude
+  value: .claude/skills/deno
+  runtime: null
+  scope: project
+  owners:
+  - denoland/skills/skills/deno
+  active_owner: denoland/skills/skills/deno
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/deno/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - denoland/skills/skills/deno
+  active_owner: denoland/skills/skills/deno
+  content_hash: sha256:96bcaefb9ec0b388fcf0fbffbc7aa5d566860076f706ab3972f7f5fc59494527
+- kind: project-relative
+  target: claude
+  value: .claude/skills/deno/references/CLI.md
+  runtime: null
+  scope: project
+  owners:
+  - denoland/skills/skills/deno
+  active_owner: denoland/skills/skills/deno
+  content_hash: sha256:d95e2b119f2de24c9962092a38abdb1565b93c0a2d78e42d883d097cec62b276
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forge-recipe
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forge-recipe/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:5308fbe20dec9760187c20d2bd485ac133ae2f67c119e4d555f194dd636cbeea
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forge-recipe/references/plan-template.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:ed35016479a140c19e8fd84adfbfcb28901364923c1214d2dfa062a0e9d69df6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forge-recipe/references/recipe-dsl-reference.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:e1f5b401130ce7631d1258e6a240fb418d5a7cda79b8dbda2926bfc1795432b7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forge-recipe/references/recipe-examples.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forget
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forget/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:5577451c0c8777b7da1ac0118cf00486f58f7c6be3f79709617b102915250953
+- kind: project-relative
+  target: claude
+  value: .claude/skills/forget/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:43ae5c13fc87133f44a0751628eb1f8ce82abe18a91865112acefa31269b1a0d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/git-commit
+  runtime: null
+  scope: project
+  owners:
+  - github/awesome-copilot/skills/git-commit
+  active_owner: github/awesome-copilot/skills/git-commit
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/git-commit/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - github/awesome-copilot/skills/git-commit
+  active_owner: github/awesome-copilot/skills/git-commit
+  content_hash: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/lefthook
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/lefthook/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:c9e39b9ddeea238d575a163add754a39e194d315c5ab83955ffb5059035cc435
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/README.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:206b8488b0c67409e8a93070898c22bb0023d60273bc6a0809acf83f88087045
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:50a5b73ac6d95873eafd582a2ccaabaaa61ee743668b277bdc95d8dcaf426de0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official-docs.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:adedc9dbfe89a5aa632e961aee85562e795a59c3515c15fc1d48ca84fbe704e4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/LICENSE
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:679d42a76b82a6dc20ffd9048ab45fb2e5557a526113aaedc7419e12f3cfab38
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/conda-pypi.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:a30189bb4061e98e8434c10fd68af67c653fc3d6726ec07264043e87c71e7de1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/configuration.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:d233e46c54597d1ab90e5143020cbd30c3596257042cf24b4ef7c800b6b26329
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/environment.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:0cd310606001ec7f89268bbaaf0325cd2e91f4645593749b100bbfe745089ffa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/first-workspace.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:9f6d61e007c2bf46952e864ac3308072176e58ac2f852a827e1d539891b6c0a3
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/global-tools.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:ad466962993fb0585e221d4e5067aa96be04958153303a95362044ebaa57af80
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/llms.txt
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:b2247b656304fba491c8007d534fed8793110de9ec94f8c62e97642e472bbba0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/lock-file.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:e56e645d73309aa52b2551b2ed722857d8dfbfc2a7175eefd98247d4a7bde8f6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/manifest.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:542fa28a913eca4b0ebfcd693bd60733d5beae8978672ee3a30149c95bb81210
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/multi-environment.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:05fab07c2911bb4e5bdb9287ee864e83d97c08a46f88304cfc45e6b3ddf13033
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/pyproject.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:364ac61a2d50f16810973db873061bb9ee9baf69abc8d0cb956f47f511e61d9b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/sources.json
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:d36d25c00584f410ee2551bff272d837533781948764cc53afb2e1f719a64ebf
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/references/official/tasks.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:13c30a43bded864724d4cba729d5e5fd75cfd3d2e262a339753506cafb30cc8e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/workflows/dependencies.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:a75fb1bd363b6b5902023b8b7a0207186175b97c398f23a1b9688f1352f4f45c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/workflows/environments.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:12fa6a690da3513ce667f5370f1d0f0a250ce350f382aa629a00ad130b78646a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/workflows/global.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:2bd419f7bf4dd5b3c40ddba7a343087723e7032d79f58530ac337cebad5a1713
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/workflows/initialize.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:2d1b1895ccd227af6382366c346edaa8f64d3a85417476ace9ae4613b0e1a83d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/workflows/inspect.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:7a72d64ac6b6d5bdfef14b05893605ff83343bfd5750d23c21c7a763792fbc28
+- kind: project-relative
+  target: claude
+  value: .claude/skills/pixi/workflows/run.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:d1a7b8e169b8aa84f211db4b1f49b3b8e7e04439351cdbfc38e5ba6aaac468bd
+- kind: project-relative
+  target: claude
+  value: .claude/skills/remember
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/remember/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:81474d245e93b9a06885cb5f07754355077c6ca2693fcec58e4234a487b15b64
+- kind: project-relative
+  target: claude
+  value: .claude/skills/remember/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:5ae6e237f14a52190ca5f09da146de1454d595860257b5008d6cda8850dc696f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/LICENSE.txt
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:bc6b3af2f331cbc7fb0da1344efb2cbe5877a31498b4d70dbc7000f3405a1362
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/agents/analyzer.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:bf68f4cac5a56c673a928c2e6d619586c5b93ea364026ab37547772cb45a663a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/agents/comparator.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:fe1fc9787c495d864c5d6eada47396478572325fde1b33a96d78bf4b849b7a3e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/agents/grader.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:57134da0c1a4eea33fbd74a1c9c44aa814f07d6bc64de303edb586f941e5d21a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/assets/eval_review.html
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:ce477dcc74dc1c0d1d3352646a79167b5a63634e936b1019160025065974e452
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/eval-viewer/generate_review.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:fc9d1b9243fe5ab6012ebd579bd76d0035de1b79fd3b969de114defab26478fb
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/eval-viewer/viewer.html
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:a53213426ee1100441d701a3a0d49cda7a842f992d2c36463f4d3cc0258575fa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/references/schemas.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:8e8876180a8989b406a4d3edddf875b04cdfd5805cc8616686d552b11ce4455f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/__init__.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/aggregate_benchmark.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:123ef128ea5ccc01a4b1ac212ef5567f21e9c13d3d240609780beeb3200c49aa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/generate_report.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:13df7118a3c50c83c4c3250a606d5f2b20b25a3d44cbc392b3d669ec75281453
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/improve_description.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:87d864570220b699fac52da309d2d6efdb060647bfebc74f768128e646accf80
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/package_skill.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:1a33059b0db1ef73375d46d513e5ea81369d2e8838c970597b0d52ddef8d1c0f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/quick_validate.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:67cf5703402013936c8fb75ad6a1afecd8841d45cc5e606b634eb05825fde365
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/run_eval.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:43e3b8f80dbf69c343967ba77e268fae991d9fa3ed68b32a0ff02532cd48657f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/run_loop.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:7bd6f674203168520517eec94c55f493c0d154339b061b4d7c0f0dad187d0f21
+- kind: project-relative
+  target: claude
+  value: .claude/skills/skill-creator/scripts/utils.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:3af8ae62c40c73ab712207436a0d9a981e845f25c5a7040229eb189cc8e45bb1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/task
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/task/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:bbb1bf79b41da2193cfef9e6652ea370c5cbaf71bca5b7473042bf8ab3a08326
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/deno
+  runtime: null
+  scope: project
+  owners:
+  - denoland/skills/skills/deno
+  active_owner: denoland/skills/skills/deno
+  content_hash: null
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/deno/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - denoland/skills/skills/deno
+  active_owner: denoland/skills/skills/deno
+  content_hash: sha256:96bcaefb9ec0b388fcf0fbffbc7aa5d566860076f706ab3972f7f5fc59494527
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/deno/references/CLI.md
+  runtime: null
+  scope: project
+  owners:
+  - denoland/skills/skills/deno
+  active_owner: denoland/skills/skills/deno
+  content_hash: sha256:d95e2b119f2de24c9962092a38abdb1565b93c0a2d78e42d883d097cec62b276
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/git-commit
+  runtime: null
+  scope: project
+  owners:
+  - github/awesome-copilot/skills/git-commit
+  active_owner: github/awesome-copilot/skills/git-commit
+  content_hash: null
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/git-commit/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - github/awesome-copilot/skills/git-commit
+  active_owner: github/awesome-copilot/skills/git-commit
+  content_hash: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: null
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/README.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:206b8488b0c67409e8a93070898c22bb0023d60273bc6a0809acf83f88087045
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:50a5b73ac6d95873eafd582a2ccaabaaa61ee743668b277bdc95d8dcaf426de0
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official-docs.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:adedc9dbfe89a5aa632e961aee85562e795a59c3515c15fc1d48ca84fbe704e4
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/LICENSE
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:679d42a76b82a6dc20ffd9048ab45fb2e5557a526113aaedc7419e12f3cfab38
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/conda-pypi.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:a30189bb4061e98e8434c10fd68af67c653fc3d6726ec07264043e87c71e7de1
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/configuration.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:d233e46c54597d1ab90e5143020cbd30c3596257042cf24b4ef7c800b6b26329
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/environment.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:0cd310606001ec7f89268bbaaf0325cd2e91f4645593749b100bbfe745089ffa
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/first-workspace.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:9f6d61e007c2bf46952e864ac3308072176e58ac2f852a827e1d539891b6c0a3
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/global-tools.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:ad466962993fb0585e221d4e5067aa96be04958153303a95362044ebaa57af80
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/llms.txt
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:b2247b656304fba491c8007d534fed8793110de9ec94f8c62e97642e472bbba0
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/lock-file.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:e56e645d73309aa52b2551b2ed722857d8dfbfc2a7175eefd98247d4a7bde8f6
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/manifest.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:542fa28a913eca4b0ebfcd693bd60733d5beae8978672ee3a30149c95bb81210
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/multi-environment.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:05fab07c2911bb4e5bdb9287ee864e83d97c08a46f88304cfc45e6b3ddf13033
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/pyproject.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:364ac61a2d50f16810973db873061bb9ee9baf69abc8d0cb956f47f511e61d9b
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/sources.json
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:d36d25c00584f410ee2551bff272d837533781948764cc53afb2e1f719a64ebf
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/references/official/tasks.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:13c30a43bded864724d4cba729d5e5fd75cfd3d2e262a339753506cafb30cc8e
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/workflows/dependencies.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:a75fb1bd363b6b5902023b8b7a0207186175b97c398f23a1b9688f1352f4f45c
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/workflows/environments.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:12fa6a690da3513ce667f5370f1d0f0a250ce350f382aa629a00ad130b78646a
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/workflows/global.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:2bd419f7bf4dd5b3c40ddba7a343087723e7032d79f58530ac337cebad5a1713
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/workflows/initialize.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:2d1b1895ccd227af6382366c346edaa8f64d3a85417476ace9ae4613b0e1a83d
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/workflows/inspect.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:7a72d64ac6b6d5bdfef14b05893605ff83343bfd5750d23c21c7a763792fbc28
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/pixi/workflows/run.md
+  runtime: null
+  scope: project
+  owners:
+  - tttpob/bioinfo-skills/pixi
+  active_owner: tttpob/bioinfo-skills/pixi
+  content_hash: sha256:d1a7b8e169b8aa84f211db4b1f49b3b8e7e04439351cdbfc38e5ba6aaac468bd
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: null
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/LICENSE.txt
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:bc6b3af2f331cbc7fb0da1344efb2cbe5877a31498b4d70dbc7000f3405a1362
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/agents/analyzer.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:bf68f4cac5a56c673a928c2e6d619586c5b93ea364026ab37547772cb45a663a
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/agents/comparator.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:fe1fc9787c495d864c5d6eada47396478572325fde1b33a96d78bf4b849b7a3e
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/agents/grader.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:57134da0c1a4eea33fbd74a1c9c44aa814f07d6bc64de303edb586f941e5d21a
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/assets/eval_review.html
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:ce477dcc74dc1c0d1d3352646a79167b5a63634e936b1019160025065974e452
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/eval-viewer/generate_review.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:fc9d1b9243fe5ab6012ebd579bd76d0035de1b79fd3b969de114defab26478fb
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/eval-viewer/viewer.html
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:a53213426ee1100441d701a3a0d49cda7a842f992d2c36463f4d3cc0258575fa
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/references/schemas.md
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:8e8876180a8989b406a4d3edddf875b04cdfd5805cc8616686d552b11ce4455f
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/__init__.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/aggregate_benchmark.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:123ef128ea5ccc01a4b1ac212ef5567f21e9c13d3d240609780beeb3200c49aa
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/generate_report.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:13df7118a3c50c83c4c3250a606d5f2b20b25a3d44cbc392b3d669ec75281453
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/improve_description.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:87d864570220b699fac52da309d2d6efdb060647bfebc74f768128e646accf80
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/package_skill.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:1a33059b0db1ef73375d46d513e5ea81369d2e8838c970597b0d52ddef8d1c0f
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/quick_validate.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:67cf5703402013936c8fb75ad6a1afecd8841d45cc5e606b634eb05825fde365
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/run_eval.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:43e3b8f80dbf69c343967ba77e268fae991d9fa3ed68b32a0ff02532cd48657f
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/run_loop.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:7bd6f674203168520517eec94c55f493c0d154339b061b4d7c0f0dad187d0f21
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/skill-creator/scripts/utils.py
+  runtime: null
+  scope: project
+  owners:
+  - anthropics/skills/skills/skill-creator
+  active_owner: anthropics/skills/skills/skill-creator
+  content_hash: sha256:3af8ae62c40c73ab712207436a0d9a981e845f25c5a7040229eb189cc8e45bb1
+- kind: project-relative
+  target: copilot
+  value: .github/hooks/brads-forge-memory.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:2c5e942dc7b1a059d7b03b8bb8698be77a4026facb349f3d96d6307bef9842f6
+- kind: project-relative
+  target: copilot
+  value: .github/instructions/apm.instructions.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:9ea101b6d90229ade857dbadc710c8b00929d0604951d109baf2e94e4951d1be
+- kind: project-relative
+  target: copilot
+  value: .github/instructions/code-comments.instructions.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:daa4d7296b3150c5a1b9600f9529c57170a449f9031a5f5c903ad700c53c903c
+- kind: project-relative
+  target: copilot
+  value: .github/instructions/git.instructions.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:d5efd4538409f8d86f3f08e2b42d9db4c9521628e9c7d13427bb52fb1659d19b
+- kind: project-relative
+  target: copilot
+  value: .github/instructions/pixi.instructions.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:6860af1134a2823087f16d7010e71cc9e9805b872ba0d914fadb589bb898c876
+- kind: project-relative
+  target: copilot
+  value: .github/instructions/task.instructions.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:a8c672bb6cc8f68ac33e8459991e3c1310db7e023ab21f8c48ebcdbac035e041
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/adr
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/adr/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:25a705c22de910ae0626328dc6efb241313cb77ccb116e8e0675740206cfea27
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/adr/references/adr-template-minimal.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:fdacd20ca99df002451fa8724e7b0b204c252604b586fafbfb60bbbf28a47a9f
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/adr/references/adr-template.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:1dd2cbf38d24ceb5f7248b2e91358c8186ea6c318f036aa29b7e039c09f0cafb
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/apm
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/apm/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:2a467a2b87a4cc4d44859790f77f824165e77b61077017d25f9db95d124130c1
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/cocogitto
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/cocogitto/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/cocogitto/references/changelog-templates.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/cocogitto/references/config-reference.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forge-recipe
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forge-recipe/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:5308fbe20dec9760187c20d2bd485ac133ae2f67c119e4d555f194dd636cbeea
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forge-recipe/references/plan-template.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:ed35016479a140c19e8fd84adfbfcb28901364923c1214d2dfa062a0e9d69df6
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forge-recipe/references/recipe-dsl-reference.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:e1f5b401130ce7631d1258e6a240fb418d5a7cda79b8dbda2926bfc1795432b7
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forge-recipe/references/recipe-examples.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forget
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forget/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:5577451c0c8777b7da1ac0118cf00486f58f7c6be3f79709617b102915250953
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/forget/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:43ae5c13fc87133f44a0751628eb1f8ce82abe18a91865112acefa31269b1a0d
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/lefthook
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/lefthook/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:c9e39b9ddeea238d575a163add754a39e194d315c5ab83955ffb5059035cc435
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/remember
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/remember/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:81474d245e93b9a06885cb5f07754355077c6ca2693fcec58e4234a487b15b64
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/remember/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:5ae6e237f14a52190ca5f09da146de1454d595860257b5008d6cda8850dc696f
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/task
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: legacy
+  value: .agents/skills/task/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:bbb1bf79b41da2193cfef9e6652ea370c5cbaf71bca5b7473042bf8ab3a08326
+- kind: uri
+  target: lsp
+  value: deno
+  runtime: claude
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: uri
+  target: lsp
+  value: deno
+  runtime: copilot
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: uri
+  target: mcp
+  value: user-memory
+  runtime: claude
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: uri
+  target: mcp
+  value: user-memory
+  runtime: copilot
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+mcp_servers:
+- user-memory
+- workspace-memory
+mcp_configs:
+  user-memory:
+    name: user-memory
+    transport: stdio
+    env:
+      MEMORY_FILE_PATH: ${USER_MEMORY_FILE_PATH}
+    args:
+    - -y
+    - '@modelcontextprotocol/server-memory'
+    registry: false
+    command: dx
+  workspace-memory:
+    name: workspace-memory
+    transport: stdio
+    env:
+      MEMORY_FILE_PATH: ${PIXI_PROJECT_ROOT}/memory.jsonl
+    args:
+    - -y
+    - '@modelcontextprotocol/server-memory'
+    registry: false
+    command: dx
+mcp_target_servers:
+  claude:
+  - user-memory
+  copilot:
+  - user-memory
+lsp_servers:
+- deno
+lsp_configs:
+  deno:
+    name: deno
+    command: deno
+    args:
+    - lsp
+    extensionToLanguage:
+      .ts: typescript
+      .tsx: typescriptreact
+      .js: javascript
+      .jsx: javascriptreact
+      .mts: typescript
+      .cts: typescript
+      .mjs: javascript
+      .cjs: javascript
+lsp_target_servers:
+  claude:
+  - deno
+  copilot:
+  - deno
+lsp_config_provenance:
+  deno: project:.
+local_deployed_files:
+- .agents/skills/adr
+- .agents/skills/adr/SKILL.md
+- .agents/skills/adr/references/adr-template-minimal.md
+- .agents/skills/adr/references/adr-template.md
+- .agents/skills/apm
+- .agents/skills/apm/SKILL.md
+- .agents/skills/cocogitto
+- .agents/skills/cocogitto/SKILL.md
+- .agents/skills/cocogitto/references/changelog-templates.md
+- .agents/skills/cocogitto/references/config-reference.md
+- .agents/skills/forge-recipe
+- .agents/skills/forge-recipe/SKILL.md
+- .agents/skills/forge-recipe/references/plan-template.md
+- .agents/skills/forge-recipe/references/recipe-dsl-reference.md
+- .agents/skills/forge-recipe/references/recipe-examples.md
+- .agents/skills/forget
+- .agents/skills/forget/SKILL.md
+- .agents/skills/forget/evals/evals.json
+- .agents/skills/lefthook
+- .agents/skills/lefthook/SKILL.md
+- .agents/skills/remember
+- .agents/skills/remember/SKILL.md
+- .agents/skills/remember/evals/evals.json
+- .agents/skills/task
+- .agents/skills/task/SKILL.md
+- .claude/rules/apm.md
+- .claude/rules/code-comments.md
+- .claude/rules/git.md
+- .claude/rules/pixi.md
+- .claude/rules/task.md
+- .claude/skills/adr
+- .claude/skills/adr/SKILL.md
+- .claude/skills/adr/references/adr-template-minimal.md
+- .claude/skills/adr/references/adr-template.md
+- .claude/skills/apm
+- .claude/skills/apm/SKILL.md
+- .claude/skills/cocogitto
+- .claude/skills/cocogitto/SKILL.md
+- .claude/skills/cocogitto/references/changelog-templates.md
+- .claude/skills/cocogitto/references/config-reference.md
+- .claude/skills/forge-recipe
+- .claude/skills/forge-recipe/SKILL.md
+- .claude/skills/forge-recipe/references/plan-template.md
+- .claude/skills/forge-recipe/references/recipe-dsl-reference.md
+- .claude/skills/forge-recipe/references/recipe-examples.md
+- .claude/skills/forget
+- .claude/skills/forget/SKILL.md
+- .claude/skills/forget/evals/evals.json
+- .claude/skills/lefthook
+- .claude/skills/lefthook/SKILL.md
+- .claude/skills/remember
+- .claude/skills/remember/SKILL.md
+- .claude/skills/remember/evals/evals.json
+- .claude/skills/task
+- .claude/skills/task/SKILL.md
+- .github/hooks/brads-forge-memory.json
+- .github/instructions/apm.instructions.md
+- .github/instructions/code-comments.instructions.md
+- .github/instructions/git.instructions.md
+- .github/instructions/pixi.instructions.md
+- .github/instructions/task.instructions.md
+local_deployed_file_hashes:
+  .agents/skills/adr/SKILL.md: sha256:25a705c22de910ae0626328dc6efb241313cb77ccb116e8e0675740206cfea27
+  .agents/skills/adr/references/adr-template-minimal.md: sha256:fdacd20ca99df002451fa8724e7b0b204c252604b586fafbfb60bbbf28a47a9f
+  .agents/skills/adr/references/adr-template.md: sha256:1dd2cbf38d24ceb5f7248b2e91358c8186ea6c318f036aa29b7e039c09f0cafb
+  .agents/skills/apm/SKILL.md: sha256:2a467a2b87a4cc4d44859790f77f824165e77b61077017d25f9db95d124130c1
+  .agents/skills/cocogitto/SKILL.md: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
+  .agents/skills/cocogitto/references/changelog-templates.md: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
+  .agents/skills/cocogitto/references/config-reference.md: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
+  .agents/skills/forge-recipe/SKILL.md: sha256:5308fbe20dec9760187c20d2bd485ac133ae2f67c119e4d555f194dd636cbeea
+  .agents/skills/forge-recipe/references/plan-template.md: sha256:ed35016479a140c19e8fd84adfbfcb28901364923c1214d2dfa062a0e9d69df6
+  .agents/skills/forge-recipe/references/recipe-dsl-reference.md: sha256:e1f5b401130ce7631d1258e6a240fb418d5a7cda79b8dbda2926bfc1795432b7
+  .agents/skills/forge-recipe/references/recipe-examples.md: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
+  .agents/skills/forget/SKILL.md: sha256:5577451c0c8777b7da1ac0118cf00486f58f7c6be3f79709617b102915250953
+  .agents/skills/forget/evals/evals.json: sha256:43ae5c13fc87133f44a0751628eb1f8ce82abe18a91865112acefa31269b1a0d
+  .agents/skills/lefthook/SKILL.md: sha256:c9e39b9ddeea238d575a163add754a39e194d315c5ab83955ffb5059035cc435
+  .agents/skills/remember/SKILL.md: sha256:81474d245e93b9a06885cb5f07754355077c6ca2693fcec58e4234a487b15b64
+  .agents/skills/remember/evals/evals.json: sha256:5ae6e237f14a52190ca5f09da146de1454d595860257b5008d6cda8850dc696f
+  .agents/skills/task/SKILL.md: sha256:bbb1bf79b41da2193cfef9e6652ea370c5cbaf71bca5b7473042bf8ab3a08326
+  .claude/rules/apm.md: sha256:f08a103f2fbca6997396775cc0186cd0cb67217850bf52a5acd07d7eb789e653
+  .claude/rules/code-comments.md: sha256:f5816810f475ef357a24ad25b5f81e0bce025c614629233dd452f626c9770de5
+  .claude/rules/git.md: sha256:4ca5dbed6b8606f013ff6c423f53aeb3173da12a8c463f9b86ecf4f3aba31a3f
+  .claude/rules/pixi.md: sha256:ca0304e39d8e92ace7c5006850c1a464398c8c21c7a8cfc21af58ccc4a721ecf
+  .claude/rules/task.md: sha256:f9f545a15d53f86954ea1a141dd4170f4e8afb6504590d6c78fb9b9a57c8ac57
+  .claude/skills/adr/SKILL.md: sha256:25a705c22de910ae0626328dc6efb241313cb77ccb116e8e0675740206cfea27
+  .claude/skills/adr/references/adr-template-minimal.md: sha256:fdacd20ca99df002451fa8724e7b0b204c252604b586fafbfb60bbbf28a47a9f
+  .claude/skills/adr/references/adr-template.md: sha256:1dd2cbf38d24ceb5f7248b2e91358c8186ea6c318f036aa29b7e039c09f0cafb
+  .claude/skills/apm/SKILL.md: sha256:2a467a2b87a4cc4d44859790f77f824165e77b61077017d25f9db95d124130c1
+  .claude/skills/cocogitto/SKILL.md: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
+  .claude/skills/cocogitto/references/changelog-templates.md: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
+  .claude/skills/cocogitto/references/config-reference.md: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
+  .claude/skills/forge-recipe/SKILL.md: sha256:5308fbe20dec9760187c20d2bd485ac133ae2f67c119e4d555f194dd636cbeea
+  .claude/skills/forge-recipe/references/plan-template.md: sha256:ed35016479a140c19e8fd84adfbfcb28901364923c1214d2dfa062a0e9d69df6
+  .claude/skills/forge-recipe/references/recipe-dsl-reference.md: sha256:e1f5b401130ce7631d1258e6a240fb418d5a7cda79b8dbda2926bfc1795432b7
+  .claude/skills/forge-recipe/references/recipe-examples.md: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
+  .claude/skills/forget/SKILL.md: sha256:5577451c0c8777b7da1ac0118cf00486f58f7c6be3f79709617b102915250953
+  .claude/skills/forget/evals/evals.json: sha256:43ae5c13fc87133f44a0751628eb1f8ce82abe18a91865112acefa31269b1a0d
+  .claude/skills/lefthook/SKILL.md: sha256:c9e39b9ddeea238d575a163add754a39e194d315c5ab83955ffb5059035cc435
+  .claude/skills/remember/SKILL.md: sha256:81474d245e93b9a06885cb5f07754355077c6ca2693fcec58e4234a487b15b64
+  .claude/skills/remember/evals/evals.json: sha256:5ae6e237f14a52190ca5f09da146de1454d595860257b5008d6cda8850dc696f
+  .claude/skills/task/SKILL.md: sha256:bbb1bf79b41da2193cfef9e6652ea370c5cbaf71bca5b7473042bf8ab3a08326
+  .github/hooks/brads-forge-memory.json: sha256:2c5e942dc7b1a059d7b03b8bb8698be77a4026facb349f3d96d6307bef9842f6
+  .github/instructions/apm.instructions.md: sha256:9ea101b6d90229ade857dbadc710c8b00929d0604951d109baf2e94e4951d1be
+  .github/instructions/code-comments.instructions.md: sha256:daa4d7296b3150c5a1b9600f9529c57170a449f9031a5f5c903ad700c53c903c
+  .github/instructions/git.instructions.md: sha256:d5efd4538409f8d86f3f08e2b42d9db4c9521628e9c7d13427bb52fb1659d19b
+  .github/instructions/pixi.instructions.md: sha256:6860af1134a2823087f16d7010e71cc9e9805b872ba0d914fadb589bb898c876
+  .github/instructions/task.instructions.md: sha256:a8c672bb6cc8f68ac33e8459991e3c1310db7e023ab21f8c48ebcdbac035e041

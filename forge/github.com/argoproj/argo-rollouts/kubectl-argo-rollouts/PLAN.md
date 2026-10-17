@@ -1,22 +1,22 @@
 # Recipe Plan: kubectl-argo-rollouts
 
-> **Skill reference:** [forge-recipe skill](../../../../../xcaf/skills/forge-recipe/forge-recipe.xcaf) **DSL reference:**
-> [recipe-dsl-reference.md](../../../../../xcaf/skills/forge-recipe/references/recipe-dsl-reference.md) **Examples:**
-> [recipe-examples.md](../../../../../xcaf/skills/forge-recipe/references/recipe-examples.md)
+> **Skill reference:** [forge-recipe skill](../../../../../xcaf/skills/forge-recipe/forge-recipe.xcaf) **DSL
+> reference:** [recipe-dsl-reference.md](../../../../../xcaf/skills/forge-recipe/references/recipe-dsl-reference.md)
+> **Examples:** [recipe-examples.md](../../../../../xcaf/skills/forge-recipe/references/recipe-examples.md)
 
 ## Package Summary
 
-| Field       | Value                                                                                         |
-| ----------- | --------------------------------------------------------------------------------------------- |
-| Name        | `kubectl-argo-rollouts`                                                                       |
-| Upstream    | <https://github.com/argoproj/argo-rollouts>                                                   |
+| Field       | Value                                                                                           |
+| ----------- | ----------------------------------------------------------------------------------------------- |
+| Name        | `kubectl-argo-rollouts`                                                                         |
+| Upstream    | <https://github.com/argoproj/argo-rollouts>                                                     |
 | Description | kubectl plugin (and local dashboard) for Argo Rollouts progressive delivery (canary/blue-green) |
-| License     | `Apache-2.0`                                                                                  |
-| Homepage    | <https://argo-rollouts.readthedocs.io/>                                                       |
+| License     | `Apache-2.0`                                                                                    |
+| Homepage    | <https://argo-rollouts.readthedocs.io/>                                                         |
 
-The upstream repo's primary artifact is the in-cluster controller (shipped as a container image). The only
-standalone binary published on GitHub releases is the `kubectl-argo-rollouts` CLI, so that is what is packaged. The
-package name follows the binary rather than the repo, hence the extra `<package-name>` directory level.
+The upstream repo's primary artifact is the in-cluster controller (shipped as a container image). The only standalone
+binary published on GitHub releases is the `kubectl-argo-rollouts` CLI, so that is what is packaged. The package name
+follows the binary rather than the repo, hence the extra `<package-name>` directory level.
 
 ## Version Source
 
@@ -30,8 +30,8 @@ package name follows the binary rather than the repo, hence the extra `<package-
 - **Release page:** <https://github.com/argoproj/argo-rollouts/releases>
 - **Asset naming pattern:** `kubectl-argo-rollouts-{os}-{arch}` (e.g. `kubectl-argo-rollouts-linux-amd64`)
 - **Archive format:** none. Each asset is a **bare executable**, not an archive. rattler-build copies it as-is into
-  `$SRC_DIR/<asset-name>/<asset-name>`, which is the layout `githubReleaseAssets` produces via `target_directory`.
-  The Windows asset has no `.exe` suffix either.
+  `$SRC_DIR/<asset-name>/<asset-name>`, which is the layout `githubReleaseAssets` produces via `target_directory`. The
+  Windows asset has no `.exe` suffix either.
 - **Checksum strategy:** single `argo-rollouts-checksums.txt` (`<sha256>  <asset-name>` lines). `githubReleaseAssets`
   already picks it up through its default `/checksum|sha256/i` pattern, and also prefers the GitHub API asset `digest`
   when present. No per-asset `.sha256` files exist (they 404). No config needed.
@@ -66,11 +66,11 @@ Upstream publishes exactly five binaries (see `Makefile` `plugin-*` targets and 
 
 ## Build Steps
 
-1. Move the bare binary to `$PREFIX/bin/kubectl-argo-rollouts` (`.exe` appended on Windows via `exe()`):
-   `await r.moveGlob("./kubectl-argo-rollouts*/kubectl-argo-rollouts*", dst)`
+1. Move the bare binary to `$PREFIX/bin/kubectl-argo-rollouts` (`.exe` appended on Windows via `exe()`): `await
+   r.moveGlob("./kubectl-argo-rollouts*/kubectl-argo-rollouts*", dst)`
 2. `chmod 755` on unix (release assets are not guaranteed to carry the exec bit).
-3. No activation scripts or env vars. kubectl discovers any `kubectl-*` executable on `PATH`, so
-   `kubectl argo rollouts ...` works automatically.
+3. No activation scripts or env vars. kubectl discovers any `kubectl-*` executable on `PATH`, so `kubectl argo rollouts
+   ...` works automatically.
 
 ## Runtime Dependencies
 
@@ -156,8 +156,8 @@ task dryrun RECIPE=forge/github.com/argoproj/argo-rollouts/kubectl-argo-rollouts
 
 ## Open Questions
 
-1. **Package name:** `kubectl-argo-rollouts` (matches the binary and how users invoke it) vs `argo-rollouts` (matches the
-   repo, single-level directory). The plan assumes the former.
+1. **Package name:** `kubectl-argo-rollouts` (matches the binary and how users invoke it) vs `argo-rollouts` (matches
+   the repo, single-level directory). The plan assumes the former.
 2. **Add `kubectl` as a `run` requirement?** Assumed no, since the binary works standalone and `kubectl` is rarely
    missing for users of this tool.
 3. **`kubectl-argo-rollouts` alias:** do you want a shorter symlink such as `rollouts`? Assumed no.

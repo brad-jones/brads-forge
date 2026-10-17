@@ -63,9 +63,9 @@ of historical versions/downloads. This recipe uses a non-standard, custom versio
     case ngrok ever fixes this CDN behavior to actually respect the version segment.
 - **Archive format:** `.tgz` (tar.gz) for Linux, `.zip` for macOS and Windows. Both are auto-extracted by rattler-build.
 - **Checksum strategy:** No published checksums exist for specific versions (see finding above). Compute SHA-256 at
-  generation time by downloading each asset and hashing it:
-  `(await r.Digest.fromBuffer(await (await r.http.get(url)).bytes())).hashString` (same pattern already used for the
-  Windows sources in `forge/atlassian.com/acli/recipe.ts`).
+  generation time by downloading each asset and hashing it: `(await r.Digest.fromBuffer(await (await
+  r.http.get(url)).bytes())).hashString` (same pattern already used for the Windows sources in
+  `forge/atlassian.com/acli/recipe.ts`).
 - **Custom `sources` function required** (not `r.githubReleaseAssets`, since this isn't GitHub-hosted) — will manually
   build a `Partial<Record<Platform, Source[]>>` map with one entry per supported platform.
 
@@ -113,9 +113,8 @@ of historical versions/downloads. This recipe uses a non-standard, custom versio
 
 - **Command:** `ngrok version`
 - **Expected output format:** `ngrok version 3.39.9` (space-separated, version is the last token)
-- **Validation:** `r.coerceSemVer(await r.$\`ngrok
-  version\`.text())`compared against`pkgVersion`(same pattern as
-  other recipes —`coerceSemVer`should correctly extract`3.39.9`from the full string via`semver.coerce`).
+- **Validation:** ``r.coerceSemVer(await r.$\``ngrok version\`.text())``compared against``pkgVersion``(same pattern as
+  other recipes —``coerceSemVer``should correctly extract``3.39.9``from the full string via``semver.coerce`).
 - **Platform-specific tests:** None needed — same command works on all platforms.
 
 ## Verification Steps

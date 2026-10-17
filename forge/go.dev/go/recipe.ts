@@ -70,15 +70,11 @@ export default new r.Recipe({
 
     const archives = (await getGoDownloads()).find((_) =>
       _.version === tag
-    )?.files?.filter((_) =>
-      _.kind === "archive"
-    ) ?? [];
+    )?.files?.filter((_) => _.kind === "archive") ?? [];
 
     for (const archive of archives) {
       const platform = r.Platform.safeParse(
-        `${mapGOOSToPixi(archive.os)}-${
-          mapGOARCHToPixi(archive.os, archive.arch)
-        }`,
+        `${mapGOOSToPixi(archive.os)}-${mapGOARCHToPixi(archive.os, archive.arch)}`,
       );
 
       if (platform.success) {

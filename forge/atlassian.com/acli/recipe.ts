@@ -35,26 +35,22 @@ export default new r.Recipe({
 
     return {
       "linux-64": [{
-        url:
-          `https://acli.atlassian.com/linux/${tag}/acli_${tag}_linux_amd64.tar.gz`,
+        url: `https://acli.atlassian.com/linux/${tag}/acli_${tag}_linux_amd64.tar.gz`,
         sha256: extractSha256("linux_amd64"),
         target_directory: "acli",
       }],
       "linux-aarch64": [{
-        url:
-          `https://acli.atlassian.com/linux/${tag}/acli_${tag}_linux_arm64.tar.gz`,
+        url: `https://acli.atlassian.com/linux/${tag}/acli_${tag}_linux_arm64.tar.gz`,
         sha256: extractSha256("linux_arm64"),
         target_directory: "acli",
       }],
       "osx-64": [{
-        url:
-          `https://acli.atlassian.com/darwin/${tag}/acli_${tag}_darwin_amd64.tar.gz`,
+        url: `https://acli.atlassian.com/darwin/${tag}/acli_${tag}_darwin_amd64.tar.gz`,
         sha256: extractSha256("darwin_amd64"),
         target_directory: "acli",
       }],
       "osx-arm64": [{
-        url:
-          `https://acli.atlassian.com/darwin/${tag}/acli_${tag}_darwin_arm64.tar.gz`,
+        url: `https://acli.atlassian.com/darwin/${tag}/acli_${tag}_darwin_arm64.tar.gz`,
         sha256: extractSha256("darwin_arm64"),
         target_directory: "acli",
       }],
@@ -63,8 +59,7 @@ export default new r.Recipe({
       // so I'm just linking to the latest version and hoping that when Atlassian updates the brew formula,
       // they also update the latest windows binary.
       "win-64": [{
-        url:
-          `https://acli.atlassian.com/windows/latest/acli_windows_amd64/acli.exe`,
+        url: `https://acli.atlassian.com/windows/latest/acli_windows_amd64/acli.exe`,
         sha256: (await r.Digest.fromBuffer(
           await (await r.http.get(
             `https://acli.atlassian.com/windows/latest/acli_windows_amd64/acli.exe`,
@@ -73,8 +68,7 @@ export default new r.Recipe({
         target_directory: "acli",
       }],
       "win-arm64": [{
-        url:
-          `https://acli.atlassian.com/windows/latest/acli_windows_arm64/acli.exe`,
+        url: `https://acli.atlassian.com/windows/latest/acli_windows_arm64/acli.exe`,
         sha256: (await r.Digest.fromBuffer(
           await (await r.http.get(
             `https://acli.atlassian.com/windows/latest/acli_windows_arm64/acli.exe`,
@@ -85,8 +79,7 @@ export default new r.Recipe({
     };
   },
   about: {
-    repository:
-      `https://developer.atlassian.com/cloud/acli/guides/introduction/`,
+    repository: `https://developer.atlassian.com/cloud/acli/guides/introduction/`,
     summary:
       "Atlassian CLI is a command line tool that unlocks a new way for you to interact with Atlassian, using text-based commands and scripts to complete tasks.",
   },

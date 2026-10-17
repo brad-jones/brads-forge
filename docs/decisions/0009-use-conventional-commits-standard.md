@@ -18,9 +18,9 @@ changed and why.
 
 ## Decision Outcome
 
-Chosen option: "Conventional Commits", because it provides a machine-readable structure
-(`<type>[(scope)]: <description>`) that enables automated changelog generation and semantic versioning via
-`cog bump --auto`, while also improving human readability of the git history.
+Chosen option: "Conventional Commits", because it provides a machine-readable structure (`<type>[(scope)]:
+<description>`) that enables automated changelog generation and semantic versioning via `cog bump --auto`, while also
+improving human readability of the git history.
 
 > Full spec: <https://www.conventionalcommits.org/en/v1.0.0>
 

@@ -58,8 +58,8 @@
 
 ## Build Steps
 
-1. Extract archive — contains `LICENSE` and the `podplane` binary at the archive root (verified via
-   `tar tzf podplane_0.8.1_linux_amd64.tar.gz`).
+1. Extract archive — contains `LICENSE` and the `podplane` binary at the archive root (verified via `tar tzf
+   podplane_0.8.1_linux_amd64.tar.gz`).
 2. Move binary to `$PREFIX/bin/podplane` using `r.moveGlob("./podplane_*/podplane", dst)`.
 3. `chmod 755` on Unix (no Windows build, so `unix` will always be true for supported platforms).
 4. No additional env vars, PATH modifications, or symlinks required.

@@ -1,0 +1,56 @@
+{
+  "skill_name": "forget",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Independent dry run. Both memory servers are healthy. /forget In this repository only, forget my formatter preference. Describe the next step without executing any tools.",
+      "expected_output": "Asks which store to use before any memory calls; repository applicability is not a destination.",
+      "files": [],
+      "assertions": [
+        "Asks workspace memories or global user memories before any memory reads or writes.",
+        "Does not infer workspace-memory from repository applicability."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Independent dry run. User selected_user; repository brads-playground. user-memory graph: selected_user/topics/editor (local_context, observations: Prefers Vim keybindings; Uses a high-contrast theme); selected_user/repositories/brads-playground/topics/editor (local_context, observation: Uses default keybindings in this repository). workspace-memory contains selected_user/topics/editor with Prefers Vim keybindings. /forget In global user memories, forget my user-wide Vim keybinding preference. Propose tool calls without executing mutations.",
+      "expected_output": "Deletes only the exact user-wide keybinding observation on user-memory and verifies removal; preserves the theme, repository exception, ownership, and other store.",
+      "files": [],
+      "assertions": [
+        "Targets selected_user/topics/editor on user-memory with delete_observations and the exact Prefers Vim keybindings string.",
+        "Preserves theme, repository exception, entities, ownership relations, and workspace-memory.",
+        "Proposes readback verification without executing mutations."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Independent dry run. User default_user; repository brads-playground. user-memory graph: default_user/topics/build (local_context, observation: Prefers incremental builds); default_user/repositories/brads-playground/topics/build (local_context, observation: Prefers clean builds here). /forget In global user memories, forget my build preference. Propose the next step without executing mutations.",
+      "expected_output": "Asks which applicability scope or scopes to remove before any destructive proposal.",
+      "files": [],
+      "assertions": [
+        "Asks which scope or scopes to forget because multiple applicability scopes match.",
+        "Proposes no deletion until scope is resolved."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Independent dry run. User default_user. workspace-memory graph: default_user (user, observations: Prefers brief summaries; Learning Italian); default_user/topics/editor (local_context, observation: Uses Helix); relation default_user has_context default_user/topics/editor. /forget In workspace memories, remove the entire default_user/topics/editor entity. Propose calls without executing mutations.",
+      "expected_output": "Proposes delete_entities only for the named topic, explains incident relation removal, verifies absence, and preserves the user anchor and personal observations.",
+      "files": [],
+      "assertions": [
+        "Uses delete_entities only for default_user/topics/editor on workspace-memory and identifies incident relation removal.",
+        "Preserves default_user and its observations and proposes verification of entity absence."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Independent dry run. User default_user. user-memory is unavailable; workspace-memory is healthy and contains default_user/topics/editor with Uses Helix. /forget In global user memories, forget my editor preference. Explain the outcome without executing mutations.",
+      "expected_output": "Reports nothing removed because user-memory is unavailable, with no fallback or success claim.",
+      "files": [],
+      "assertions": [
+        "Reports nothing removed because user-memory is unavailable.",
+        "Does not fall back to workspace-memory, local files, or another provider."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "skill_name": "remember",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Independent dry run. Current user: default_user; repository: brads-playground; cwd: projects/csproj-parser. user-memory graph: only default_user (user, no observations). /remember In global user memories, I use Fish instead of Bash. Propose tool calls without executing mutations.",
+      "expected_output": "Search existing and legacy memories; propose a local_context shell topic owned by default_user, not a project-scoped or universal Fish node. Create has_context and verify the proposed result.",
+      "files": [],
+      "assertions": [
+        "Places the observation on default_user/topics/shell with entityType local_context.",
+        "Does not infer project scope from cwd or put the preference on default_user.",
+        "Proposes ownership and readback without executing mutations."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Independent dry run. Current user: selected_user; repository: brads-playground. user-memory graph: selected_user (user, empty). /remember In global user memories, use github-personal for public repositories and github-work for Acme repositories. Propose tool calls without executing mutations.",
+      "expected_output": "Stores the supplied routing preferences on selected_user/topics/mcp/github, with one observation per rule and a selected_user has_context relation. Does not infer other accounts or route through default_user.",
+      "files": [],
+      "assertions": [
+        "Uses selected_user/topics/mcp/github and selected_user as owner.",
+        "Preserves both provided connection names and routing conditions without inventing additional accounts.",
+        "Keeps routing observations atomic."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Independent dry run. User default_user; repository brads-playground. workspace-memory graph: default_user (user, empty); default_user/topics/coding-style (local_context, observation: Prefers spaces for indentation). /remember In workspace memories, in brads-playground only, use tabs for indentation. Propose tool calls without executing mutations.",
+      "expected_output": "Creates a repository-scoped coding-style topic and preserves the existing user-wide preference as a broader default.",
+      "files": [],
+      "assertions": [
+        "Uses default_user/repositories/brads-playground/topics/coding-style.",
+        "Does not delete or rewrite the user-wide spaces observation."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Independent dry run. User default_user. user-memory graph: default_user (user, observation: Prefers concise responses); no topics. /remember In global user memories, keep your responses short. Propose tool calls without executing mutations.",
+      "expected_output": "Recognizes the semantic duplicate on the legacy root and reports it is already remembered. Does not automatically migrate it or create a duplicate topic observation.",
+      "files": [],
+      "assertions": [
+        "Checks legacy observations and identifies a semantic duplicate.",
+        "Proposes no mutation or automatic migration."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Independent dry run. User default_user. user-memory graph: default_user (user, empty); default_user/topics/shell (local_context, observations: Uses Fish as the default shell; Terminal execution can use Bash despite reporting Fish). /remember In global user memories, actually I now use Zsh instead of Fish as my default shell. Propose tool calls without executing mutations.",
+      "expected_output": "Adds and verifies the replacement before deleting the exact superseded default-shell observation; preserves the separate execution caveat.",
+      "files": [],
+      "assertions": [
+        "Orders replacement addition and verification before deletion of the superseded observation.",
+        "Preserves the terminal execution caveat and does not delete the entire shell entity."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Independent dry run. User default_user; repository brads-playground. user-memory graph: default_user/topics/mcp/github (local_context, observation: Uses github-personal for public repositories); default_user/repositories/brads-playground/topics/mcp/github (local_context, observation: Uses github-work for this repository). /remember In global user memories, actually use github-new for my GitHub connection preference. Propose tool calls without executing mutations.",
+      "expected_output": "Asks which scope or scopes to correct before proposing replacement actions; does not infer blanket replacement.",
+      "files": [],
+      "assertions": [
+        "Asks a focused scope clarification because both user-wide and repository-scoped facts match.",
+        "Proposes no replacement or deletion until scope is resolved."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Independent dry run. User default_user; repository brads-playground. workspace-memory graph: default_user (user, observations: Uses Fish as the default shell; Prefers concise responses; Learning Spanish). /remember In workspace memories, preview reorganizing my existing memories into topics. Propose the mapping and subsequent approved tool sequence without executing mutations.",
+      "expected_output": "Moves shell and communication preferences into their respective user-wide topics, leaves the personal fact on default_user, preserves exact strings, and requires separate approval before add/verify/delete migration.",
+      "files": [],
+      "assertions": [
+        "Maps Uses Fish as the default shell to default_user/topics/shell and Prefers concise responses to default_user/topics/communication.",
+        "Leaves Learning Spanish on default_user and preserves observation text.",
+        "Requires approval and destination readback before deleting exact moved source observations."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Independent dry run. User default_user. user-memory is unavailable but workspace-memory is healthy. /remember In global user memories, ask before changing my dotfiles. Explain the outcome without executing mutations.",
+      "expected_output": "Reports the memory was not saved; does not fall back to local files or another provider and does not claim success.",
+      "files": [],
+      "assertions": [
+        "Clearly reports not saved because the configured server is unavailable.",
+        "Does not write local files, use another memory provider, or claim successful persistence.",
+        "Does not fall back to the healthy workspace-memory server."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Independent dry run. Both memory servers are healthy. /remember I prefer concise responses. Do not execute mutations.",
+      "expected_output": "Asks workspace memories or global user memories and waits without any memory server calls.",
+      "files": [],
+      "assertions": [
+        "Asks for the storage destination before any memory reads or writes.",
+        "Does not infer a global destination from a personal preference."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Independent dry run. User default_user. Both stores contain default_user/topics/shell with Uses Fish. /remember In workspace memories, actually I use Zsh instead of Fish. Propose tool calls without executing mutations.",
+      "expected_output": "Uses only workspace-memory for lookup, add, verification, and exact superseded-observation deletion. Leaves user-memory untouched and does not ask for an already explicit destination.",
+      "files": [],
+      "assertions": [
+        "All proposed memory calls target workspace-memory.",
+        "Preserves the other store's Uses Fish observation.",
+        "Does not repeat the destination question."
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Independent dry run. User default_user. workspace-memory contains default_user/topics/communication with Prefers concise responses. user-memory is empty. /remember In global user memories, keep responses concise. Propose calls without executing mutations.",
+      "expected_output": "Searches and saves only in user-memory. A matching workspace fact does not authorize deletion, migration, or claiming it already exists in user-memory.",
+      "files": [],
+      "assertions": [
+        "Proposes a user-memory communication topic and ownership relation.",
+        "Does not delete or change workspace-memory.",
+        "All proposed calls target user-memory, and a workspace duplicate cannot imply it is already remembered there."
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Independent dry run. /remember In this repository only, use tabs. Propose the next step without executing mutations.",
+      "expected_output": "Asks which storage destination to use; repository applicability alone is not a workspace-memory selection.",
+      "files": [],
+      "assertions": [
+        "Asks workspace or global user before any server calls.",
+        "Keeps repository applicability distinct from destination."
+      ]
+    }
+  ]
+}

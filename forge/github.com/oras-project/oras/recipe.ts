@@ -13,14 +13,11 @@ export default new r.Recipe({
     osMap: { "osx": "darwin", "win": "windows" },
     archMap: { "64": "amd64", "aarch64": "arm64" },
     fileName: (version, os, arch) =>
-      `oras_${version.replace("v", "")}_${os}_${arch}.${
-        os === "windows" ? "zip" : "tar.gz"
-      }`,
+      `oras_${version.replace("v", "")}_${os}_${arch}.${os === "windows" ? "zip" : "tar.gz"}`,
   }),
   about: {
     homepage: "https://oras.land",
-    summary:
-      "OCI registry client - managing content like artifacts, images, packages",
+    summary: "OCI registry client - managing content like artifacts, images, packages",
     repository: `https://github.com/${owner}/${repo}`,
     description: await r.http.get(
       "https://raw.githubusercontent.com/oras-project/oras/refs/heads/main/README.md",

@@ -87,7 +87,7 @@
 - **Command:** `lightpanda version` (note: subcommand, not a flag — verified via `--help`; `lightpanda --version` fails
   with `UnknownCommand`)
 - **Expected output format:** bare version string, e.g. `0.3.5` (verified by running the binary directly)
-- **Validation:** `r.coerceSemVer(await r.$\`lightpanda version\`.text()) !== pkgVersion` → throw if mismatched
+- **Validation:** ``r.coerceSemVer(await r.$\``lightpanda version\`.text()) !== pkgVersion` → throw if mismatched
 - **Platform-specific tests:** none needed (Unix only)
 
 ## Verification Steps

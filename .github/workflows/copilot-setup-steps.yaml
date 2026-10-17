@@ -23,4 +23,9 @@ jobs:
           activate-environment: true
 
       - name: 🛠️ Additional Initialization
-        run: task init
+        run: APM_TARGET=copilot task init
+
+      # Installing for the copilot target alone rewrites apm.lock.yaml without the other targets' deployments.
+      # Put the file back as checked out so that it isn't committed by accident.
+      - name: ♻️ Restore APM Lock File
+        run: git checkout -- apm.lock.yaml

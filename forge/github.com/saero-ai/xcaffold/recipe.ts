@@ -11,8 +11,7 @@ export default new r.Recipe({
     repo,
     osMap: { "osx": "darwin", "win": "windows" },
     archMap: { "64": "amd64", "aarch64": "arm64" },
-    fileName: (_, os, arch) =>
-      `xcaffold_${os}_${arch}.${os === "windows" ? "zip" : "tar.gz"}`,
+    fileName: (_, os, arch) => `xcaffold_${os}_${arch}.${os === "windows" ? "zip" : "tar.gz"}`,
   }),
   about: {
     homepage: "https://www.xcaffold.com/",
