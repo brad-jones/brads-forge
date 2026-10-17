@@ -14,7 +14,11 @@ import { chromium, type Page } from "playwright-core";
  */
 export async function withObscuraBrowser<T>(fn: (page: Page) => Promise<T>): Promise<T> {
   const port = getAvailablePort();
-  const proc = $`obscura serve --port ${port}`.stdout("piped").stderr("piped").noThrow().spawn();
+  // The conda cacert bundle (SSL_CERT_FILE/SSL_CERT_DIR) makes obscura panic with
+  // `InvalidCertificate(BadEncoding)` when building its HTTP client, so it must use its own roots.
+  const proc = $`obscura serve --port ${port}`
+    .env({ SSL_CERT_FILE: "", SSL_CERT_DIR: "" })
+    .stdout("piped").stderr("piped").noThrow().spawn();
 
   try {
     const browser = await connectWithRetry(`ws://127.0.0.1:${port}`);
@@ -26,14 +30,15 @@ export async function withObscuraBrowser<T>(fn: (page: Page) => Promise<T>): Pro
       try {
         return await fn(page);
       } finally {
-        await page.close().catch(() => {});
+        await withTimeout(page.close(), 5_000);
       }
     } finally {
-      await browser.close().catch(() => {});
+      await withTimeout(browser.close(), 5_000);
     }
   } finally {
-    proc.kill();
-    await proc;
+    // Never block on teardown: on Windows the process (or its pipes) can outlive a graceful kill.
+    proc.kill("SIGKILL");
+    await withTimeout(proc, 5_000);
   }
 }
 
@@ -50,7 +55,7 @@ async function connectWithRetry(
 
   while (Date.now() < deadline) {
     try {
-      return await chromium.connectOverCDP(wsEndpoint);
+      return await chromium.connectOverCDP(wsEndpoint, { timeout: 5_000 });
     } catch (error) {
       lastError = error;
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
@@ -64,4 +69,17 @@ async function connectWithRetry(
 function getAvailablePort(): number {
   using listener = Deno.listen({ port: 0, hostname: "127.0.0.1" });
   return (listener.addr as Deno.NetAddr).port;
+}
+
+/** Waits for promise but gives up (and swallows errors) after ms, so teardown can never hang. */
+async function withTimeout(promise: PromiseLike<unknown>, ms: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      Promise.resolve(promise).catch(() => {}),
+      new Promise<void>((resolve) => timer = setTimeout(resolve, ms)),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
