@@ -37,13 +37,20 @@ export default new r.Recipe({
     license: "Apache-2.0",
   },
   build: {
-    number: 0,
+    number: 1,
     dynamic_linking: { binary_relocation: false },
     func: async ({ prefixDir, exe, unix }) => {
       for (const tool of tools) {
         const dst = r.path.join(prefixDir, "bin", exe(tool));
         await r.moveGlob(`./*/bin/${exe(tool)}`, dst);
         if (unix) await Deno.chmod(dst, 0o755);
+      }
+      // The macOS binaries link dynamically against @rpath/libbinaryen.dylib.
+      for (const dir of ["lib", "include"]) {
+        const src = await r.expandGlobFirst(`./*/${dir}`, {
+          breakOnDirOrFile: "dir",
+        });
+        if (src) await Deno.rename(src, r.path.join(prefixDir, dir));
       }
     },
   },
