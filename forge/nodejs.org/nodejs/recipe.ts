@@ -63,7 +63,12 @@ export default new r.Recipe({
     repository: "https://github.com/nodejs/node",
     description: await r.http.get("https://raw.githubusercontent.com/nodejs/node/refs/heads/main/README.md").text(),
     license: "MIT",
+    license_file: "node/LICENSE",
   },
+  // Minimums taken from the official binary platform table in upstream's BUILDING.md.
+  requirements: ({ targetOs }) => ({
+    run: targetOs === "linux" ? ["__glibc >=2.28"] : targetOs === "osx" ? ["__osx >=13.5"] : [],
+  }),
   build: {
     number: 0,
     dynamic_linking: { binary_relocation: false, overlinking_behavior: "ignore" },

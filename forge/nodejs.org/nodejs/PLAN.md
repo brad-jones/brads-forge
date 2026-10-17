@@ -47,6 +47,11 @@ and `README.md`:
 `overlinking_behavior` is `ignore` because the upstream Linux binary links against system `libc`, `libstdc++` and
 `libatomic`.
 
+## Requirements
+
+Upstream's supported-platform table sets the runtime floor, declared as virtual packages: `__glibc >=2.28` on Linux and
+`__osx >=13.5` on macOS. `LICENSE` is shipped via `about.license_file`.
+
 ## Test Strategy
 
 `node --version` must match the package version. On unix `npm --version` must also print something, proving the
