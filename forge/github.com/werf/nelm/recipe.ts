@@ -53,9 +53,12 @@ export default new r.Recipe({
   version: r.latestGithubTag({
     owner,
     repo,
+    // Pre-releases are skipped as rattler-build splits "2.0.1-alpha.3" into
+    // an unsolvable "nelm-2.0.1 ==alpha.3" test spec.
     tagFilter: (tag) =>
+      !tag.includes("-") &&
       targets.signed
-        .targets[`releases/${tag.replace(/^v/, "")}/linux-amd64/bin/nelm`] !==
+          .targets[`releases/${tag.replace(/^v/, "")}/linux-amd64/bin/nelm`] !==
         undefined,
   }),
   platforms: ["win-64", "linux-64", "linux-aarch64", "osx-64", "osx-arm64"],
