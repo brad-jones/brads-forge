@@ -1,0 +1,17 @@
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  pr-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+    steps:
+      - name: 🦥 Wait for all checks
+        uses: lendable/sloth@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: pr-gate
+          allow-empty: true
