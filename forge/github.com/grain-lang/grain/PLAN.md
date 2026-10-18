@@ -59,6 +59,9 @@ rattler-build does not extract a bare executable; it is copied to `$SRC_DIR/<ass
 `grain --version` prints the bare version (e.g. `0.7.2`). Compare via `r.coerceSemVer()` against `pkgVersion`, as in the
 other recipes.
 
+Then write a one-line `hello.gr` (`print("hello from grain")`) to a temp dir, run `grain hello.gr` (compile and run) and
+expect `hello from grain`. This proves the bundled standard library works, which `--version` alone does not.
+
 ## Supported Platforms
 
 `linux-64`, `osx-64`, `win-64`.
@@ -69,8 +72,7 @@ under Rosetta, but the forge will not publish a native `osx-arm64` or `linux-aar
 
 ## Open Questions / Risks
 
-- The `pkg` binary should bundle the standard library; the dry run (`grain --version` only) won't prove that. A stronger
-  smoke test (e.g. compiling a trivial `.gr` file) could be added if you want it.
+- The `pkg` binary should bundle the standard library; the test compiles and runs a trivial program to prove it.
 - The GitHub API was not reachable for this repo while planning, so the asset names above come from the upstream release
   workflow rather than a live release listing. `task generate` will confirm them against the real release.
 
