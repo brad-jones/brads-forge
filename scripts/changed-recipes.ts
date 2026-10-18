@@ -2,6 +2,7 @@
 import { Command } from "@cliffy/command";
 import { $ } from "@david/dax";
 import { exists } from "@std/fs";
+import { dirname } from "@std/path/posix";
 
 await new Command()
   .name("changed-recipes")
@@ -11,13 +12,18 @@ await new Command()
   .action(async ({ base, forgeDir }) => {
     const diff = await $`git diff --name-only --diff-filter=d ${base}...HEAD -- ${forgeDir}`.lines();
 
-    // A recipe is a `<forgeDir>/<domain>/<name>/recipe.ts` & everything beside it is part of that recipe.
+    // A recipe is the nearest `recipe.ts` above a changed file, at any depth under `forgeDir`.
     const recipes = new Set<string>();
     for (const file of diff) {
-      const parts = file.split("/");
-      if (parts.length < 4) continue;
-      const recipe = `${parts.slice(0, 3).join("/")}/recipe.ts`;
-      if (await exists(recipe)) recipes.add(recipe);
+      let dir = dirname(file);
+      while (dir !== forgeDir && dir !== "." && dir !== "/") {
+        const recipe = `${dir}/recipe.ts`;
+        if (await exists(recipe)) {
+          recipes.add(recipe);
+          break;
+        }
+        dir = dirname(dir);
+      }
     }
 
     const json = JSON.stringify([...recipes].sort());
