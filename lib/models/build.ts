@@ -60,6 +60,21 @@ export const BuildContext = z.object({
   pkgBuildString: z.string().default(Deno.env.get("PKG_BUILD_STRING") ?? ""),
 
   /**
+   * The platform `{os}-{arch}` that is running the current build.
+   */
+  buildPlatform: Platform,
+
+  /**
+   * The operating system that is running the current build.
+   */
+  buildOs: PlatformOs,
+
+  /**
+   * The architecture that is running the current build.
+   */
+  buildArch: PlatformArch,
+
+  /**
    * The platform `{os}-{arch}` that is being targeted by the current build.
    */
   targetPlatform: Platform,
