@@ -28,7 +28,7 @@ fi
 # earlier versions of this hook after a failed activation, doesn't count as activated.
 pixi_marker="# pixi shell-hook"
 if [ -n "${CLAUDE_ENV_FILE:-}" ] && ! grep -qsxF "$pixi_marker" "$CLAUDE_ENV_FILE"; then
-  pixi_shell_hook="$(pixi shell-hook --shell bash")"
+  pixi_shell_hook="$(pixi shell-hook --shell bash)"
   {
     echo "$pixi_marker"
     echo "$pixi_shell_hook"
