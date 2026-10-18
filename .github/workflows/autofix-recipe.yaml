@@ -111,7 +111,10 @@ jobs:
             and read its output from the CI logs in a later turn. Once the fix is known, rebase onto `origin/master`
             and force push, so that the PR holds only the commit(s) that are actually relevant to the fix.
 
+      # Claude can fail after it has already opened the PR, which still needs adopting so that
+      # later turns pick it up.
       - name: 🏷️ Adopt the PR
+        if: always() && steps.brief.outcome == 'success'
         env:
           BRANCH: ${{ steps.brief.outputs.branch }}
         run: scripts/autofix.ts adopt --branch "$BRANCH"
