@@ -63,19 +63,21 @@ jobs:
             "✅ no blocking issues" or "❌ N issues to fix".
 
       - name: ✔️ Approve PR
-        if: steps.claude-review.outputs.structured_output && fromJSON(steps.claude-review.outputs.structured_output).verdict == 'approve'
+        if: fromJSON(steps.claude-review.outputs.structured_output || '{}').verdict == 'approve'
         env:
           GH_TOKEN: ${{ github.token }}
-          SUMMARY: ${{ fromJSON(steps.claude-review.outputs.structured_output).summary }}
+          SUMMARY: ${{ fromJSON(steps.claude-review.outputs.structured_output || '{}').summary }}
         run: gh pr review ${{ github.event.pull_request.number }} --approve --body "$SUMMARY"
 
       - name: ✋ Request Changes
-        if: steps.claude-review.outputs.structured_output && fromJSON(steps.claude-review.outputs.structured_output).verdict == 'request_changes'
+        if: fromJSON(steps.claude-review.outputs.structured_output || '{}').verdict == 'request_changes'
         env:
           GH_TOKEN: ${{ github.token }}
-          SUMMARY: ${{ fromJSON(steps.claude-review.outputs.structured_output).summary }}
+          SUMMARY: ${{ fromJSON(steps.claude-review.outputs.structured_output || '{}').summary }}
         run: gh pr review ${{ github.event.pull_request.number }} --request-changes --body "$SUMMARY"
 
-      - name: ❌ Fail if the Review Gave No Verdict
+      # The action skips the review without failing when this file differs from the default
+      # branch's copy, eg: on a PR that edits it. A crash still fails the review step itself.
+      - name: ⚠️ Warn if the Review Gave No Verdict
         if: steps.claude-review.outputs.structured_output == ''
-        run: exit 1
+        run: echo "::warning::Claude Code Review gave no verdict, so the PR was neither approved nor sent back"
