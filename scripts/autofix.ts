@@ -7,6 +7,7 @@ import { Platform } from "lib/models/platform.ts";
 const FORGE_DIR = "forge";
 const BUILD_WORKFLOW = "main.yaml";
 const FIX_WORKFLOW = "autofix-recipe.yaml";
+const TURN_WORKFLOW = "autofix-turn.yaml";
 const CI_WORKFLOW_PATH = ".github/workflows/pr.yaml";
 const REVIEW_WORKFLOW_PATH = ".github/workflows/claude-code-review.yaml";
 const BRANCH_PREFIX = "autofix/";
@@ -454,7 +455,10 @@ if (import.meta.main) {
     .command("adopt")
     .description("Labels the PR Claude opened for a fix & records it as the first turn.")
     .option("--branch <branch:string>", "Branch the fix was pushed to.", { required: true })
-    .action(async ({ repo, branch }) => {
+    .option("--ref <ref:string>", `Branch to dispatch \`${TURN_WORKFLOW}\` on.`, {
+      default: Deno.env.get("GITHUB_REF_NAME") ?? "master",
+    })
+    .action(async ({ repo, branch, ref }) => {
       const gh = new GitHub(repo);
       const pr = await gh.openPrFor(branch);
       if (!pr) throw new Error(`No open PR found for ${branch}, Claude did not finish the first turn`);
@@ -468,6 +472,15 @@ if (import.meta.main) {
           `Each time CI & the reviewers finish with a new commit, another turn picks up their feedback.`,
       );
       console.log(`Adopted ${pr.html_url}`);
+
+      // CI & the review may already have finished, & been ignored by the gate, before the PR
+      // had its label. So ask the gate again rather than wait on an event that has been & gone.
+      await gh.octokit.rest.actions.createWorkflowDispatch({
+        ...gh.r,
+        workflow_id: TURN_WORKFLOW,
+        ref,
+        inputs: { branch },
+      });
     })
     .command("gate")
     .description("Decides whether an autofix PR is due another turn, & claims it when it is.")
