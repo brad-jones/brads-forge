@@ -28,7 +28,7 @@ const packageKindType = new EnumType<PackageKind>(["arch", "noarch", "all"]);
 class UnpublishableError extends Error {}
 
 interface BuildOptions {
-  prefix: PrefixClient;
+  prefix?: PrefixClient;
   recipePath: string;
   targetPlatform: Platform;
   channel: string;
@@ -149,7 +149,7 @@ async function buildRecipe(
     channel,
   };
   const variantString = `${variant.platform}/${variant.name}-${variant.version}-${variant.buildNo}`;
-  if (upload && await prefix.variantExists(variant)) {
+  if (upload && await prefix!.variantExists(variant)) {
     console.log(`Skipping, variant already published: ${variantString}`);
     const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
     if (ghaSummary) {
@@ -244,7 +244,8 @@ await new Command()
   .option("--no-build", "Skip the rattler-build, just generate the YAML recipe.")
   .option("--no-upload", "Skip upload to prefix.dev, just do the build locally.")
   .action(async ({ recipePath, forgeDir, targetPlatforms, channel, upload, build, packageKind }) => {
-    const prefix = new PrefixClient();
+    // Only publishing needs a prefix.dev token, so local & PR dry runs must work without one.
+    const prefix = upload ? new PrefixClient() : undefined;
     const platforms = (targetPlatforms as string[]).map((p) => Platform.parse(p));
     if (recipePath) {
       recipePath = await Deno.realPath(recipePath);
