@@ -312,32 +312,19 @@ class GitHub {
     return runs;
   }
 
-  /**
-   * Who has approved `sha`. Copilot only ever leaves "Commented" reviews, so a Copilot review
-   * of the commit that raised no comments counts as its approval.
-   */
+  /** Everyone, human or bot, whose latest review of the PR approves `sha`. */
   async approvals(pr: number, sha: string): Promise<string[]> {
-    const approvers = new Set<string>();
     const reviews = await this.octokit.paginate(this.octokit.rest.pulls.listReviews, {
       ...this.r,
       pull_number: pr,
       per_page: 100,
     });
+    // Reviews come back oldest first, and a comment doesn't undo an earlier verdict.
+    const verdicts = new Map<string, typeof reviews[number]>();
     for (const review of reviews) {
-      if (review.commit_id !== sha) continue;
-      const login = review.user?.login ?? "";
-      if (review.state === "APPROVED") {
-        approvers.add(login);
-      } else if (/^copilot/i.test(login) && review.state === "COMMENTED") {
-        const { data } = await this.octokit.rest.pulls.listCommentsForReview({
-          ...this.r,
-          pull_number: pr,
-          review_id: review.id,
-        });
-        if (data.length === 0) approvers.add(login);
-      }
+      if (review.state !== "COMMENTED") verdicts.set(review.user?.login ?? "", review);
     }
-    return [...approvers];
+    return [...verdicts].filter(([, r]) => r.state === "APPROVED" && r.commit_id === sha).map(([login]) => login);
   }
 }
 
