@@ -15,3 +15,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: pr-gate
           allow-empty: true
+          ignored: |
+            copilot-pull-request-reviewer
