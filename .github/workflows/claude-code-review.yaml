@@ -1,0 +1,58 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: ✨ Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.0
+          activate-environment: true
+
+      - name: 🛠️ Additional Initialization
+        run: APM_TARGET=claude task init
+
+      - name: ♻️ Restore APM Lock File
+        run: git checkout -- apm.lock.yaml
+
+      - name: 👮 Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+          plugins: "code-review@claude-code-plugins"
+          track_progress: true
+          prompt: |
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+
+            When the review is complete, end your final message with a markdown
+            outcome summary: a checklist of dimensions reviewed (correctness,
+            security, tests, conventions), findings counted by severity, and a
+            one-line verdict such as "✅ no blocking issues" or "❌ N issues to fix".
+
+      - name: ✔️ Approve PR on Success
+        if: steps.claude-review.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr review ${{ github.event.pull_request.number }} --approve
+
+      - name: ❌ Fail the job if the review failed
+        if: steps.claude-review.conclusion == 'failure'
+        run: exit 1
