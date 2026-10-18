@@ -29,7 +29,6 @@ jobs:
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RECIPE: ${{ inputs.recipe }}
       RUN_ID: ${{ inputs.run-id }}
     steps:

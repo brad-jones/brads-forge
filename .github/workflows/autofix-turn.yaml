@@ -69,7 +69,6 @@ jobs:
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PR: ${{ needs.gate.outputs.pr }}
       HEAD: ${{ needs.gate.outputs.head }}
       BRANCH: ${{ github.event.workflow_run.head_branch || inputs.branch }}
