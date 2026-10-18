@@ -20,7 +20,7 @@ export default new r.Recipe({
     description: await r.http.get(
       `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/main/README.md`,
     ).text(),
-    license: "MIT",
+    license: "MIT AND LGPL-3.0-only",
   },
   build: {
     number: 0,
@@ -41,7 +41,7 @@ export default new r.Recipe({
       const dir = await Deno.makeTempDir();
       try {
         const file = r.path.join(dir, "hello.gr");
-        await Deno.writeTextFile(file, `print("hello from grain")\n`);
+        await Deno.writeTextFile(file, `module Hello\n\nprint("hello from grain")\n`);
         if ((await r.$`grain ${file}`.text()).trim() !== "hello from grain") {
           throw new Error(`unexpected output from compiled program`);
         }

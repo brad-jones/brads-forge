@@ -10,7 +10,8 @@ General reference for the recipe DSL and library helpers: the `forge-recipe` ski
 - **Homepage:** https://grain-lang.org
 - **Description:** The Grain compiler and CLI. Grain is a strongly typed functional language that compiles to
   WebAssembly.
-- **License:** MIT
+- **License:** `MIT AND LGPL-3.0-only`. The CLI and stdlib are MIT, but the bundled compiler is LGPL-3.0 (see
+  `compiler/dune-project`).
 - **Binary:** `grain` (`grain.exe` on Windows). The release binary is a self-contained
   [`pkg`](https://github.com/vercel/pkg) build of the Node.js CLI, so no runtime dependencies are needed.
 
@@ -59,8 +60,9 @@ rattler-build does not extract a bare executable; it is copied to `$SRC_DIR/<ass
 `grain --version` prints the bare version (e.g. `0.7.2`). Compare via `r.coerceSemVer()` against `pkgVersion`, as in the
 other recipes.
 
-Then write a one-line `hello.gr` (`print("hello from grain")`) to a temp dir, run `grain hello.gr` (compile and run) and
-expect `hello from grain`. This proves the bundled standard library works, which `--version` alone does not.
+Then write a `hello.gr` (`module Hello` header, which the parser requires, followed by `print("hello from grain")`) to a
+temp dir, run `grain hello.gr` (compile and run) and expect `hello from grain`. This proves the bundled standard library
+works, which `--version` alone does not.
 
 ## Supported Platforms
 
