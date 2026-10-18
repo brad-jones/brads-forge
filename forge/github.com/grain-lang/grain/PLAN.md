@@ -1,7 +1,7 @@
 # Build Plan: grain
 
 General reference for the recipe DSL and library helpers: the `forge-recipe` skill
-(`xcaf/skills/forge-recipe/forge-recipe.xcaf`).
+(`.apm/skills/forge-recipe/SKILL.md`).
 
 ## Package Summary
 
