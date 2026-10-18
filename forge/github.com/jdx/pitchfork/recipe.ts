@@ -23,7 +23,7 @@ export default new r.Recipe({
   },
   build: {
     number: 0,
-    dynamic_linking: { binary_relocation: false },
+    dynamic_linking: { binary_relocation: false, overlinking_behavior: "ignore" },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("pitchfork"));
       await r.moveGlob("./pitchfork*/pitchfork*", dst);
