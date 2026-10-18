@@ -27,8 +27,10 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
-    # The workflow's own token is only given to the steps that need it, never to Claude's,
-    # so that Claude can't post as github-actions[bot] & forge the turn markers.
+    # Only the brief, which runs before Claude, gets the workflow's own token, so that Claude
+    # can't post as github-actions[bot] & forge the turn markers.
+    outputs:
+      branch: ${{ steps.brief.outputs.branch }}
     env:
       RECIPE: ${{ inputs.recipe }}
       RUN_ID: ${{ inputs.run-id }}
@@ -114,11 +116,30 @@ jobs:
             and read its output from the CI logs in a later turn. Once the fix is known, rebase onto `origin/master`
             and force push, so that the PR holds only the commit(s) that are actually relevant to the fix.
 
-      # Claude can fail after it has already opened the PR, which still needs adopting so that
-      # later turns pick it up.
+  # A job of its own, on a fresh checkout of the default branch, so that nothing Claude changed
+  # on the fix job's runner runs with the workflow's token. Claude can fail after it has opened
+  # the PR, which still needs adopting so that later turns pick it up.
+  adopt:
+    needs: fix
+    if: always() && needs.fix.outputs.branch != ''
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: ${{ needs.fix.outputs.branch }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.0
+          activate-environment: true
+
       - name: 🏷️ Adopt the PR
-        if: always() && steps.brief.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          BRANCH: ${{ steps.brief.outputs.branch }}
         run: scripts/autofix.ts adopt --branch "$BRANCH"
