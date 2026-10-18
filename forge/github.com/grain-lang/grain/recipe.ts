@@ -24,7 +24,7 @@ export default new r.Recipe({
   },
   build: {
     number: 0,
-    dynamic_linking: { binary_relocation: false },
+    dynamic_linking: { binary_relocation: false, overlinking_behavior: "ignore" },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("grain"));
       await r.moveGlob("./grain-*/grain-*", dst);
@@ -32,8 +32,12 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion }) => {
-      if (r.coerceSemVer(await r.$`grain --version`.text()) !== pkgVersion) {
+    func: async ({ pkgVersion, exe }) => {
+      // Name the binary with its extension. dax resolves a bare `grain` to `grain.EXE` on Windows and the
+      // packaged compiler then misreads its own bundled script as a Grain source file.
+      const grain = exe("grain");
+
+      if (r.coerceSemVer(await r.$`${grain} --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
 
@@ -42,7 +46,7 @@ export default new r.Recipe({
       try {
         const file = r.path.join(dir, "hello.gr");
         await Deno.writeTextFile(file, `module Hello\n\nprint("hello from grain")\n`);
-        if ((await r.$`grain ${file}`.text()).trim() !== "hello from grain") {
+        if ((await r.$`${grain} ${file}`.text()).trim() !== "hello from grain") {
           throw new Error(`unexpected output from compiled program`);
         }
       } finally {
