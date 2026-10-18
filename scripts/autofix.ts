@@ -280,7 +280,12 @@ class GitHub {
         await this.octokit.rest.issues.getLabel({ ...this.r, name: label.name });
       } catch (e) {
         if ((e as { status?: number }).status !== 404) throw e;
-        await this.octokit.rest.issues.createLabel({ ...this.r, ...label });
+        try {
+          await this.octokit.rest.issues.createLabel({ ...this.r, ...label });
+        } catch (e) {
+          // Fixes run in parallel, so another one may have just created it.
+          if ((e as { status?: number }).status !== 422) throw e;
+        }
       }
     }
   }
