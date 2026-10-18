@@ -108,8 +108,8 @@ jobs:
             ${{ github.repository }}#${{ needs.gate.outputs.pr }}. Its branch is checked out, and
             `${{ needs.gate.outputs.head }}` is the commit that CI and the reviewers have just finished with.
 
-            The turns end when Copilot or the `Claude Code Review` workflow approves the PR with `pr.yaml`
-            passing. After turn ${{ needs.gate.outputs.max-turns }} a human takes over.
+            The turns end once anyone, eg: Copilot, the `Claude Code Review` workflow or a human, approves the
+            PR with `pr.yaml` passing. After turn ${{ needs.gate.outputs.max-turns }} a human takes over.
 
             ## Catch up
 
@@ -154,8 +154,8 @@ jobs:
           claude_args: --allowedTools Bash,Read,Glob,Grep,Write,WebFetch,TodoWrite
           prompt: |
             PR ${{ github.repository }}#${{ needs.gate.outputs.pr }} tries to fix a broken recipe in brads-forge.
-            After ${{ needs.gate.outputs.max-turns }} autofix turns neither Copilot nor the `Claude Code Review`
-            workflow has approved it with `pr.yaml` passing, so it now goes to a human.
+            After ${{ needs.gate.outputs.max-turns }} autofix turns nobody has approved it with `pr.yaml` passing,
+            so it now goes to a human.
 
             Do not change code or push. Write a hand-over for whoever picks this up, and post it with
             `gh pr comment ${{ needs.gate.outputs.pr }} --body-file <file>`. Cover:
