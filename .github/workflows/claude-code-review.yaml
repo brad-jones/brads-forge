@@ -41,15 +41,20 @@ jobs:
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           # With track_progress off the action runs in agent mode, where every tool the review
-          # needs, including the inline comment server, has to be allowed here.
+          # needs, including the inline comment server, has to be allowed here. `gh pr comment` is
+          # denied because the summary goes on the approval instead of its own comment.
           claude_args: >-
-            --allowedTools mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)
+            --allowedTools mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*)
+            --disallowedTools Bash(gh pr comment:*)
             --json-schema '{"type":"object","required":["verdict","summary"],"properties":{"verdict":{"enum":["approve","request_changes","skipped"]},"summary":{"type":"string"}}}'
           prompt: |
             /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment
 
             Every new commit needs its own review, so comments you left on earlier commits are not a
             reason to stop at step 1.
+
+            Don't post a summary comment when you find no issues, the workflow puts your `summary` on
+            its approval.
 
             When the review is complete, set `verdict` to "approve" if you found no issues, to
             "request_changes" if you posted any, or to "skipped" if you stopped at step 1. Set `summary`
