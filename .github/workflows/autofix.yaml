@@ -1,0 +1,35 @@
+name: Autofix
+
+on:
+  # Several hours after main.yaml's nightly build, so that its whole matrix has finished.
+  schedule:
+    - cron: 28 9 * * *
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: main.yaml run to triage, defaults to the latest completed run.
+        required: false
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      checks: read
+      contents: read
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ inputs.run-id }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.0
+          activate-environment: true
+
+      - name: 🩺 Start a Fix for Each Failed Recipe
+        run: scripts/autofix.ts triage ${RUN_ID:+--run-id "$RUN_ID"}

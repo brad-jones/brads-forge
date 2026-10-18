@@ -1,0 +1,172 @@
+name: Autofix Turn
+run-name: Autofix turn for ${{ github.event.workflow_run.head_branch || inputs.branch }}
+
+# Each time CI & Claude Code Review finish on an autofix PR, Claude gets another turn to act on
+# their feedback. `scripts/autofix.ts gate` decides whether a turn is due, so that a turn only
+# starts once all of the feedback for the latest commit is in, & the turn limit is kept.
+on:
+  workflow_run:
+    workflows:
+      # pr.yaml has no name, so GitHub knows it by its path.
+      - .github/workflows/pr.yaml
+      - Claude Code Review
+    types:
+      - completed
+    branches:
+      - autofix/**
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Head branch of the autofix PR, eg autofix/github.com/go-task/task
+        required: true
+
+concurrency:
+  group: autofix-turn-${{ github.event.workflow_run.head_branch || inputs.branch }}
+
+jobs:
+  gate:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.workflow_run.head_branch, 'autofix/')
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: ${{ github.event.workflow_run.head_branch || inputs.branch }}
+    outputs:
+      action: ${{ steps.gate.outputs.action }}
+      pr: ${{ steps.gate.outputs.pr }}
+      turn: ${{ steps.gate.outputs.turn }}
+      head: ${{ steps.gate.outputs.head }}
+      max-turns: ${{ steps.gate.outputs.max-turns }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.0
+          activate-environment: true
+
+      - name: 🚦 Is a Turn Due?
+        id: gate
+        run: scripts/autofix.ts gate --branch "$BRANCH"
+
+  turn:
+    needs: gate
+    if: needs.gate.outputs.action == 'turn' || needs.gate.outputs.action == 'summary'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      checks: read
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ needs.gate.outputs.pr }}
+      HEAD: ${{ needs.gate.outputs.head }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_branch || inputs.branch }}
+          fetch-depth: 0
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.0
+          activate-environment: true
+
+      - name: 🛠️ Additional Initialization
+        run: APM_TARGET=claude task init
+
+      - name: ♻️ Restore APM Lock File
+        run: git checkout -- apm.lock.yaml
+
+      # allowed_bots is needed because the runs this follows on from were started by bots
+      # (claude[bot] pushes, github-actions[bot] dispatches); the gate decides when this runs.
+      - name: 🔧 Act on the Feedback
+        if: needs.gate.outputs.action == 'turn'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "*"
+          additional_permissions: |
+            actions: read
+          claude_args: --allowedTools Bash,Edit,MultiEdit,Write,Read,Glob,Grep,WebFetch,WebSearch,TodoWrite
+          prompt: |
+            You are part way through fixing a broken recipe in brads-forge. This is autofix turn
+            ${{ needs.gate.outputs.turn }} of ${{ needs.gate.outputs.max-turns }} on PR
+            ${{ github.repository }}#${{ needs.gate.outputs.pr }}. Its branch is checked out, and
+            `${{ needs.gate.outputs.head }}` is the commit that CI and the reviewers have just finished with.
+
+            The turns end when Copilot or the `Claude Code Review` workflow approves the PR with `pr.yaml`
+            passing. After turn ${{ needs.gate.outputs.max-turns }} a human takes over.
+
+            ## Catch up
+
+            - The PR description and comments: the original failure, and what earlier turns found and tried.
+            - `pr.yaml`, which ran `task dryrun` for the recipe on `ubuntu-latest`, `windows-latest`,
+              `macos-15-intel` and `macos-latest`: `gh run list --workflow pr.yaml --commit <sha>`, then
+              `gh run view <id> --log-failed`, or `--log` to read any debug output an earlier turn added.
+            - Reviews of the PR by Copilot and the `Claude Code Review` workflow: review bodies, unresolved
+              review threads (`gh api graphql` with `reviewThreads`) and Claude Code Review's summary comment.
+
+            ## Act on it, the way `/autofix-pr` would
+
+            - A CI failure needs its root cause found & fixed. "Flaky" is not a root cause.
+            - A review comment is a claim to verify, not an order. Fix the ones that hold up. Where one doesn't,
+              reply on its thread with your reasoning. Reply to and resolve every thread you deal with. Nits are
+              optional: take the cheap, plainly correct ones.
+            - To see what is happening on Windows or macOS, you may push temporary debug code, eg: extra
+              logging in the recipe, and read its output from the CI logs next turn.
+            - Run `task dryrun RECIPE=<recipe>` and `task lint` locally (linux-64) before you push.
+            - Keep to what the fix needs. Don't touch `.github/`.
+
+            ## Finish the turn
+
+            Once the fix is known, rebase onto `origin/master` and squash, so that the PR holds only the
+            commit(s) relevant to the fix, with Conventional Commit messages and no leftover debug code.
+            Then push with `git push --force-with-lease`.
+
+            End the turn with a single push: pushing is what starts the next round of CI and reviews, and so the
+            next turn. A turn that pushes nothing hands the PR to a human, so only do that when you are sure
+            nothing more is needed, and say why in a PR comment.
+
+            Last, post a short PR comment on what you changed this turn and what you expect the next CI run to show.
+
+      - name: 📝 Write Up Where It Got To
+        if: needs.gate.outputs.action == 'summary'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "*"
+          additional_permissions: |
+            actions: read
+          claude_args: --allowedTools Bash,Read,Glob,Grep,Write,WebFetch,TodoWrite
+          prompt: |
+            PR ${{ github.repository }}#${{ needs.gate.outputs.pr }} tries to fix a broken recipe in brads-forge.
+            After ${{ needs.gate.outputs.max-turns }} autofix turns neither Copilot nor the `Claude Code Review`
+            workflow has approved it with `pr.yaml` passing, so it now goes to a human.
+
+            Do not change code or push. Write a hand-over for whoever picks this up, and post it with
+            `gh pr comment ${{ needs.gate.outputs.pr }} --body-file <file>`. Cover:
+
+            - The original failure, and its root cause as far as it is understood.
+            - What each turn tried, from the PR's comments, commits and CI runs.
+            - Where it stands: `pr.yaml` results per platform, and the open review threads and whether they hold up.
+            - What you would try next.
+
+            The PR is labelled `for-human-review` once you are done.
+
+      - name: 🏁 Hand Over if Needed
+        if: always()
+        run: scripts/autofix.ts finish --pr "$PR" --head "$HEAD" ${{ needs.gate.outputs.action == 'summary' && '--summary' || '' }}

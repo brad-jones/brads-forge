@@ -1,0 +1,113 @@
+name: Autofix Recipe
+run-name: Autofix ${{ inputs.recipe }}
+
+# Started by autofix.yaml for each recipe that failed to build. This is the first turn: Claude
+# opens a PR with its fix, after which autofix-turn.yaml carries on with CI & review feedback.
+on:
+  workflow_dispatch:
+    inputs:
+      recipe:
+        description: Path to the failing recipe.ts.
+        required: true
+      run-id:
+        description: main.yaml run whose ::error annotations describe the failure.
+        required: true
+
+concurrency:
+  group: autofix-${{ inputs.recipe }}
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      checks: read
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RECIPE: ${{ inputs.recipe }}
+      RUN_ID: ${{ inputs.run-id }}
+    steps:
+      - name: ⬇️ Git Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Install pixi env
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.0
+          activate-environment: true
+
+      - name: 🛠️ Additional Initialization
+        run: APM_TARGET=claude task init
+
+      - name: ♻️ Restore APM Lock File
+        run: git checkout -- apm.lock.yaml
+
+      - name: 📋 Gather Failure Details
+        id: brief
+        run: scripts/autofix.ts brief --run-id "$RUN_ID" --recipe "$RECIPE" --out "$RUNNER_TEMP/autofix-brief.md"
+
+      # The action's app token pushes & opens the PR, unlike the GITHUB_TOKEN, that is what
+      # lets pr.yaml & claude-code-review.yaml run on it. allowed_bots is needed because the
+      # run is dispatched by github-actions[bot]; the prompt is fixed, so no bot can steer it.
+      - name: 🔧 Fix the Recipe
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "*"
+          additional_permissions: |
+            actions: read
+          claude_args: --allowedTools Bash,Edit,MultiEdit,Write,Read,Glob,Grep,WebFetch,WebSearch,TodoWrite
+          prompt: |
+            A recipe in brads-forge failed in the nightly `main.yaml` build and it is your job to fix it.
+            This is autofix turn 1 of ${{ steps.brief.outputs.max-turns }}.
+
+            - Repository: ${{ github.repository }}
+            - Recipe: `${{ inputs.recipe }}`
+            - Branch to push the fix to: `${{ steps.brief.outputs.branch }}`
+            - Failure details: `${{ runner.temp }}/autofix-brief.md` holds the `::error` annotations that
+              `scripts/build.ts` raised for this recipe, and the tail of its build log on each failing platform.
+              The full logs are a `gh run view ${{ inputs.run-id }} --job <job id> --log` away.
+
+            ## Your turn
+
+            1. Read the brief and the recipe, and work out the root cause. The `forge-recipe` skill explains how
+               recipes are put together. Upstream changes, such as a renamed release asset, are a common cause.
+            2. Cut `${{ steps.brief.outputs.branch }}` from `origin/master` and fix the recipe there. Keep the change
+               to what the fix needs. Only touch `lib/` when the recipe truly can't be fixed without it, and if you
+               do, also run `task test`.
+            3. Check it with `task dryrun RECIPE=${{ inputs.recipe }}` and `task lint`. This runner is linux-64,
+               so the dry run only covers that platform.
+            4. Commit using Conventional Commits, eg: `fix(<package>): <what changed>`.
+            5. Push with `git push --force origin ${{ steps.brief.outputs.branch }}`. The branch is reserved for
+               this automation, so anything already on it is a stale attempt that is safe to overwrite.
+            6. Open a PR against `master` with `gh pr create --base master --head ${{ steps.brief.outputs.branch }}`.
+               Later turns only have the PR to go on, so its description must cover the original failure (the
+               platforms, the errors and links to the failing jobs), your diagnosis and what you changed.
+
+            Open the PR even if you could not pin the fix down here, eg: when the failure only happens on
+            Windows or macOS. A first push of your best guess, or of temporary debug output, is fine.
+
+            ## What happens after this turn
+
+            Opening the PR starts `pr.yaml`, which runs `task dryrun` for the recipe on `ubuntu-latest`,
+            `windows-latest`, `macos-15-intel` and `macos-latest`. Copilot and the `Claude Code Review` workflow
+            review it too. Once they have finished, `autofix-turn.yaml` starts the next turn with their feedback.
+            Turns carry on until a reviewer approves with CI passing, for at most
+            ${{ steps.brief.outputs.max-turns }} turns, after which a human takes over.
+
+            So treat CI as a remote test bench: you may push temporary debug code, eg: extra logging in the recipe,
+            and read its output from the CI logs in a later turn. Once the fix is known, rebase onto `origin/master`
+            and force push, so that the PR holds only the commit(s) that are actually relevant to the fix.
+
+      - name: 🏷️ Adopt the PR
+        env:
+          BRANCH: ${{ steps.brief.outputs.branch }}
+        run: scripts/autofix.ts adopt --branch "$BRANCH"
