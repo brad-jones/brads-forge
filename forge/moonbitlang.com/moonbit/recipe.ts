@@ -90,8 +90,10 @@ export default new r.Recipe({
       }
       const bundler = r.path.join(bundlerRoot, "bin", exe("moon"));
       const coreDir = r.path.join(moonRoot, "lib", "core");
-      await r.$`${bundler} -C ${coreDir} bundle --warn-list -a --all`;
-      await r.$`${bundler} -C ${coreDir} bundle --warn-list -a --target wasm-gc --quiet`;
+      // The host toolchain has no lib/core of its own, which moon needs to infer its root from the executable.
+      await r.$`${bundler} -C ${coreDir} bundle --warn-list -a --all`.env("MOON_TOOLCHAIN_ROOT", bundlerRoot);
+      await r.$`${bundler} -C ${coreDir} bundle --warn-list -a --target wasm-gc --quiet`
+        .env("MOON_TOOLCHAIN_ROOT", bundlerRoot);
 
       // State of the bundle run itself, holding build prefix paths, which moon doesn't need to use the bundle.
       for (const file of [".moon_db", ".moon-lock"]) {
