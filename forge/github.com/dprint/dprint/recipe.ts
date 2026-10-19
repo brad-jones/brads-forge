@@ -25,6 +25,7 @@ export default new r.Recipe({
     number: 3,
     dynamic_linking: {
       binary_relocation: false,
+      overlinking_behavior: "ignore",
     },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("dprint"));
