@@ -61,6 +61,17 @@ jobs:
             tests, conventions), findings counted by severity, and a one-line verdict such as
             "✅ no blocking issues" or "❌ N issues to fix".
 
+      - name: 🐛 Debug Review Outputs
+        env:
+          OUTPUTS: ${{ toJSON(steps.claude-review.outputs) }}
+          CONCLUSION: ${{ steps.claude-review.conclusion }}
+          STRUCTURED: ${{ steps.claude-review.outputs.structured_output }}
+        run: |
+          echo "conclusion: $CONCLUSION"
+          echo "outputs: $OUTPUTS"
+          echo "structured_output: $STRUCTURED"
+          echo "$STRUCTURED" | jq -r 'type, (if type == "object" then "verdict=\(.verdict) summary=\(.summary)" else empty end)' || true
+
       - name: ✔️ Approve PR
         if: fromJSON(steps.claude-review.outputs.structured_output || '{}').verdict == 'approve'
         env:
