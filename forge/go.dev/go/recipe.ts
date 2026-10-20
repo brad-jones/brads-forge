@@ -101,6 +101,7 @@ export default new r.Recipe({
     number: 2,
     dynamic_linking: {
       binary_relocation: false,
+      overlinking_behavior: "ignore",
     },
     func: async ({ prefixDir, unix }) => {
       const dst = r.path.join(prefixDir, "go");
