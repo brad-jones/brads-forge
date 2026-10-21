@@ -42,7 +42,7 @@
     "jsr:@std/yaml@^1.3.0": "1.3.0",
     "jsr:@zip-js/zip-js@^2.24.0": "2.24.0",
     "npm:@modelcontextprotocol/sdk@^1.32.1": "1.32.1_zod@4.6.7",
-    "npm:@modelcontextprotocol/server-memory@1": "1.0.0",
+    "npm:@modelcontextprotocol/server-memory@2": "2.0.0",
     "npm:@octokit/plugin-paginate-rest@16": "16.0.0_@octokit+core@7.0.8",
     "npm:@octokit/rest@^22.0.1": "22.0.1_@octokit+core@7.0.6",
     "npm:@types/semver@^7.8.0": "7.8.0",
@@ -246,6 +246,12 @@
         "hono"
       ]
     },
+    "@modelcontextprotocol/core@2.3.1": {
+      "integrity": "sha512-laVmIhPGpWi7rG9q+0UigblRN0Hws/Yjlb6qLFtVqryXVLkc4h+yN8z731POD2LnAGQlFe7/tXhUm7Bi0YB91g==",
+      "dependencies": [
+        "zod"
+      ]
+    },
     "@modelcontextprotocol/sdk@1.32.1_zod@4.6.7": {
       "integrity": "sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==",
       "dependencies": [
@@ -268,13 +274,20 @@
         "zod-to-json-schema"
       ]
     },
-    "@modelcontextprotocol/server-memory@1.0.0": {
-      "integrity": "sha512-UDMtMrw2xeI16mcn7O4fesp9Pf3hYh91thuU5KSz0BxKqwnTwEytZKjHfkrqxxmKp0r4QHoiEkMV99UmadmODw==",
+    "@modelcontextprotocol/server-memory@2.0.0": {
+      "integrity": "sha512-h+oxQCpK6FOuhlPB9hAcSihAAahcnijuGTZGcXStGOL4UzFYB4ap+pvtSelxchkZlz7tnpY/e0sONaAs24Rurw==",
       "dependencies": [
-        "@modelcontextprotocol/sdk",
+        "@modelcontextprotocol/server",
         "zod"
       ],
       "bin": true
+    },
+    "@modelcontextprotocol/server@2.3.1": {
+      "integrity": "sha512-e59MfWuSssj6DoQ96JCTqdW1AXT5/XtnTl0WWd6MU1Ka434fFUGGosCLJbGNySDhHGvxQWoRWK137FXYFkYNWw==",
+      "dependencies": [
+        "@modelcontextprotocol/core",
+        "zod"
+      ]
     },
     "@octokit/auth-token@6.0.0": {
       "integrity": "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="
@@ -1020,7 +1033,7 @@
       "jsr:@std/yaml@^1.3.0",
       "jsr:@zip-js/zip-js@^2.24.0",
       "npm:@modelcontextprotocol/sdk@^1.32.1",
-      "npm:@modelcontextprotocol/server-memory@1",
+      "npm:@modelcontextprotocol/server-memory@2",
       "npm:@octokit/plugin-paginate-rest@16",
       "npm:@octokit/rest@^22.0.1",
       "npm:@types/semver@^7.8.0",
