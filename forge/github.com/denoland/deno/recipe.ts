@@ -26,6 +26,7 @@ export default new r.Recipe({
     number: 4,
     dynamic_linking: {
       binary_relocation: false,
+      overlinking_behavior: "ignore",
     },
     func: async ({ prefixDir, exe, unix }) => {
       const deno = r.path.join(prefixDir, "bin", exe("deno"));
