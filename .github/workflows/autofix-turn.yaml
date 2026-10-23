@@ -48,7 +48,7 @@ jobs:
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.82.0
+          pixi-version: v0.83.0
           activate-environment: true
 
       - name: 🚦 Is a Turn Due?
@@ -83,7 +83,7 @@ jobs:
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.82.0
+          pixi-version: v0.83.0
           activate-environment: true
 
       - name: 🛠️ Additional Initialization
@@ -198,7 +198,7 @@ jobs:
       - name: ⚙️ Install pixi env
         uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.82.0
+          pixi-version: v0.83.0
           activate-environment: true
 
       - name: 🏁 Hand Over if Needed
