@@ -5,7 +5,14 @@ const repo = "podplane";
 
 export default new r.Recipe({
   name: "podplane",
-  version: r.latestGithubTag({ owner, repo }),
+  // The tag is pushed before the release and its assets are published, so
+  // follow the latest published release rather than the latest tag.
+  version: async () => {
+    const res = await r.http.get(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
+      headers: { Accept: "application/vnd.github+json" },
+    }).json<{ tag_name: string }>();
+    return { raw: res.tag_name, semver: r.coerceSemVer(res.tag_name) };
+  },
   sources: r.githubReleaseAssets({
     owner,
     repo,
