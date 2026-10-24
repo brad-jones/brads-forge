@@ -9,7 +9,8 @@ export interface Variant {
   version: string;
   platform: Platform | "noarch";
   buildNo?: number;
-  buildString?: string;
+  /** Only count a file built as this build variant, ie: whose build string starts with `<buildVariant>_`. */
+  buildVariant?: string;
   channel?: string;
 }
 
@@ -57,11 +58,12 @@ export class PrefixClient {
    * @param v Version of the variant to check for existence.
    * @param p Platform of the variant to check for existence.
    * @param bN Build number of the variant to check for existence.
+   * @param bV Build variant of the variant to check for existence.
    * @param c The channel where the package can be found.
    *
    * @returns `true` if the variant exists, `false` otherwise.
    */
-  async variantExists({ name, version, platform, buildNo = 0, channel = DEFAULT_CHANNEL }: Variant) {
+  async variantExists({ name, version, platform, buildNo = 0, buildVariant, channel = DEFAULT_CHANNEL }: Variant) {
     let page = 0;
 
     const pkgExistsSchema = z.object({
@@ -71,6 +73,7 @@ export class PrefixClient {
             current: z.number(),
             pages: z.number(),
             page: z.array(z.object({
+              filename: z.string(),
               platform: z.string(),
               version: z.string(),
               buildNumber: z.number(),
@@ -90,6 +93,7 @@ export class PrefixClient {
                   current
                   pages
                   page {
+                    filename
                     platform
                     version
                     buildNumber
@@ -104,11 +108,12 @@ export class PrefixClient {
       if (!pkg) return false;
 
       if (
-        pkg.variants.page.filter((_) =>
+        pkg.variants.page.some((_) =>
           _.version === version &&
           _.platform === platform &&
-          _.buildNumber === buildNo
-        ).length === 1
+          _.buildNumber === buildNo &&
+          (!buildVariant || _.filename.startsWith(`${name}-${version}-${buildVariant}_`))
+        )
       ) {
         return true;
       }

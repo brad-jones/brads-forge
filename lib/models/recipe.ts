@@ -8,8 +8,7 @@ import { z } from "zod";
 import { BuildContext } from "./build.ts";
 import { Platform, PlatformArch, PlatformOs } from "./platform.ts";
 import { SimpleRecipe } from "./rattler/simple_recipe.ts";
-import { Source } from "./rattler/source.ts";
-import { RecipeProps } from "./recipe_props.ts";
+import { PlatformSources, RecipeProps, Sources } from "./recipe_props.ts";
 import { RequirementsContext } from "./requirements_context.ts";
 
 // see: https://github.com/ajv-validator/ajv-formats/issues/85
@@ -17,6 +16,9 @@ const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
 
 // see: https://rattler.build/latest/reference/recipe_file/#spec-reference
 const JSON_SCHEMA_URL = "https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json";
+
+const isPlatformMapped = (sources: Sources): sources is PlatformSources =>
+  !Array.isArray(sources) && !("git" in sources || "url" in sources || "path" in sources);
 
 /**
  * Context required to map a recipe that has a `build.func` and/or `tests.func` into a rattler-build
@@ -82,7 +84,8 @@ export class Recipe {
         "The untouched version of the package as returned by the upstream version source without any semver treatmeant.",
         { required: true },
       )
-      .action(async ({ build, test, buildPlatform, targetPlatform, pkgVersionRaw }) => {
+      .option("--variant <variant>", "The build variant being built, if the target platform has more than one.")
+      .action(async ({ build, test, buildPlatform, targetPlatform, pkgVersionRaw, variant }) => {
         const buildParts = buildPlatform.split("-");
         const buildOs = buildParts[0];
         const buildArch = buildParts[1];
@@ -109,6 +112,7 @@ export class Recipe {
           targetOs,
           targetArch,
           pkgVersionRaw,
+          variant,
         });
 
         if (build) {
@@ -145,10 +149,7 @@ export class Recipe {
     return this.#cachedVersion;
   }
 
-  #cachedSources?:
-    | z.output<typeof Source>
-    | z.output<typeof Source>[]
-    | Partial<Record<Platform, z.output<typeof Source>[]>>;
+  #cachedSources?: Sources;
 
   /**
    * Returns & caches the latest sources fo the recipe.
@@ -175,14 +176,57 @@ export class Recipe {
   async getPlatforms(): Promise<Platform[]> {
     if (this.props.platforms) return this.props.platforms;
     const sources = await this.getSources();
-    if ("git" in sources || "url" in sources || "path" in sources) {
-      return [];
-    } else {
+    if (isPlatformMapped(sources)) {
       return Object.keys(sources) as Platform[];
+    } else {
+      return [];
     }
   }
 
-  async #mapRecipe(targetPlatform?: Platform, execCtx?: RecipeExecCtx) {
+  /**
+   * Returns the names of the build variants that the given platform is built as.
+   *
+   * An empty array means the platform is built once, without a variant.
+   */
+  async getVariants(targetPlatform: Platform): Promise<string[]> {
+    const declared = Object.entries(this.props.variants ?? {});
+    if (declared.length === 0) return [];
+
+    const sources = await this.getSources();
+    const platformSources = isPlatformMapped(sources) ? sources[targetPlatform] : undefined;
+    const keyed = platformSources && !Array.isArray(platformSources) ? Object.keys(platformSources) : undefined;
+
+    const variants = declared
+      .filter(([name, { platforms }]) => {
+        if (platforms) return platforms.includes(targetPlatform);
+        if (keyed) return keyed.includes(name);
+        return !isPlatformMapped(sources);
+      })
+      .map(([name]) => name);
+
+    if (keyed && (keyed.length !== variants.length || keyed.some((_) => !variants.includes(_)))) {
+      throw new Error(
+        `the sources for ${targetPlatform} are keyed by [${keyed.join(", ")}] but it is built as ` +
+          `the variants [${variants.join(", ")}]`,
+      );
+    }
+
+    return variants;
+  }
+
+  async #mapRecipe(targetPlatform?: Platform, execCtx?: RecipeExecCtx, variant?: string) {
+    if (targetPlatform) {
+      const variants = await this.getVariants(targetPlatform);
+      if (variant ? !variants.includes(variant) : variants.length > 0) {
+        throw new Error(
+          `${targetPlatform} is built as the variants [${variants.join(", ")}], ` +
+            `not ${variant ? `"${variant}"` : "without one"}`,
+        );
+      }
+    } else if (variant || this.props.variants) {
+      throw new Error("a recipe with variants can only be mapped for a single target platform");
+    }
+
     const v = await this.getVersion();
 
     const simpleRecipe: any = {
@@ -196,15 +240,15 @@ export class Recipe {
       },
     };
 
-    const sources = await this.#mapSources(targetPlatform);
+    const sources = await this.#mapSources(targetPlatform, variant);
     if (sources.length > 0) simpleRecipe.source = sources;
 
-    simpleRecipe.build = await this.#mapBuild(simpleRecipe, targetPlatform, execCtx);
+    simpleRecipe.build = await this.#mapBuild(simpleRecipe, targetPlatform, execCtx, variant);
 
-    const tests = this.#mapTests(targetPlatform, execCtx);
+    const tests = this.#mapTests(targetPlatform, execCtx, variant);
     if (tests) simpleRecipe.tests = tests;
 
-    const userReqs = await this.#resolveRequirements(targetPlatform);
+    const userReqs = await this.#resolveRequirements(targetPlatform, variant);
     if (userReqs) {
       if (!simpleRecipe.requirements) simpleRecipe.requirements = {};
       if (userReqs.build) {
@@ -237,17 +281,20 @@ export class Recipe {
     return simpleRecipe;
   }
 
-  async #mapSources(targetPlatform?: Platform) {
+  async #mapSources(targetPlatform?: Platform, variant?: string) {
     const resolvedSources = await this.getSources();
     if (Array.isArray(resolvedSources)) return resolvedSources;
 
     const sources = [];
 
-    if ("git" in resolvedSources || "url" in resolvedSources || "path" in resolvedSources) {
+    if (!isPlatformMapped(resolvedSources)) {
       sources.push(resolvedSources);
     } else {
       if (targetPlatform) {
-        const newSources = resolvedSources[targetPlatform];
+        const platformSources = resolvedSources[targetPlatform];
+        const newSources = Array.isArray(platformSources) || !platformSources
+          ? platformSources
+          : platformSources[variant ?? ""];
         if (newSources) {
           for (const newSource of newSources) {
             if ("sha256" in newSource && typeof newSource.sha256 === "function") {
@@ -258,6 +305,9 @@ export class Recipe {
         }
       } else {
         for (const [platform, newSources] of Object.entries(resolvedSources)) {
+          if (!Array.isArray(newSources)) {
+            throw new Error(`the sources for ${platform} are keyed by variant, which needs a single target platform`);
+          }
           for (const newSource of newSources) {
             if ("sha256" in newSource && typeof newSource.sha256 === "function") {
               newSource.sha256 = await newSource.sha256();
@@ -282,21 +332,30 @@ export class Recipe {
    * generate-time so the isolated rattler-build env doesn't need network access to re-resolve
    * jsr:/npm: dependencies.
    */
-  #execScript(mode: "build" | "test", execCtx: RecipeExecCtx, win: boolean): string {
+  #execScript(mode: "build" | "test", execCtx: RecipeExecCtx, win: boolean, variant?: string): string {
     const cmd = `deno run -A --config ${execCtx.denoConfigPath} ${execCtx.recipeTsPath} execute --${mode} ` +
       "--build-platform ${{ build_platform }} " +
       "--target-platform ${{ target_platform }} " +
-      "--pkg-version-raw ${{ rawVersion }}";
+      "--pkg-version-raw ${{ rawVersion }}" +
+      (variant ? ` --variant ${variant}` : "");
     return win ? `set DENO_DIR=${execCtx.denoDir}&& ${cmd}` : `DENO_DIR=${execCtx.denoDir} ${cmd}`;
   }
 
-  async #mapBuild(simpleRecipe: any, targetPlatform?: Platform, execCtx?: RecipeExecCtx) {
-    const build = this.props.build as any;
+  async #mapBuild(simpleRecipe: any, targetPlatform?: Platform, execCtx?: RecipeExecCtx, variant?: string) {
+    // A copy, as a recipe is mapped once per platform & variant it builds
+    const build = { ...this.props.build } as any;
+
+    if (variant) {
+      if (build.string) throw new Error("build.string can not be set on a recipe with variants");
+      build.string = `${variant}_h\${{ hash }}_\${{ build_number }}`;
+      const downPrioritize = this.props.variants?.[variant]?.downPrioritize;
+      if (downPrioritize) build.variant = { ...build.variant, down_prioritize_variant: downPrioritize };
+    }
 
     if (this.#props.build.func) {
       if (!execCtx) throw new Error("execCtx is required to map a recipe with a build.func");
       if (targetPlatform) {
-        build.script = [this.#execScript("build", execCtx, targetPlatform.startsWith("win"))];
+        build.script = [this.#execScript("build", execCtx, targetPlatform.startsWith("win"), variant)];
       } else {
         build.script = [{
           if: "build_platform | split('-') | first == win",
@@ -319,23 +378,26 @@ export class Recipe {
     return build;
   }
 
-  #mapTests(targetPlatform?: Platform, execCtx?: RecipeExecCtx) {
+  #mapTests(targetPlatform?: Platform, execCtx?: RecipeExecCtx, variant?: string) {
     const tests = this.props.tests as any;
 
     if (tests && !Array.isArray(tests)) {
-      if ("func" in tests) {
+      // A copy, as a recipe is mapped once per platform & variant it builds
+      const { func, ...test } = tests;
+      if (func) {
         if (!execCtx) throw new Error("execCtx is required to map a recipe with a tests.func");
-        tests.script = targetPlatform ? this.#execScript("test", execCtx, targetPlatform.startsWith("win")) : [{
+        test.script = targetPlatform ? this.#execScript("test", execCtx, targetPlatform.startsWith("win"), variant) : [{
           if: "build_platform | split('-') | first == win",
           then: this.#execScript("test", execCtx, true),
           else: this.#execScript("test", execCtx, false),
         }];
-        if (!tests.requirements) tests.requirements = {};
-        if (!tests.requirements.build) tests.requirements.build = [];
-        tests.requirements.build.push(`deno=${Deno.version.deno}`);
-        delete tests.func;
+        const build = test.requirements?.build ?? [];
+        test.requirements = {
+          ...test.requirements,
+          build: [...(Array.isArray(build) ? build : [build]), `deno=${Deno.version.deno}`],
+        };
       }
-      return [{ ...tests }];
+      return [test];
     }
 
     return tests;
@@ -348,7 +410,7 @@ export class Recipe {
    * If it was declared as a function, it is invoked with a `RequirementsContext`
    * derived from `targetPlatform` (see `lib/models/requirements_context.ts`).
    */
-  async #resolveRequirements(targetPlatform?: Platform) {
+  async #resolveRequirements(targetPlatform?: Platform, variant?: string) {
     const raw = this.props.requirements;
     if (!raw) return undefined;
     if (typeof raw !== "function") return raw;
@@ -365,6 +427,7 @@ export class Recipe {
       pkgVersion: version.semver,
       pkgVersionRaw: version.raw,
       noarch: this.props.build.noarch,
+      variant,
     }));
   }
 
@@ -390,8 +453,12 @@ export class Recipe {
     return ajv.compile(await this.#jsonSchema());
   }
 
-  async toObject(targetPlatform?: Platform, execCtx?: RecipeExecCtx): Promise<z.output<typeof SimpleRecipe>> {
-    const recipe = await this.#mapRecipe(targetPlatform, execCtx);
+  async toObject(
+    targetPlatform?: Platform,
+    execCtx?: RecipeExecCtx,
+    variant?: string,
+  ): Promise<z.output<typeof SimpleRecipe>> {
+    const recipe = await this.#mapRecipe(targetPlatform, execCtx, variant);
     const validate = await this.#ajvValidator();
     if (!validate(recipe)) {
       throw new Error(`JSON Schema Invalid: ${JSON.stringify(validate.errors)} - ${JSON.stringify(recipe)}`);

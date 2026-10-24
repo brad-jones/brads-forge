@@ -97,20 +97,14 @@ async function ownsRecipe(recipePath: string, packageKind: PackageKind): Promise
   }
 }
 
-async function buildRecipe(
-  { prefix, recipePath, targetPlatform, channel, build, upload }: BuildOptions,
-) {
+async function buildRecipe(options: BuildOptions) {
+  const { recipePath, targetPlatform, build } = options;
+
   // Can not upload if we are not building
-  upload = build ? upload : false;
+  const upload = build ? options.upload : false;
 
   const r = await loadRecipe(recipePath);
   const packagePlatform: Platform | "noarch" = r.props.build.noarch ? "noarch" : targetPlatform;
-
-  // Select the latest version number
-  const lastestVersion = async () => {
-    const v = await r.getVersion();
-    return v.semver ?? v.raw;
-  };
 
   // Bail out if the recipe does not support the platform
   const recipePlatforms = await r.getPlatforms();
@@ -138,6 +132,26 @@ async function buildRecipe(
     return;
   }
 
+  // A platform with build variants is published as one package per variant
+  const buildVariants = await r.getVariants(targetPlatform);
+  for (const buildVariant of buildVariants.length > 0 ? buildVariants : [undefined]) {
+    await buildPackage({ ...options, upload, r, packagePlatform, buildVariant });
+  }
+}
+
+async function buildPackage(
+  { prefix, recipePath, targetPlatform, channel, build, upload, r, packagePlatform, buildVariant }: BuildOptions & {
+    r: Recipe;
+    packagePlatform: Platform | "noarch";
+    buildVariant?: string;
+  },
+) {
+  // Select the latest version number
+  const lastestVersion = async () => {
+    const v = await r.getVersion();
+    return v.semver ?? v.raw;
+  };
+
   // Bail out if the recipe has already been published to prefix.dev
   // Unless the user is skipping the upload, at that point we assume
   // they want to build for test purposes.
@@ -146,9 +160,11 @@ async function buildRecipe(
     version: await lastestVersion(),
     buildNo: r.props.build.number ?? 0,
     platform: packagePlatform,
+    buildVariant,
     channel,
   };
-  const variantString = `${variant.platform}/${variant.name}-${variant.version}-${variant.buildNo}`;
+  const variantString = `${variant.platform}/${variant.name}-${variant.version}-${variant.buildNo}` +
+    (buildVariant ? ` (${buildVariant})` : "");
   if (upload && await prefix!.variantExists(variant)) {
     console.log(`Skipping, variant already published: ${variantString}`);
     const ghaSummary = Deno.env.get("GITHUB_STEP_SUMMARY");
@@ -165,7 +181,7 @@ async function buildRecipe(
   // Create new versioned recipe directory to stage our generated artifacts
   const recipeDir = path.join(
     path.dirname(recipePath),
-    `generated/${targetPlatform}/${variant.version}-${variant.buildNo}`,
+    `generated/${targetPlatform}/${variant.version}-${variant.buildNo}${buildVariant ? `-${buildVariant}` : ""}`,
   );
   await fs.emptyDir(recipeDir);
   console.log(`Created ${recipeDir}`);
@@ -193,7 +209,7 @@ async function buildRecipe(
     recipeYamlPath,
     outdent`
         # yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
-        ${yaml.stringify(await r.toObject(targetPlatform, execCtx))}
+        ${yaml.stringify(await r.toObject(targetPlatform, execCtx, buildVariant))}
       `,
   );
   console.log(`Written ${recipeYamlPath}`);
@@ -207,7 +223,7 @@ async function buildRecipe(
       path.join(
         "output",
         packagePlatform,
-        `${variant.name}-${variant.version}-*_${variant.buildNo}.conda`,
+        `${variant.name}-${variant.version}-${buildVariant ? `${buildVariant}_` : ""}*_${variant.buildNo}.conda`,
       ),
     );
     if (artifact) {
