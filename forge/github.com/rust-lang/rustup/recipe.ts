@@ -33,19 +33,32 @@ export default new r.Recipe({
       sha256: await getDigest(buildUrl(platform)),
     }];
 
+    const buildLinuxSources = async (arch: string) => ({
+      gnu: await buildSource(`${arch}-unknown-linux-gnu`),
+      musl: await buildSource(`${arch}-unknown-linux-musl`),
+    });
+
     return {
-      "linux-64": await buildSource("x86_64-unknown-linux-musl"),
-      "linux-aarch64": await buildSource("aarch64-unknown-linux-musl"),
+      "linux-64": await buildLinuxSources("x86_64"),
+      "linux-aarch64": await buildLinuxSources("aarch64"),
       "win-64": await buildSource("x86_64-pc-windows-msvc"),
       "win-arm64": await buildSource("aarch64-pc-windows-msvc"),
       "osx-64": await buildSource("x86_64-apple-darwin"),
       "osx-arm64": await buildSource("aarch64-apple-darwin"),
     };
   },
+  // The musl build also runs on glibc systems, so it is down-prioritized for the solver to
+  // pick gnu there, leaving musl for the systems that gnu's __glibc requirement rules out.
+  variants: {
+    gnu: {},
+    musl: { downPrioritize: 1 },
+  },
+  requirements: ({ variant }) => variant === "gnu" ? { run: ["__glibc >=2.17"] } : {},
   build: {
-    number: 4,
+    number: 5,
     dynamic_linking: {
       binary_relocation: false,
+      overlinking_behavior: "ignore",
     },
     func: async ({ prefixDir, exe, unix }) => {
       // Install the main binary
