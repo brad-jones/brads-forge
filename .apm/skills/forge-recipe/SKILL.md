@@ -50,6 +50,9 @@ This extra level is **optional** — use the shorter form when the repo produces
 repo. Recipes are discovered by a recursive walk in `scripts/build.ts`, so any depth under `forge/` works; each recipe
 directory gets its own sibling `generated/` output directory.
 
+Several builds of the **same** package for one platform (eg: gnu & musl linux binaries) are not separate packages: keep
+them in one recipe as build variants, see "Build Variants" in `references/recipe-dsl-reference.md`.
+
 ## Workflow
 
 ### Phase 1: Gather Information

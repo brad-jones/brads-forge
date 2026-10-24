@@ -8,6 +8,45 @@ import { Test } from "./rattler/test.ts";
 import { RequirementsContext } from "./requirements_context.ts";
 import { FuncTest } from "./test.ts";
 
+/**
+ * Sources for a platform that is built more than once, keyed by the name of each build variant.
+ */
+export type VariantSources = Record<string, z.output<typeof Source>[]>;
+
+/**
+ * Sources keyed by the platform they build for.
+ */
+export type PlatformSources = Partial<Record<Platform, z.output<typeof Source>[] | VariantSources>>;
+
+export type Sources = z.output<typeof Source> | z.output<typeof Source>[] | PlatformSources;
+
+/**
+ * One of several packages published for the same platform under the same name & version,
+ * eg: a gnu & a musl build of a linux binary.
+ *
+ * Each variant is published with a build string of `<name>_h<hash>_<build number>`, which
+ * is what a consumer matches on to ask for it, eg: `rustup = { version = "*", build = "musl*" }`.
+ * Choosing a variant automatically is left to the solver, so a variant that only works on
+ * some systems should say so with a run requirement on a virtual package (eg: `__glibc`).
+ */
+export const BuildVariant = z.object({
+  /**
+   * The platforms this variant is built for.
+   *
+   * If not given, then this will be inferred from the given sources, when they key a
+   * platform's sources by variant. Otherwise the variant is built for every platform.
+   */
+  platforms: z.array(Platform).optional(),
+
+  /**
+   * Makes the solver prefer the other variants of a platform over this one, when more than
+   * one of them can be installed. Higher values are preferred less.
+   *
+   * @see https://rattler.build/latest/reference/recipe_file/#build-section
+   */
+  downPrioritize: z.number().int().positive().optional(),
+});
+
 export const RecipeProps = z.object({
   /**
    * The name of the package.
@@ -44,19 +83,7 @@ export const RecipeProps = z.object({
   /**
    * The source items to be downloaded and used for the build.
    */
-  sources: z.custom<
-    (tag: string, semver?: string) =>
-      | z.output<typeof Source>
-      | z.output<typeof Source>[]
-      | Record<Platform, z.output<typeof Source>[]>
-      | Partial<Record<Platform, z.output<typeof Source>[]>>
-      | Promise<
-        | z.output<typeof Source>
-        | z.output<typeof Source>[]
-        | Record<Platform, z.output<typeof Source>[]>
-        | Partial<Record<Platform, z.output<typeof Source>[]>>
-      >
-  >(),
+  sources: z.custom<(tag: string, semver?: string) => Sources | Promise<Sources>>(),
 
   /**
    * A list of platforms that this recipe supports.
@@ -66,6 +93,15 @@ export const RecipeProps = z.object({
    * for any target platform.
    */
   platforms: z.array(Platform).optional(),
+
+  /**
+   * Build variants of this package, keyed by name.
+   *
+   * A platform that has variants is built once per variant instead of once without one.
+   * A name ends up in the package's build string, so it is limited to lowercase letters
+   * & digits.
+   */
+  variants: z.record(z.string().regex(/^[a-z0-9]+$/), BuildVariant).optional(),
 
   /**
    * Describes how the package should be built.

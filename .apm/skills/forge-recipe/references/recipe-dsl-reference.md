@@ -23,8 +23,46 @@ export default new r.Recipe({ ...props });
 | `build`        | `Build`                                                                               | Yes      | Build configuration                                       |
 | `tests`        | `FuncTest \| Test[]`                                                                  | No       | Test configuration                                        |
 | `platforms`    | `Platform[]`                                                                          | No       | Explicit platform list (inferred from sources if omitted) |
+| `variants`     | `Record<string, BuildVariant>`                                                        | No       | Build variants, see [Build Variants](#build-variants)     |
 | `requirements` | `Requirements \| (ctx: RequirementsContext) => Requirements \| Promise<Requirements>` | No       | Package dependencies (static, or resolved per-platform)   |
 | `extra`        | `Record<string, string>`                                                              | No       | Arbitrary metadata                                        |
+
+---
+
+### Build Variants
+
+A platform can be published as more than one package under the same name & version, eg: a gnu & a musl build of a linux
+binary. Declare each variant by name (lowercase letters & digits only) in `variants`, then key that platform's sources
+by variant name instead of giving it a plain array. Platforms whose sources are a plain array are built once, without a
+variant.
+
+```typescript
+variants: {
+  gnu: {},
+  musl: { downPrioritize: 1 },
+},
+sources: (tag) => ({
+  "linux-64": {
+    gnu: [{ url: `<url>/${tag}/x86_64-unknown-linux-gnu.tar.gz`, sha256: "<hash>" }],
+    musl: [{ url: `<url>/${tag}/x86_64-unknown-linux-musl.tar.gz`, sha256: "<hash>" }],
+  },
+  "osx-arm64": [{ url: `<url>/${tag}/aarch64-apple-darwin.tar.gz`, sha256: "<hash>" }],
+}),
+requirements: (ctx) => ({
+  run: ctx.variant === "gnu" ? ["__glibc >=2.17"] : [],
+}),
+```
+
+| `BuildVariant` field | Type         | Description                                                                                                             |
+| -------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `platforms`          | `Platform[]` | Platforms the variant is built for. Inferred from sources keyed by variant, otherwise every platform                    |
+| `downPrioritize`     | `number`     | Makes the solver prefer the platform's other variants over this one when more than one can be installed (higher = less) |
+
+- Each variant is published with the build string `<variant>_h<hash>_<build number>`, so `build.string` can not be set
+  on a recipe with variants. Consumers pick one explicitly with eg: `rustup = { version = "*", build = "musl*" }`.
+- The solver chooses between variants on its own, so a variant that only works on some systems needs a run requirement
+  on a virtual package (eg: `__glibc`) for the solver to skip it elsewhere.
+- `build.func`, `tests.func` & a `requirements` function get the variant being built as `ctx.variant`.
 
 ---
 
@@ -263,6 +301,7 @@ Extracts a hash for a specific file from a checksums text file.
 | `buildPlatform`  | `Platform`         | Host platform running the build       |
 | `buildOs`        | `PlatformOs`       | Host OS                               |
 | `buildArch`      | `PlatformArch`     | Host arch                             |
+| `variant`        | `string?`          | Build variant being built, if any     |
 
 ---
 
@@ -282,6 +321,7 @@ once per `targetPlatform` and resolves unconditionally — no `if`/`then` select
 | `exe`            | `(name) => string`    | Appends `.exe` on Windows             |
 | `pkgVersion`     | `string \| undefined` | Semver version string, if parseable   |
 | `pkgVersionRaw`  | `string`              | Raw version as from upstream          |
+| `variant`        | `string \| undefined` | Build variant being resolved, if any  |
 
 **Note:** unlike `BuildContext`, this does **not** include `prefixDir`, `srcDir`, `cpuCount`, `pkgHash`,
 `pkgBuildString`, `buildPlatform`/`buildOs`/`buildArch`, etc. — those only exist inside an actual rattler-build sandbox

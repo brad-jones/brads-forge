@@ -44,6 +44,12 @@ export const RequirementsContext = z.object({
   pkgVersionRaw: z.string(),
 
   /**
+   * The name of the build variant these requirements are being resolved for,
+   * if the target platform is built as more than one.
+   */
+  variant: z.string().optional(),
+
+  /**
    * The recipe's `build.noarch`, if it declares one.
    *
    * A noarch recipe produces a single artifact that has to serve every platform it
