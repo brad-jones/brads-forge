@@ -25,12 +25,14 @@ const distUrl = "https://nodejs.org/dist";
 export default new r.Recipe({
   name: "nodejs",
   version: async () => {
-    // We only package the "Current" release, which is simply the newest version in the index, whether
-    // or not it has been promoted to an LTS line. Entries are already newest first, but sorting makes
-    // that independent of the file's ordering.
+    // We only package the "Current" release, which is simply the newest stable version in the index,
+    // whether or not it has been promoted to an LTS line. Pre-releases such as v27.0.0-alpha.0.0.0 are
+    // listed too but can't be expressed as a conda version. Entries are already newest first, but sorting
+    // makes that independent of the file's ordering.
     const latest = NodeIndex.parse(await r.http.get(`${distUrl}/index.json`).json())
       .map((_) => ({ raw: _.version, semver: r.coerceSemVer(_.version) }))
       .filter((_): _ is { raw: string; semver: string } => _.semver !== undefined)
+      .filter((_) => semver.parse(_.semver).prerelease?.length === 0)
       .toSorted((a, b) => semver.compare(semver.parse(b.semver), semver.parse(a.semver)))[0];
 
     if (!latest) throw new Error(`failed to find any versions in ${distUrl}/index.json`);
