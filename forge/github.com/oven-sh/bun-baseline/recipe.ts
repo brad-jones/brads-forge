@@ -21,6 +21,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
+    number: 1,
     dynamic_linking: {
       binary_relocation: false,
       overlinking_behavior: "ignore",
@@ -29,12 +30,25 @@ export default new r.Recipe({
       const dst = r.path.join(prefixDir, "bin", exe("bun"));
       await r.moveGlob("./bun*/bun*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
+      await r.activation.addLink(dst, r.path.join(prefixDir, "bin", exe("bunx")));
     },
   },
   tests: {
-    func: async ({ pkgVersion }) => {
+    func: async ({ pkgVersion, pkgName, prefixDir, unix }) => {
       if (r.coerceSemVer((await r.$`bun --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
+      }
+
+      if (unix && r.coerceSemVer((await r.$`bunx --version`.text()).split("\n")[0]) !== pkgVersion) {
+        throw new Error(`bunx alias not working`);
+      }
+
+      if (!unix) {
+        const scripts = r.path.join(prefixDir, "etc", "conda", "activate.d");
+        for (const ext of ["bat", "ps1"]) {
+          const script = await Deno.readTextFile(r.path.join(scripts, `${pkgName}.${ext}`));
+          if (!script.includes("bunx.exe")) throw new Error(`${ext} activation script does not link bunx`);
+        }
       }
     },
   },
