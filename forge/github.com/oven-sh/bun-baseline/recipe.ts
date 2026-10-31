@@ -21,7 +21,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 2,
+    number: 3,
     dynamic_linking: {
       binary_relocation: false,
       overlinking_behavior: "ignore",
