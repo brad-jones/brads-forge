@@ -21,7 +21,7 @@ export default new r.Recipe({
     license: "MIT",
   },
   build: {
-    number: 3,
+    number: 4,
     dynamic_linking: {
       binary_relocation: false,
       overlinking_behavior: "ignore",
@@ -34,12 +34,12 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion }) => {
+    func: async ({ pkgVersion, exe }) => {
       if (r.coerceSemVer((await r.$`bun --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
 
-      if (!(await r.$`bunx --help 2>&1`.text()).split("\n")[0].startsWith("Usage: bunx ")) {
+      if (!(await r.$`${exe("bunx")} --help 2>&1`.text()).split("\n")[0].startsWith("Usage: bunx ")) {
         throw new Error(`bunx alias not working`);
       }
     },
