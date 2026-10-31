@@ -39,7 +39,7 @@ export default new r.Recipe({
         throw new Error(`unexpected version returned from binary`);
       }
 
-      if (r.coerceSemVer((await r.$`bunx --version`.text()).split("\n")[0]) !== pkgVersion) {
+      if (!(await r.$`bunx --help 2>&1`.text()).split("\n")[0].startsWith("Usage: bunx ")) {
         throw new Error(`bunx alias not working`);
       }
     },
