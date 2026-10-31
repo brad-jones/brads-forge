@@ -34,21 +34,13 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion, pkgName, prefixDir, unix }) => {
+    func: async ({ pkgVersion }) => {
       if (r.coerceSemVer((await r.$`bun --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
 
-      if (unix && r.coerceSemVer((await r.$`bunx --version`.text()).split("\n")[0]) !== pkgVersion) {
+      if (r.coerceSemVer((await r.$`bunx --version`.text()).split("\n")[0]) !== pkgVersion) {
         throw new Error(`bunx alias not working`);
-      }
-
-      if (!unix) {
-        const scripts = r.path.join(prefixDir, "etc", "conda", "activate.d");
-        for (const ext of ["bat", "ps1"]) {
-          const script = await Deno.readTextFile(r.path.join(scripts, `${pkgName}.${ext}`));
-          if (!script.includes("bunx.exe")) throw new Error(`${ext} activation script does not link bunx`);
-        }
       }
     },
   },
