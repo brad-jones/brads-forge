@@ -409,7 +409,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:3488750eb5af811f062e011f283ae9db0310b8cd959797b3351a0e8422daf73e
+  content_hash: sha256:844ae68f6c7f19307aa57b29a0050159aef526ec9de1f2e27eadc56c8c45d8f5
 - kind: project-relative
   target: claude
   value: .claude/skills/forge-recipe/references/plan-template.md
@@ -1507,7 +1507,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:3488750eb5af811f062e011f283ae9db0310b8cd959797b3351a0e8422daf73e
+  content_hash: sha256:844ae68f6c7f19307aa57b29a0050159aef526ec9de1f2e27eadc56c8c45d8f5
 - kind: project-relative
   target: legacy
   value: .agents/skills/forge-recipe/references/plan-template.md
@@ -1804,7 +1804,7 @@ local_deployed_file_hashes:
   .agents/skills/cocogitto/SKILL.md: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
   .agents/skills/cocogitto/references/changelog-templates.md: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
   .agents/skills/cocogitto/references/config-reference.md: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
-  .agents/skills/forge-recipe/SKILL.md: sha256:3488750eb5af811f062e011f283ae9db0310b8cd959797b3351a0e8422daf73e
+  .agents/skills/forge-recipe/SKILL.md: sha256:844ae68f6c7f19307aa57b29a0050159aef526ec9de1f2e27eadc56c8c45d8f5
   .agents/skills/forge-recipe/references/plan-template.md: sha256:c4351d2e596b2375e2c5e3cad406ee0caa44f3a8fd8280718686fd86065681bf
   .agents/skills/forge-recipe/references/recipe-dsl-reference.md: sha256:13e75aaa60fbf0015c96b13407a2c685b88045d664491daf7c776a197e7ca390
   .agents/skills/forge-recipe/references/recipe-examples.md: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
@@ -1826,7 +1826,7 @@ local_deployed_file_hashes:
   .claude/skills/cocogitto/SKILL.md: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
   .claude/skills/cocogitto/references/changelog-templates.md: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
   .claude/skills/cocogitto/references/config-reference.md: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
-  .claude/skills/forge-recipe/SKILL.md: sha256:3488750eb5af811f062e011f283ae9db0310b8cd959797b3351a0e8422daf73e
+  .claude/skills/forge-recipe/SKILL.md: sha256:844ae68f6c7f19307aa57b29a0050159aef526ec9de1f2e27eadc56c8c45d8f5
   .claude/skills/forge-recipe/references/plan-template.md: sha256:c4351d2e596b2375e2c5e3cad406ee0caa44f3a8fd8280718686fd86065681bf
   .claude/skills/forge-recipe/references/recipe-dsl-reference.md: sha256:13e75aaa60fbf0015c96b13407a2c685b88045d664491daf7c776a197e7ca390
   .claude/skills/forge-recipe/references/recipe-examples.md: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
