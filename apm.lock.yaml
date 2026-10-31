@@ -4,7 +4,7 @@ dependencies:
 - repo_url: anthropics/skills
   name: skill-creator
   host: github.com
-  resolved_commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+  resolved_commit: ca45fc496a3436251f191354091d557da31c15b5
   resolved_ref: main
   version: unknown
   virtual_path: skills/skill-creator
@@ -112,7 +112,7 @@ dependencies:
 - repo_url: github/awesome-copilot
   name: git-commit
   host: github.com
-  resolved_commit: cb64ad12e32737ae764becd6885462e9b4c7cb00
+  resolved_commit: 5269f7ea2d6c3a9bfda5ed878b6726cf509121fd
   resolved_ref: main
   version: unknown
   virtual_path: skills/git-commit
@@ -124,9 +124,9 @@ dependencies:
   - .claude/skills/git-commit
   - .claude/skills/git-commit/SKILL.md
   deployed_file_hashes:
-    .agents/skills/git-commit/SKILL.md: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
-    .claude/skills/git-commit/SKILL.md: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
-  content_hash: sha256:2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21
+    .agents/skills/git-commit/SKILL.md: sha256:2ba71a0d5ba0add9f8414567d2f54906def78ea843e3c05f3791e485a1e82e3b
+    .claude/skills/git-commit/SKILL.md: sha256:2ba71a0d5ba0add9f8414567d2f54906def78ea843e3c05f3791e485a1e82e3b
+  content_hash: sha256:78b6a33700091345cd449f9e3642ddd611b479b341efc9d6c750f7e04d15216a
 - repo_url: tttpob/bioinfo-skills
   name: pixi
   host: github.com
@@ -481,7 +481,7 @@ deployments:
   owners:
   - github/awesome-copilot/skills/git-commit
   active_owner: github/awesome-copilot/skills/git-commit
-  content_hash: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
+  content_hash: sha256:2ba71a0d5ba0add9f8414567d2f54906def78ea843e3c05f3791e485a1e82e3b
 - kind: project-relative
   target: claude
   value: .claude/skills/lefthook
@@ -967,7 +967,7 @@ deployments:
   owners:
   - github/awesome-copilot/skills/git-commit
   active_owner: github/awesome-copilot/skills/git-commit
-  content_hash: sha256:554d1a3c6d95f15bc1170160659ecdc9a9958b64f377f3988941b672c249b13f
+  content_hash: sha256:2ba71a0d5ba0add9f8414567d2f54906def78ea843e3c05f3791e485a1e82e3b
 - kind: project-relative
   target: copilot
   value: .agents/skills/pixi
@@ -1507,7 +1507,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:5308fbe20dec9760187c20d2bd485ac133ae2f67c119e4d555f194dd636cbeea
+  content_hash: sha256:8148dedd3103d5c28f60d562835b5237680e980d0b7c9f12cc3fc7b1b1396890
 - kind: project-relative
   target: legacy
   value: .agents/skills/forge-recipe/references/plan-template.md
@@ -1525,7 +1525,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:e1f5b401130ce7631d1258e6a240fb418d5a7cda79b8dbda2926bfc1795432b7
+  content_hash: sha256:13e75aaa60fbf0015c96b13407a2c685b88045d664491daf7c776a197e7ca390
 - kind: project-relative
   target: legacy
   value: .agents/skills/forge-recipe/references/recipe-examples.md
@@ -1804,9 +1804,9 @@ local_deployed_file_hashes:
   .agents/skills/cocogitto/SKILL.md: sha256:3ed9d814f412e60f9d3d41e8aa84f54e66d97ce006fc9a1b24bea65ee6382ac5
   .agents/skills/cocogitto/references/changelog-templates.md: sha256:e6404f92f068281f7b718c119e67b5109e8d3bc3102bbf301bd4159f02bb46f9
   .agents/skills/cocogitto/references/config-reference.md: sha256:9a7af8520dca48ff5e600d1025ef248434d729525acfd7dac62c42d859475764
-  .agents/skills/forge-recipe/SKILL.md: sha256:5308fbe20dec9760187c20d2bd485ac133ae2f67c119e4d555f194dd636cbeea
+  .agents/skills/forge-recipe/SKILL.md: sha256:8148dedd3103d5c28f60d562835b5237680e980d0b7c9f12cc3fc7b1b1396890
   .agents/skills/forge-recipe/references/plan-template.md: sha256:c4351d2e596b2375e2c5e3cad406ee0caa44f3a8fd8280718686fd86065681bf
-  .agents/skills/forge-recipe/references/recipe-dsl-reference.md: sha256:e1f5b401130ce7631d1258e6a240fb418d5a7cda79b8dbda2926bfc1795432b7
+  .agents/skills/forge-recipe/references/recipe-dsl-reference.md: sha256:13e75aaa60fbf0015c96b13407a2c685b88045d664491daf7c776a197e7ca390
   .agents/skills/forge-recipe/references/recipe-examples.md: sha256:543c3b3b09fc5750f28a53f05c2f8a14765fe0ecb96b96712fa70a9d309a27ec
   .agents/skills/forget/SKILL.md: sha256:5577451c0c8777b7da1ac0118cf00486f58f7c6be3f79709617b102915250953
   .agents/skills/forget/evals/evals.json: sha256:43ae5c13fc87133f44a0751628eb1f8ce82abe18a91865112acefa31269b1a0d
