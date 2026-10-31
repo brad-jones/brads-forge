@@ -192,8 +192,8 @@ export default new r.Recipe({
     },
   },
   tests: {
-    func: async ({ pkgVersion }) => {
-      if (r.coerceSemVer(await r.$`<binary> --version`.text()) !== pkgVersion) {
+    func: async ({ pkgVersion, exe }) => {
+      if (r.coerceSemVer(await r.$`${exe("<binary>")} --version`.text()) !== pkgVersion) {
         throw new Error(`unexpected version returned from binary`);
       }
     },
@@ -357,6 +357,11 @@ await r.activation.prependToPATH("$CONDA_PREFIX/custom/bin");
 - `dynamic_linking.binary_relocation: false` is standard for pre-built binaries.
 - Always use `r.moveGlob` with a pattern that accounts for varying archive structure.
 - The `exe()` helper automatically appends `.exe` on Windows targets.
+- ``exe`` is also available in ``tests.func``. Always invoke binaries in tests via ``r.$\``${exe("<binary>")} ...\```,
+  not a bare name. dax passes the bare name as argv0, so on Windows anything that inspects its own executable name (e.g.
+  Bun switching to ``bunx``mode, busybox-style multi-call binaries, hard-linked aliases from``r.activation.addLink``)
+  sees ``bunx``instead of``bunx.exe``and behaves like the main binary. Tests of aliases must assert on output that
+  differs from the main binary (not``--version`).
 - The `unix` boolean is `true` for Linux and macOS, `false` for Windows.
 - `r.coerceSemVer()` normalizes version strings (strips `v` prefix, handles loose formats).
 - `sha256` in sources can be a string OR an async function that returns a string.
