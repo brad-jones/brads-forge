@@ -42,7 +42,7 @@
     "jsr:@std/yaml@^1.3.0": "1.3.0",
     "jsr:@zip-js/zip-js@^2.24.0": "2.24.0",
     "npm:@modelcontextprotocol/sdk@^1.32.2": "1.32.2_zod@4.6.7",
-    "npm:@modelcontextprotocol/server-memory@^2.0.1": "2.0.1",
+    "npm:@modelcontextprotocol/server-memory@^2.1.0": "2.1.0",
     "npm:@octokit/plugin-paginate-rest@16": "16.0.0_@octokit+core@7.0.8",
     "npm:@octokit/rest@^22.0.1": "22.0.1_@octokit+core@7.0.6",
     "npm:@types/semver@^7.8.0": "7.8.0",
@@ -274,8 +274,8 @@
         "zod-to-json-schema"
       ]
     },
-    "@modelcontextprotocol/server-memory@2.0.1": {
-      "integrity": "sha512-RbX5cm/OUbvBguVzHhJIqvG15b5K/bLODtQhHeQTkuM6XrijDtCFLl2THgLDg9JnS6pUBomNWq9n5G2bQwxD3A==",
+    "@modelcontextprotocol/server-memory@2.1.0": {
+      "integrity": "sha512-4rhufvmutolbl5O/RflMRenzhYnSh/wij3uMK8H2vuZ2xSGgrA6O2VXwsg/+tSb2UsU1hVDw1XwZ2lcCz8XR2g==",
       "dependencies": [
         "@modelcontextprotocol/server",
         "zod"
@@ -1033,7 +1033,7 @@
       "jsr:@std/yaml@^1.3.0",
       "jsr:@zip-js/zip-js@^2.24.0",
       "npm:@modelcontextprotocol/sdk@^1.32.2",
-      "npm:@modelcontextprotocol/server-memory@^2.0.1",
+      "npm:@modelcontextprotocol/server-memory@^2.1.0",
       "npm:@octokit/plugin-paginate-rest@16",
       "npm:@octokit/rest@^22.0.1",
       "npm:@types/semver@^7.8.0",
