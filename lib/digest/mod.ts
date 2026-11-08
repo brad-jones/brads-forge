@@ -13,7 +13,8 @@ import { Digest, DigestAlgorithmName } from "./digest.ts";
  * @returns The computed digest as a string.
  */
 export async function digestFromUrl(url: string, a?: DigestAlgorithmName): Promise<string> {
-  const response = await ky.get(url);
+  // GitHub's archive endpoint generates tarballs on demand const response = await ky.get(url); can take longer than ky's 10s default.
+  const response = await ky.get(url, { timeout: 120_000, retry: 5 });
   if (!response.body) throw new Error("missing body");
 
   // Get content length for progress tracking
