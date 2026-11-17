@@ -27,7 +27,7 @@ export default new r.Recipe({
     dynamic_linking: { binary_relocation: false, overlinking_behavior: "ignore" },
     func: async ({ prefixDir, exe, unix }) => {
       const dst = r.path.join(prefixDir, "bin", exe("grain"));
-      await r.moveGlob("./grain-*/grain-*", dst);
+      await r.moveGlob("./grain-*/grain*", dst);
       if (unix) await Deno.chmod(dst, 0o755);
     },
   },
